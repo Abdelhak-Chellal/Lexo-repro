@@ -1,0 +1,117 @@
+import os
+import json
+import time
+import matplotlib.pyplot as plt
+import numpy as np
+from input_gen import generate_io_pairs
+from regenerate import regenerate
+from verify import verify_io_pairs, verify_developer_tests
+
+MODELS = [
+    "openai/gpt-4o-mini",
+    "mistralai/mistral-7b-instruct-v0.1",
+]
+
+PACKAGES = [
+    "is-number",
+    "arr-diff",
+]
+
+TESTS_DIR = "/app/tests"
+RESULTS_DIR = "/app/results"
+
+def run_lexo(package_name, model):
+    print(f"\n[{package_name}] model={model}")
+    try:
+        io_pairs, source = generate_io_pairs(package_name, model, TESTS_DIR)
+        code, algorithm = regenerate(package_name, io_pairs, model)
+
+        passed_io, total_io = verify_io_pairs(package_name, code, io_pairs, TESTS_DIR)
+        passed_dev, total_dev, _ = verify_developer_tests(package_name, code, TESTS_DIR)
+
+        io_pct = round(100 * passed_io / total_io, 1) if total_io > 0 else 0
+        dev_pct = round(100 * passed_dev / total_dev, 1) if total_dev > 0 else 0
+
+        print(f"  I/O pairs: {passed_io}/{total_io} ({io_pct}%)")
+        print(f"  Dev tests: {passed_dev}/{total_dev} ({dev_pct}%)")
+
+        return {
+            "package": package_name,
+            "model": model,
+            "io_passed": passed_io,
+            "io_total": total_io,
+            "io_pct": io_pct,
+            "dev_passed": passed_dev,
+            "dev_total": total_dev,
+            "dev_pct": dev_pct,
+            "status": "ok"
+        }
+
+    except Exception as e:
+        print(f"  ERROR: {e}")
+        return {
+            "package": package_name,
+            "model": model,
+            "status": "error",
+            "error": str(e),
+            "io_pct": 0,
+            "dev_pct": 0,
+        }
+
+def plot_results(all_results):
+    fig, axes = plt.subplots(len(MODELS), 1, figsize=(10, 4 * len(MODELS)))
+    if len(MODELS) == 1:
+        axes = [axes]
+
+    for ax, model in zip(axes, MODELS):
+        model_results = [r for r in all_results if r["model"] == model]
+        model_results.sort(key=lambda x: x["dev_pct"], reverse=True)
+
+        packages = [r["package"] for r in model_results]
+        dev_pcts = [r["dev_pct"] for r in model_results]
+        io_pcts = [r["io_pct"] for r in model_results]
+
+        x = np.arange(len(packages))
+        ax.bar(x, dev_pcts, color=[
+            plt.cm.RdYlGn(io / 100) for io in io_pcts
+        ], edgecolor='black', linewidth=0.5)
+
+        ax.set_xticks(x)
+        ax.set_xticklabels(packages, rotation=45, ha='right', fontsize=9)
+        ax.set_ylim(0, 110)
+        ax.set_ylabel("Tests (%)")
+        ax.set_title(f"Correctness results for LEXO using {model}")
+        ax.axhline(y=100, color='gray', linestyle='--', linewidth=0.5)
+
+        sm = plt.cm.ScalarMappable(cmap='RdYlGn', norm=plt.Normalize(0, 100))
+        sm.set_array([])
+        cbar = plt.colorbar(sm, ax=ax)
+        cbar.set_label("I/Os (%)", fontsize=8)
+
+    plt.tight_layout()
+    out_path = os.path.join(RESULTS_DIR, "figure3.png")
+    plt.savefig(out_path, dpi=150)
+    print(f"\nFigure saved to {out_path}")
+
+def main():
+    os.makedirs(RESULTS_DIR, exist_ok=True)
+    all_results = []
+
+    for model in MODELS:
+        for package in PACKAGES:
+            result = run_lexo(package, model)
+            all_results.append(result)
+            with open(os.path.join(RESULTS_DIR, "results.json"), "w") as f:
+                json.dump(all_results, f, indent=2)
+            time.sleep(1)
+
+    print("\n=== SUMMARY ===")
+    for model in MODELS:
+        model_results = [r for r in all_results if r["model"] == model and r["status"] == "ok"]
+        perfect = [r for r in model_results if r["dev_pct"] == 100]
+        print(f"{model}: {len(perfect)}/{len(PACKAGES)} packages at 100% dev tests")
+
+    plot_results(all_results)
+
+if __name__ == "__main__":
+    main()
