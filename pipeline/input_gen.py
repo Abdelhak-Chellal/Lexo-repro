@@ -50,7 +50,7 @@ def generate_inputs(source_code, model, use_function_strings=False, lang="js"):
 2) Inputs and Outputs: Brainstorm concise tests that are not repetitive for input/output correctness, including key behaviors as well as edge cases. Make sure to test default arguments and optional parameters.
 3) Errors: Incorporate test cases triggering errors or exceptions for inputs where the provided module throws errors.
 4) Explore: Include tests that are slight variations of the ones in the test suite. Modify the inputs slightly to test the function's behavior with different inputs.
-5) Format: Wrap all argument objects in an array.
+5) Format: Wrap all argument objects in an array. Keep the list concise — maximum 30 inputs.
 
 STRICT RULES for the final JSON:
 - Output ONLY a JSON array of arrays, each inner array contains ONLY the INPUT arguments
@@ -59,6 +59,7 @@ STRICT RULES for the final JSON:
 - Do NOT add comments
 - Do NOT include expected outputs
 - {lang_note}
+- Maximum 30 inputs total
 
 {example}
 
@@ -68,6 +69,7 @@ Code: {source_code}"""
         model=model,
         messages=[{"role": "user", "content": prompt}],
         temperature=0.7,
+        max_tokens=2000,
     )
     return response.choices[0].message.content.strip()
 
@@ -84,6 +86,9 @@ def clean_json(raw):
     raw = re.sub(r'-?NaN', 'null', raw)
     raw = re.sub(r'-?Infinity', 'null', raw)
     raw = re.sub(r'\bundefined\b', 'null', raw)
+    raw = re.sub(r'\bNone\b', 'null', raw)
+    raw = re.sub(r'\bTrue\b', 'true', raw)
+    raw = re.sub(r'\bFalse\b', 'false', raw)
     raw = re.sub(r'-null', 'null', raw)
     raw = re.sub(r',\s*([}\]])', r'\1', raw)
     return raw
@@ -117,8 +122,6 @@ def serialize_bare_functions(raw):
     return ''.join(result)
 
 def extract_json_array(raw):
-    """Extract the largest valid JSON array of arrays from raw text."""
-    # first try direct parse of the whole thing
     try:
         parsed = json.loads(raw.strip())
         if isinstance(parsed, list) and len(parsed) > 0:
@@ -126,7 +129,6 @@ def extract_json_array(raw):
     except json.JSONDecodeError:
         pass
 
-    # fallback: find the outermost [...] block
     start = raw.find('[')
     if start == -1:
         raise Exception("No array found in response")

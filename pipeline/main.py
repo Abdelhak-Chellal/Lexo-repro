@@ -1,6 +1,8 @@
 import os
 import json
 import time
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 from input_gen import generate_io_pairs
@@ -15,6 +17,16 @@ MODELS = [
 PACKAGES = [
     "is-number",
     "arr-diff",
+    "is-odd",
+    "is-even",
+    "is-object",
+    "left-pad",
+    "concat-map",
+    "replace-ext",
+    "array-ify",
+    "just-pick",
+    "just-filter-object",
+    "primality",
 ]
 
 TESTS_DIR = "/app/tests"
@@ -59,7 +71,7 @@ def run_lexo(package_name, model):
         }
 
 def plot_results(all_results):
-    fig, axes = plt.subplots(len(MODELS), 1, figsize=(10, 4 * len(MODELS)))
+    fig, axes = plt.subplots(len(MODELS), 1, figsize=(14, 5 * len(MODELS)))
     if len(MODELS) == 1:
         axes = [axes]
 

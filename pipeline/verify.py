@@ -70,16 +70,21 @@ def verify_io_pairs_py(package_name, generated_code, io_pairs, tests_dir):
     with open(tmp_path, "w") as f:
         f.write(generated_code)
 
-    py_code = f"""
-import json, sys
-sys.path.insert(0, '{package_path}')
-import importlib.util
-spec = importlib.util.spec_from_file_location("tmp_mod", "{tmp_path}")
+    with open('/tmp/lexo_verify_pairs.json', 'w') as f:
+        json.dump(io_pairs, f)
+
+    runner = """
+import json, sys, importlib.util
+sys.path.insert(0, '""" + package_path + """')
+
+spec = importlib.util.spec_from_file_location("tmp_mod", '""" + tmp_path + """')
 mod = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(mod)
 fn = mod.is_prime
 
-pairs = {json.dumps(io_pairs)}
+with open('/tmp/lexo_verify_pairs.json') as f:
+    pairs = json.load(f)
+
 passed = 0
 for p in pairs:
     try:
@@ -89,11 +94,14 @@ for p in pairs:
     except Exception:
         if p['error'] is not None:
             passed += 1
-print(json.dumps({{"passed": passed, "total": len(pairs)}}))
+print(json.dumps({"passed": passed, "total": len(pairs)}))
 """
 
+    with open('/tmp/lexo_verify_runner.py', 'w') as f:
+        f.write(runner)
+
     result = subprocess.run(
-        ["python3", "-c", py_code],
+        ["python3", "/tmp/lexo_verify_runner.py"],
         capture_output=True, text=True, cwd=package_path
     )
     os.remove(tmp_path)
@@ -111,7 +119,7 @@ def verify_io_pairs(package_name, generated_code, io_pairs, tests_dir="/app/test
     return verify_io_pairs_js(package_name, generated_code, io_pairs, tests_dir)
 
 def parse_test_output(output):
-    # mocha: "X passing"
+    # mocha
     passing = re.search(r'(\d+) passing', output)
     failing = re.search(r'(\d+) failing', output)
     if passing:
@@ -119,7 +127,7 @@ def parse_test_output(output):
         failed = int(failing.group(1)) if failing else 0
         return passed, passed + failed
 
-    # pytest: "X passed"
+    # pytest
     pytest_pass = re.search(r'(\d+) passed', output)
     pytest_fail = re.search(r'(\d+) failed', output)
     if pytest_pass:
@@ -135,7 +143,7 @@ def parse_test_output(output):
         failed = int(tap_fail.group(1)) if tap_fail else 0
         return passed, passed + failed
 
-    # TAP fallback: count ok/not ok lines
+    # TAP fallback
     ok_lines = re.findall(r'^ok \d+', output, re.MULTILINE)
     not_ok_lines = re.findall(r'^not ok \d+', output, re.MULTILINE)
     if ok_lines or not_ok_lines:
