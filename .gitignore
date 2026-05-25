@@ -1,7 +1,4 @@
 .env
 __pycache__/
 *.pyc
-results/
-packages/
-node_modules/
-tests/
+.DS_Store
