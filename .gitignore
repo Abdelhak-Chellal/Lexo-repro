@@ -3,5 +3,5 @@ __pycache__/
 *.pyc
 results/
 packages/
-tests/
 node_modules/
+tests/
