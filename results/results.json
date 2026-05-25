@@ -1,0 +1,43 @@
+[
+  {
+    "package": "is-number",
+    "model": "openai/gpt-4o-mini",
+    "io_passed": 29,
+    "io_total": 29,
+    "io_pct": 100.0,
+    "dev_passed": 98,
+    "dev_total": 111,
+    "dev_pct": 88.3,
+    "status": "ok"
+  },
+  {
+    "package": "arr-diff",
+    "model": "openai/gpt-4o-mini",
+    "io_passed": 23,
+    "io_total": 23,
+    "io_pct": 100.0,
+    "dev_passed": 6,
+    "dev_total": 8,
+    "dev_pct": 75.0,
+    "status": "ok"
+  },
+  {
+    "package": "is-number",
+    "model": "mistralai/mistral-7b-instruct-v0.1",
+    "io_passed": 14,
+    "io_total": 17,
+    "io_pct": 82.4,
+    "dev_passed": 37,
+    "dev_total": 111,
+    "dev_pct": 33.3,
+    "status": "ok"
+  },
+  {
+    "package": "arr-diff",
+    "model": "mistralai/mistral-7b-instruct-v0.1",
+    "status": "error",
+    "error": "Could not find complete JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  }
+]

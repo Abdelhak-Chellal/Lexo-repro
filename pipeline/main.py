@@ -10,9 +10,20 @@ from regenerate import regenerate
 from verify import verify_io_pairs, verify_developer_tests
 
 MODELS = [
+    "openai/gpt-5-mini",
     "openai/gpt-4o-mini",
+    "openai/gpt-3.5-turbo",
     "mistralai/mistral-7b-instruct-v0.1",
+    "anthropic/claude-3.5-haiku",
 ]
+
+MODEL_LABELS = {
+    "openai/gpt-5-mini":                 "GPT-5 mini",
+    "openai/gpt-4o-mini":                "GPT-4o mini",
+    "openai/gpt-3.5-turbo":              "GPT-3.5 Turbo",
+    "mistralai/mistral-7b-instruct-v0.1":"Mistral 7B",
+    "anthropic/claude-3.5-haiku":        "Claude 3.5 Haiku",
+}
 
 PACKAGES = [
     "is-number",
@@ -92,7 +103,7 @@ def plot_results(all_results):
         ax.set_xticklabels(packages, rotation=45, ha='right', fontsize=9)
         ax.set_ylim(0, 110)
         ax.set_ylabel("Tests (%)")
-        ax.set_title(f"Correctness results for LEXO using {model}")
+        ax.set_title(f"Correctness results for LEXO using {MODEL_LABELS[model]}")
         ax.axhline(y=100, color='gray', linestyle='--', linewidth=0.5)
 
         sm = plt.cm.ScalarMappable(cmap='RdYlGn', norm=plt.Normalize(0, 100))
@@ -121,7 +132,7 @@ def main():
     for model in MODELS:
         model_results = [r for r in all_results if r["model"] == model and r["status"] == "ok"]
         perfect = [r for r in model_results if r["dev_pct"] == 100]
-        print(f"{model}: {len(perfect)}/{len(PACKAGES)} packages at 100% dev tests")
+        print(f"{MODEL_LABELS[model]}: {len(perfect)}/{len(PACKAGES)} packages at 100% dev tests")
 
     plot_results(all_results)
 
