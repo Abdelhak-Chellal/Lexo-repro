@@ -50,18 +50,48 @@ Note: The original paper uses GPT-5 mini, GPT-4o, GPT-3.5, and Mistral 7B. We su
 | Package | Reason |
 |---------|--------|
 | split-on-first | ESM module format incompatible with our CommonJS-based pipeline |
-| has-proto (initial) | TypeScript compilation errors in test dependencies — fixed by running npx mocha directly |
+
+## Prompts — What We Kept vs What We Modified
+
+The paper provides exact prompts in Appendix A. We used them as the base but had to add several practical constraints.
+
+### Input generation prompt — kept from paper
+- 5-step structure: Code Understanding, Inputs and Outputs, Errors, Explore, Format
+- Instruction to include edge cases, default arguments, error-triggering inputs
+
+### Input generation prompt — added by us
+We added a STRICT RULES section after the 5 steps to handle practical LLM output issues:
+- Do not use NaN, undefined, Infinity, Number.MAX_VALUE or any JS expression — LLMs frequently output these which are not valid JSON
+- Do not add comments inside the JSON — LLMs add // comments which break JSON parsing
+- Maximum 30 inputs — to avoid context length issues with large packages
+- For function arguments, represent them as JSON strings — needed for concat-map and just-filter-object which take function arguments; we serialize them as strings and eval() them at runtime
+- Language-specific notes — added py vs js distinction since the paper only targets JS in Appendix A but we also handle Python
+
+### Algorithm inference prompt — kept exactly from paper
+No modifications. The 4-step structure (Understand, Analyze, Design, Handle Edge Cases) was used as-is.
+
+### Code regeneration prompt — kept from paper
+- 5-step structure: Understanding Test Specifications, Functional Correctness, Code Quality, Context, Refactoring
+- Library Name, I/O Pairs, Algorithm inputs
+
+### Code regeneration prompt — added by us
+For primality specifically, we added CRITICAL RULES:
+- Function must be named exactly X — without this, the LLM sometimes renames the function to f() or uses a generic name
+- Do not redefine is_prime inside other functions — the LLM tends to copy-paste a local is_prime helper into every function
+
+### Why we deviated
+The paper assumes the LLM always returns clean parseable output. In practice, across different models and packages, LLMs return invalid JSON, Python-style booleans (True/False/None), bare JavaScript function literals, and truncated responses. Our additions were necessary engineering decisions to make the pipeline work reliably across all 5 models and 13 packages.
 
 ## Engineering Challenges and Decisions
 
 ### 1. Function arguments in I/O pairs
-concat-map and just-filter-object take function arguments which are not JSON-serializable. We solved this by representing functions as strings and using eval() at runtime — consistent with the paper mention of "function-like constructs" in inputs.
+concat-map and just-filter-object take function arguments which are not JSON-serializable. We solved this by representing functions as strings and using eval() at runtime.
 
 ### 2. Multi-language support
 The paper evaluates JS, Python, Ruby, and C++ packages. We implemented a Python sub-pipeline for primality. Ruby (fast_blank) and C++ (character-count) were dropped due to native compilation complexity inside Docker.
 
 ### 3. primality — partial reproduction
-The primality package exposes 7 functions: is_prime, nth_prime, prange, between, next_prime, prev_prime, rand_prime. We regenerate all 6 deterministic functions (rand_prime is added as a wrapper around between + random.choice). We achieve 6/9 developer tests passing. The 3 failing tests involve performance-sensitive operations (e.g. finding the 9999th prime) where the LLM generates correct but unoptimized implementations that time out.
+The primality package exposes 7 functions. We regenerate all 6 deterministic functions (rand_prime is added as a simple wrapper around between + random.choice). We achieve 6/9 developer tests passing. The 3 failing tests involve performance-sensitive operations where the LLM generates correct but unoptimized implementations that time out.
 
 ### 4. Multiple test frameworks
 Packages use Mocha, TAP (tape), and pytest. We implemented a unified output parser for all three formats.
@@ -70,23 +100,13 @@ Packages use Mocha, TAP (tape), and pytest. We implemented a unified output pars
 LLMs frequently return non-JSON values: NaN, undefined, None, True, False, bare function literals, Python-style booleans. We implemented a cleaning pipeline to normalize all of these before parsing.
 
 ### 6. Node.js ESM vs CommonJS
-Node 18 could not run split-on-first due to ESM incompatibility. Upgrading to Node 20 fixed most ESM issues but split-on-first still failed due to its test framework requiring import syntax.
+Upgraded from Node 18 to Node 20 to fix ESM compatibility issues. split-on-first still failed due to its test framework requiring import syntax.
 
 ### 7. Context length limits
-When regenerating primality functions, the I/O pairs for functions like prange (which returns large lists of primes) exceeded the context window of some models. We limit I/O pairs to 15 per function during regeneration.
+When regenerating primality functions, I/O pairs for functions like prange exceed the context window of some models. We limit I/O pairs to 15 per function during regeneration.
 
 ### 8. Docker network configuration
 API calls require --network host flag when running Docker on Mac due to Docker Desktop network isolation.
-
-## Pipeline
-
-We implemented the LEXO pipeline from scratch based on the paper:
-
-1. Input generation — LLM generates test inputs from source code using the exact prompts from Appendix A of the paper
-2. I/O pair collection — inputs run against original package, outputs recorded
-3. Algorithm inference — LLM describes the function in natural language from I/O pairs
-4. Code regeneration — LLM regenerates clean code from I/O pairs and algorithm
-5. Verification — regenerated code verified against I/O pairs and developer tests
 
 ## Differences from Original Paper
 
@@ -95,9 +115,20 @@ We implemented the LEXO pipeline from scratch based on the paper:
 | Packages | 147 | 13 |
 | Models | GPT-5 mini, GPT-4o, GPT-3.5, Mistral 7B | Same + Claude 3.5 Haiku, GPT-4o replaced by GPT-4o mini |
 | Revision loop | Up to 3 retries | Single attempt |
-| Code coverage | Measured with nyc, used to guide input generation | Not implemented |
+| Code coverage | Measured with nyc, guides input generation | Not implemented |
 | Sandboxing | Original packages run in isolated environment | Run directly |
 | Languages | JS, Python, Ruby, C++ | JS, Python |
+| Prompts | Exact prompts from Appendix A | Appendix A prompts + practical additions for JSON robustness |
+
+## Pipeline
+
+We implemented the LEXO pipeline from scratch based on the paper:
+
+1. Input generation — LLM generates test inputs from source code using prompts based on Appendix A
+2. I/O pair collection — inputs run against original package, outputs recorded
+3. Algorithm inference — LLM describes the function in natural language from I/O pairs
+4. Code regeneration — LLM regenerates clean code from I/O pairs and algorithm
+5. Verification — regenerated code verified against I/O pairs and developer tests
 
 ## Project Structure
 
