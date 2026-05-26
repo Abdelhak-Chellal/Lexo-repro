@@ -133,3 +133,49 @@ if __name__ == "__main__":
     code, algorithm = regenerate("primality", io_pairs, "openai/gpt-4o-mini")
     print("=== GENERATED CODE ===")
     print(code)
+
+def regenerate_primality(all_io_pairs, model):
+    all_code = []
+    all_code.append("import random")
+    all_code.append("import math")
+    all_code.append("")
+
+    for func_name, io_pairs in all_io_pairs.items():
+        print(f"  Regenerating {func_name}...")
+        try:
+            io_pairs_limited = io_pairs[:15]
+            algorithm = io_pairs_to_algorithm(io_pairs_limited, model)
+            prompt = (
+                "Generate a Python function given a set of input-output examples.\n\n"
+                "CRITICAL RULES:\n"
+                "- The function MUST be named exactly: " + func_name + "\n"
+                "- Do NOT rename it to f() or anything else\n"
+                "- Do NOT redefine is_prime inside the function, assume it exists\n"
+                "- Output ONLY the single function, no imports, no explanation\n\n"
+                "I/O Pairs:\n" + format_io_pairs(io_pairs_limited) + "\n\n"
+                "Algorithm:\n" + algorithm + "\n\n"
+                "Output the function named " + func_name + " only:"
+            )
+
+            response = client.chat.completions.create(
+                model=model,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.7,
+                max_tokens=2000,
+            )
+            code = extract_code(response.choices[0].message.content.strip(), lang="py")
+            all_code.append(code)
+            all_code.append("")
+        except Exception as e:
+            print(f"  Warning: {func_name} regeneration failed: {e}")
+
+    # add rand_prime as a simple wrapper since it uses randomness
+    all_code.append("""def rand_prime(m, n, strategy=None):
+    import random
+    primes = between(m, n)
+    if not primes:
+        return -1
+    return random.choice(primes)
+""")
+
+    return "\n".join(all_code)

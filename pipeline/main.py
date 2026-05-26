@@ -5,8 +5,8 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
-from input_gen import generate_io_pairs
-from regenerate import regenerate
+from input_gen import generate_io_pairs, generate_io_pairs_primality, PRIMALITY_FUNCTIONS
+from regenerate import regenerate, regenerate_primality
 from verify import verify_io_pairs, verify_developer_tests
 
 MODELS = [
@@ -37,6 +37,7 @@ PACKAGES = [
     "array-ify",
     "just-pick",
     "just-filter-object",
+    "has-proto",
     "primality",
 ]
 
@@ -46,8 +47,13 @@ RESULTS_DIR = "/app/results"
 def run_lexo(package_name, model):
     print(f"\n[{package_name}] model={model}")
     try:
-        io_pairs, source = generate_io_pairs(package_name, model, TESTS_DIR)
-        code, algorithm = regenerate(package_name, io_pairs, model)
+        if package_name == "primality":
+            all_io_pairs, source = generate_io_pairs_primality(model, TESTS_DIR)
+            io_pairs = [p for pairs in all_io_pairs.values() for p in pairs]
+            code = regenerate_primality(all_io_pairs, model)
+        else:
+            io_pairs, source = generate_io_pairs(package_name, model, TESTS_DIR)
+            code, algorithm = regenerate(package_name, io_pairs, model)
 
         passed_io, total_io = verify_io_pairs(package_name, code, io_pairs, TESTS_DIR)
         passed_dev, total_dev, _ = verify_developer_tests(package_name, code, TESTS_DIR)

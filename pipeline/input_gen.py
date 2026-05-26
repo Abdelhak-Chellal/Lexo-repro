@@ -285,3 +285,61 @@ if __name__ == "__main__":
     pairs, source = generate_io_pairs("primality", "openai/gpt-4o-mini")
     for p in pairs[:5]:
         print(p)
+
+PRIMALITY_FUNCTIONS = ["is_prime", "nth_prime", "prange", "between", "next_prime", "prev_prime"]
+
+def generate_io_pairs_primality(model, tests_dir="/app/tests"):
+    package_path = os.path.join(tests_dir, "primality")
+    source_path = os.path.join(package_path, "primality/primality.py")
+    with open(source_path) as f:
+        full_source = f.read()
+
+    all_io_pairs = {}
+    for func_name in PRIMALITY_FUNCTIONS:
+        print(f"  Generating inputs for {func_name}...")
+        func_source = extract_python_function(full_source, func_name)
+        try:
+            raw = generate_inputs(func_source, model, lang="py")
+            cleaned = clean_json(raw)
+            inputs = extract_json_array(cleaned)
+
+            with open('/tmp/lexo_inputs.json', 'w') as f:
+                json.dump(inputs, f)
+
+            runner = f"""
+import json, sys
+sys.path.insert(0, '{package_path}')
+from primality import primality
+fn = getattr(primality, '{func_name}')
+
+with open('/tmp/lexo_inputs.json') as f:
+    inputs = json.load(f)
+
+results = []
+for args in inputs:
+    try:
+        output = fn(*args)
+        results.append({{"input": args, "output": output, "error": None}})
+    except Exception as e:
+        results.append({{"input": args, "output": None, "error": str(e)}})
+print(json.dumps(results))
+"""
+            with open('/tmp/lexo_runner.py', 'w') as f:
+                f.write(runner)
+
+            result = subprocess.run(
+                ["python3", "/tmp/lexo_runner.py"],
+                capture_output=True, text=True, cwd=package_path
+            )
+
+            if result.returncode != 0:
+                print(f"  Warning: {func_name} failed: {result.stderr[:100]}")
+                continue
+
+            io_pairs = json.loads(result.stdout)
+            all_io_pairs[func_name] = io_pairs
+            print(f"  Got {len(io_pairs)} I/O pairs for {func_name}")
+        except Exception as e:
+            print(f"  Warning: {func_name} skipped: {e}")
+
+    return all_io_pairs, full_source
