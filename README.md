@@ -43,7 +43,7 @@ Note: The original paper uses GPT-5 mini, GPT-4o, GPT-3.5, and Mistral 7B. We su
 | Package | Language | Reason |
 |---------|----------|--------|
 | fast_blank | Ruby | Requires C extension compilation (fast_blank.so). Bundler version conflicts prevented compilation inside Docker. |
-| character-count | C++ | Native Node.js addon requiring node-gyp build system. Not feasible without a full C++ toolchain. |
+| character-count | C++ | The C++ addon (using NAN library) fails to compile on Node.js v20 due to V8 API breaking changes (AccessorSignature removed, ToString() now returns MaybeLocal). Downgrading Node would break other packages. Worth noting: the paper states LEXO interacts with packages in a black-box manner via I/O pairs — meaning LEXO itself does not need to understand or compile the C++ code. The blocker is purely infrastructure: we cannot load the compiled .node binary without a successful build. |
 
 ## Other Packages Attempted but Dropped
 
