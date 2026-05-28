@@ -52,7 +52,7 @@ def run_lexo(package_name, model):
             io_pairs = [p for pairs in all_io_pairs.values() for p in pairs]
             code = regenerate_primality(all_io_pairs, model)
         else:
-            io_pairs, source = generate_io_pairs(package_name, model, TESTS_DIR)
+            io_pairs, source = generate_io_pairs(package_name, model, TESTS_DIR, max_retries=1)
             code, algorithm = regenerate(package_name, io_pairs, model)
 
         passed_io, total_io = verify_io_pairs(package_name, code, io_pairs, TESTS_DIR)

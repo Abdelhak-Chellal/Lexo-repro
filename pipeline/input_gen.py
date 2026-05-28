@@ -29,7 +29,7 @@ def get_source(package_name, tests_dir="/app/tests"):
             return f.read()
     return None
 
-def generate_inputs(source_code, model, use_function_strings=False, lang="js"):
+def generate_inputs(source_code, model, use_function_strings=False, lang="js", strict_json=False):
     if use_function_strings:
         function_note = """- For function arguments, you MUST represent them as JSON strings
 - CORRECT:   ["function(x) { return x * 2; }"]
@@ -43,6 +43,14 @@ def generate_inputs(source_code, model, use_function_strings=False, lang="js"):
     else:
         example = 'Example for f(x, y): [[1, 2], [0, 0], [-1, 5], ["hello", "world"], [null, true]]'
         lang_note = "The function is written in JavaScript."
+
+    strict_reminder = ""
+    if strict_json:
+        strict_reminder = """
+REMINDER: Your previous response could not be parsed as JSON. You MUST output ONLY a valid JSON array of arrays.
+No explanations, no markdown, no comments. Start your response with [ and end with ].
+Example of correct format: [[1], [0], [-1], ["hello"], [null]]
+"""
 
     prompt = f"""Given a component, generate an input test suite that will test thoroughly the component's behavior. These input/output pairs will then be used to regenerate the module. Make sure to include all edge cases and key behaviors.
 
@@ -250,7 +258,7 @@ def extract_python_function(source, func_name):
             result.append(line)
     return '\n'.join(result)
 
-def generate_io_pairs(package_name, model, tests_dir="/app/tests"):
+def generate_io_pairs(package_name, model, tests_dir="/app/tests", max_retries=1):
     print(f"  Reading source for {package_name}...")
     source = get_source(package_name, tests_dir)
     if not source:
@@ -263,22 +271,33 @@ def generate_io_pairs(package_name, model, tests_dir="/app/tests"):
     if package_name == "primality":
         source = extract_python_function(source, "is_prime")
 
-    print(f"  Generating inputs with {model}...")
-    raw = generate_inputs(source, model, use_function_strings=use_fn_strings, lang=lang)
-    cleaned = clean_json(raw)
-    if use_fn_strings:
-        cleaned = serialize_bare_functions(cleaned)
+    last_error = None
+    for attempt in range(max_retries + 1):
+        try:
+            if attempt > 0:
+                print(f"  Retry {attempt} for {package_name}...")
+            print(f"  Generating inputs with {model}...")
+            raw = generate_inputs(source, model, use_function_strings=use_fn_strings, lang=lang, strict_json=(attempt > 0))
+            cleaned = clean_json(raw)
+            if use_fn_strings:
+                cleaned = serialize_bare_functions(cleaned)
 
-    inputs = extract_json_array(cleaned)
+            inputs = extract_json_array(cleaned)
 
-    print(f"  Running {len(inputs)} inputs on original package...")
-    if is_python:
-        io_pairs = run_inputs_on_package_py(package_name, inputs, tests_dir)
-    else:
-        io_pairs = run_inputs_on_package_js(package_name, inputs, tests_dir)
+            print(f"  Running {len(inputs)} inputs on original package...")
+            if is_python:
+                io_pairs = run_inputs_on_package_py(package_name, inputs, tests_dir)
+            else:
+                io_pairs = run_inputs_on_package_js(package_name, inputs, tests_dir)
 
-    print(f"  Got {len(io_pairs)} I/O pairs")
-    return io_pairs, source
+            print(f"  Got {len(io_pairs)} I/O pairs")
+            return io_pairs, source
+        except Exception as e:
+            last_error = e
+            if attempt < max_retries:
+                print(f"  Attempt {attempt+1} failed: {e} — retrying...")
+            else:
+                raise last_error
 
 if __name__ == "__main__":
     print("\n=== primality ===")

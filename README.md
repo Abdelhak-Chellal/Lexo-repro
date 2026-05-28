@@ -63,9 +63,16 @@ The paper provides exact prompts in Appendix A. We used them as the base but had
 We added a STRICT RULES section after the 5 steps to handle practical LLM output issues:
 - Do not use NaN, undefined, Infinity, Number.MAX_VALUE or any JS expression — LLMs frequently output these which are not valid JSON
 - Do not add comments inside the JSON — LLMs add // comments which break JSON parsing
-- Maximum 30 inputs — to avoid context length issues with large packages
+- Maximum 30 inputs — to avoid context length issues with large packages. The paper uses a coverage-based iteration loop (up to 3 rounds) which naturally limits inputs; we do not implement this loop.
 - For function arguments, represent them as JSON strings — needed for concat-map and just-filter-object which take function arguments; we serialize them as strings and eval() them at runtime
 - Language-specific notes — added py vs js distinction since the paper only targets JS in Appendix A but we also handle Python
+
+### Input format — justified deviation from paper
+The paper's Appendix A says "Output one object per line with language primitives as values" and uses JavaScript expression syntax like [x => x + 1]. This format is not JSON-serializable and cannot be parsed by Python.
+
+We changed to a JSON array of arrays format: [[1], [0], [-1], ["hello"], [null]]. This achieves the same goal — the LLM generates inputs, we run them against the original package to collect real outputs — but via a format that both Python and Node.js can reliably exchange.
+
+Importantly, we tell the LLM to output ONLY inputs, not expected outputs. This matches the paper's intent: the paper's prompt asks the LLM to generate inputs, then the system runs them against the original package to collect the real outputs. The LLM never predicts outputs — it only suggests what inputs to try. Our implementation is faithful to this design.
 
 ### Algorithm inference prompt — kept exactly from paper
 No modifications. The 4-step structure (Understand, Analyze, Design, Handle Edge Cases) was used as-is.
