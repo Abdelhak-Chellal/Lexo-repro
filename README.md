@@ -156,3 +156,45 @@ Run the full experiment:
       lexo-repro python3 pipeline/main.py
 
 Results are saved to results/results.json and results/figure3.png.
+
+## Observations from the Experiment
+
+### Non-determinism of LLMs
+One of the most striking findings is that the same prompt on the same package can succeed with one model and fail with another, or even fail and succeed on different runs of the same model. For example:
+- `is-number` succeeded with GPT-5.4 mini (100% dev tests) but failed with GPT-4o mini (JSON parse error)
+- `concat-map` passed all dev tests (100%) despite only 16% of I/O pairs matching — the LLM correctly inferred the function behavior from partial examples
+- `has-proto` generated correct I/O pairs (100%) but dev tests showed 0/0 — a test runner configuration issue
+
+This non-determinism makes it very hard to build a reliable pipeline. The paper addresses this with a revision loop (up to 3 retries), which we did not implement in the first run. Our retry experiment will show how much this improves results.
+
+### "Could not find valid JSON array in response"
+This was the most common error across weaker models. The LLM either:
+- Returns a Python-style list instead of JSON (True/False/None instead of true/false/null)
+- Adds explanatory text around the JSON that our parser cannot find
+- Returns a truncated response due to context length limits
+- Returns a completely different format (prose explanation instead of JSON)
+
+This highlights a fundamental challenge: the paper assumes the LLM always follows the output format specification. In practice, especially with smaller or older models, this assumption breaks frequently. A production implementation would need much more robust output parsing, possibly using structured outputs or constrained decoding.
+
+### Model quality directly impacts pipeline reliability
+Results without retry:
+- GPT-5.4 mini: 10/13 at 100%, 1 error, avg 82.7%
+- GPT-4o mini: 1/13 at 100%, 7 errors, avg 35.4%
+- GPT-3.5 Turbo: 1/13 at 100%, 8 errors, avg 19.0%
+- Claude 3.5 Haiku: 1/13 at 100%, 10 errors, avg 15.7%
+- Mistral 7B: 0/13 at 100%, 11 errors, avg 5.3%
+
+The trend perfectly matches Figure 3 of the paper: better models produce better regenerations. Weaker models fail not just at code generation but at the earlier input generation stage — they cannot reliably produce valid JSON.
+
+### args.map is not a function (GPT-3.5, Mistral)
+Some weaker models generate inputs that are not arrays — they return a flat list instead of a list of lists. For example `[1, 2, 3]` instead of `[[1], [2], [3]]`. This causes a Node.js runtime error when we try to spread the arguments.
+
+### Manual engineering per package type
+The paper presents LEXO as fully automatic, but our reproduction shows that significant manual engineering was needed per package type:
+- Function arguments required special handling (eval-based deserialization)
+- Python packages needed a separate sub-pipeline
+- has-proto needed a specific test command (npx mocha test/)
+- primality needed input size limits per function to avoid timeouts
+- concat-map and just-filter-object needed function-as-string serialization
+
+This suggests the paper's claim of "language and domain agnostic" regeneration holds conceptually but requires non-trivial engineering effort in practice.

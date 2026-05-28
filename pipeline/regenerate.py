@@ -40,6 +40,7 @@ I/O Pairs:
         messages=[{"role": "user", "content": prompt}],
         temperature=0.7,
         max_tokens=2000,
+        timeout=60,
     )
     return response.choices[0].message.content.strip()
 
@@ -68,6 +69,7 @@ Do not include any explanation, just the code."""
         messages=[{"role": "user", "content": prompt}],
         temperature=0.7,
         max_tokens=2000,
+        timeout=60,
     )
     return response.choices[0].message.content.strip()
 
@@ -97,6 +99,7 @@ Do not include any explanation, just the code."""
         messages=[{"role": "user", "content": prompt}],
         temperature=0.7,
         max_tokens=2000,
+        timeout=60,
     )
     return response.choices[0].message.content.strip()
 
