@@ -243,3 +243,21 @@ This suggests the paper's claim of "language and domain agnostic" regeneration h
 **`concat-map` and `just-filter-object` anomaly** — these packages show low I/O pair match rates (12-16%) but 100% dev test pass rates with strong models. This suggests the LLM correctly inferred the function behavior from partial examples, which is an interesting finding about the robustness of LLM-based regeneration.
 
 **`has-proto` edge case** — this function takes no arguments and returns a boolean based on the JavaScript runtime environment. It always returns true in our Docker container. The LLM correctly regenerates it, but the result is environment-dependent — a limitation worth noting.
+
+### Final Results (3 retries, 7 models)
+
+| Model | At 100% | Errors | Avg dev tests |
+|-------|---------|--------|---------------|
+| GPT-5.4 mini | 9/13 | 1 | 80.1% |
+| DeepSeek V4 Flash | 5/13 | 5 | 49.5% |
+| Owl Alpha | 4/13 | 5 | 52.0% |
+| Claude 3.5 Haiku | 3/13 | 7 | 38.7% |
+| GPT-4o mini | 2/13 | 4 | 41.3% |
+| GPT-3.5 Turbo | 1/13 | 5 | 32.2% |
+| Mistral 7B | 0/13 | 9 | 11.9% |
+
+Notable findings from the extended model comparison:
+- DeepSeek V4 Flash (5/13) and Owl Alpha (4/13) outperform GPT-4o mini (2/13) and Claude 3.5 Haiku (3/13)
+- The trend from the paper holds: stronger/larger models regenerate more packages correctly
+- Mistral 7B consistently fails across all runs confirming the paper's finding
+- GPT-5.4 mini remains the best performer matching the paper's GPT-5 mini results

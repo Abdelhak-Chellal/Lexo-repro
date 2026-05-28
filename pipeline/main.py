@@ -15,6 +15,8 @@ MODELS = [
     "openai/gpt-3.5-turbo",
     "mistralai/mistral-7b-instruct-v0.1",
     "anthropic/claude-3.5-haiku",
+    "openrouter/owl-alpha",
+    "deepseek/deepseek-v4-flash",
 ]
 
 MODEL_LABELS = {
@@ -23,6 +25,8 @@ MODEL_LABELS = {
     "openai/gpt-3.5-turbo":              "GPT-3.5 Turbo",
     "mistralai/mistral-7b-instruct-v0.1":"Mistral 7B",
     "anthropic/claude-3.5-haiku":        "Claude 3.5 Haiku",
+    "openrouter/owl-alpha":              "Owl Alpha",
+    "deepseek/deepseek-v4-flash":        "DeepSeek v4 Flash",
 }
 
 PACKAGES = [
