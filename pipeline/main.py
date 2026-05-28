@@ -10,7 +10,7 @@ from regenerate import regenerate, regenerate_primality
 from verify import verify_io_pairs, verify_developer_tests
 
 MODELS = [
-    "openai/gpt-5-mini",
+    "openai/gpt-5.4-mini",
     "openai/gpt-4o-mini",
     "openai/gpt-3.5-turbo",
     "mistralai/mistral-7b-instruct-v0.1",
@@ -18,7 +18,7 @@ MODELS = [
 ]
 
 MODEL_LABELS = {
-    "openai/gpt-5-mini":                 "GPT-5 mini",
+    "openai/gpt-5.4-mini":                 "GPT-5.4 mini",
     "openai/gpt-4o-mini":                "GPT-4o mini",
     "openai/gpt-3.5-turbo":              "GPT-3.5 Turbo",
     "mistralai/mistral-7b-instruct-v0.1":"Mistral 7B",
@@ -122,15 +122,69 @@ def plot_results(all_results):
     plt.savefig(out_path, dpi=150)
     print(f"\nFigure saved to {out_path}")
 
+    # also save individual figures per model
+    for model in MODELS:
+        fig_single, ax_single = plt.subplots(1, 1, figsize=(14, 5))
+        model_results = [r for r in all_results if r["model"] == model]
+        model_results.sort(key=lambda x: x["dev_pct"], reverse=True)
+        packages = [r["package"] for r in model_results]
+        dev_pcts = [r["dev_pct"] for r in model_results]
+        io_pcts = [r["io_pct"] for r in model_results]
+        x = np.arange(len(packages))
+        ax_single.bar(x, dev_pcts, color=[
+            plt.cm.RdYlGn(io / 100) for io in io_pcts
+        ], edgecolor='black', linewidth=0.5)
+        ax_single.set_xticks(x)
+        ax_single.set_xticklabels(packages, rotation=45, ha='right', fontsize=9)
+        ax_single.set_ylim(0, 110)
+        ax_single.set_ylabel("Tests (%)")
+        ax_single.set_title(f"Correctness results for LEXO using {MODEL_LABELS[model]}")
+        ax_single.axhline(y=100, color='gray', linestyle='--', linewidth=0.5)
+        sm = plt.cm.ScalarMappable(cmap='RdYlGn', norm=plt.Normalize(0, 100))
+        sm.set_array([])
+        cbar = plt.colorbar(sm, ax=ax_single)
+        cbar.set_label("I/Os (%)", fontsize=8)
+        plt.tight_layout()
+        model_name = MODEL_LABELS[model].replace(" ", "_").replace(".", "")
+        single_path = os.path.join(RESULTS_DIR, f"figure3_{model_name}.png")
+        fig_single.savefig(single_path, dpi=150)
+        plt.close(fig_single)
+        print(f"Individual figure saved to {single_path}")
+
 def main():
     os.makedirs(RESULTS_DIR, exist_ok=True)
-    all_results = []
+
+    # resume from existing results if available
+    results_path = os.path.join(RESULTS_DIR, "results.json")
+    if os.path.exists(results_path):
+        with open(results_path) as f:
+            all_results = json.load(f)
+        print(f"Resuming from {len(all_results)} existing results")
+    else:
+        all_results = []
+
+    done = {(r["model"], r["package"]) for r in all_results}
+    total = len(MODELS) * len(PACKAGES)
+    completed = len(done)
 
     for model in MODELS:
+        print(f"\n{'='*60}")
+        print(f"MODEL: {MODEL_LABELS[model]}")
+        print(f"{'='*60}")
         for package in PACKAGES:
+            if (model, package) in done:
+                print(f"  [{completed}/{total}] Skipping {package} (already done)")
+                completed += 1
+                continue
+            print(f"\n  [{completed+1}/{total}] Starting {package} with {MODEL_LABELS[model]}...")
+            start_time = time.time()
             result = run_lexo(package, model)
+            elapsed = round(time.time() - start_time, 1)
+            completed += 1
+            status = f"{result['dev_pct']}% dev tests" if result['status'] == 'ok' else f"ERROR: {result.get('error','')[:50]}"
+            print(f"  [{completed}/{total}] Done {package} in {elapsed}s — {status}")
             all_results.append(result)
-            with open(os.path.join(RESULTS_DIR, "results.json"), "w") as f:
+            with open(results_path, "w") as f:
                 json.dump(all_results, f, indent=2)
             time.sleep(1)
 

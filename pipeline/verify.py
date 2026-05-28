@@ -13,7 +13,7 @@ PACKAGE_CONFIG = {
     "concat-map":         {"source": "index.js",                         "test_cmd": "npx tape test/map.js",                 "lang": "js"},
     "replace-ext":        {"source": "index.js",                         "test_cmd": "npx mocha test/main.js",               "lang": "js"},
     "array-ify":          {"source": "index.js",                         "test_cmd": "npx mocha test.js",                    "lang": "js"},
-    "has-proto":          {"source": "index.js",                         "test_cmd": "npx mocha",                            "lang": "js"},
+    "has-proto":          {"source": "index.js",                         "test_cmd": "npx mocha test/",                      "lang": "js"},
     "just-pick":          {"source": "packages/object-pick/index.cjs",   "test_cmd": "npx tape test/object-pick/index.cjs",  "lang": "js"},
     "just-filter-object": {"source": "packages/object-filter/index.cjs", "test_cmd": "npx tape test/object-filter/index.cjs","lang": "js"},
     "primality":          {"source": "primality/primality.py",            "test_cmd": "python3 -m pytest tests/ -v",          "lang": "py"},
@@ -167,15 +167,19 @@ def verify_developer_tests_js(package_name, generated_code, tests_dir):
         capture_output=True, text=True, cwd=package_path
     )
 
-    result = subprocess.run(
-        config["test_cmd"].split(),
-        capture_output=True, text=True, cwd=package_path
-    )
+    try:
+        result = subprocess.run(
+            config["test_cmd"].split(),
+            capture_output=True, text=True, cwd=package_path,
+            timeout=60
+        )
+        output = result.stdout + result.stderr
+    except subprocess.TimeoutExpired:
+        output = "TIMEOUT: tests took too long"
 
     with open(source_path, "w") as f:
         f.write(original)
 
-    output = result.stdout + result.stderr
     passed, total = parse_test_output(output)
     return passed, total, output
 
@@ -194,15 +198,19 @@ def verify_developer_tests_py(package_name, generated_code, tests_dir):
         capture_output=True, text=True, cwd=package_path
     )
 
-    result = subprocess.run(
-        config["test_cmd"].split(),
-        capture_output=True, text=True, cwd=package_path
-    )
+    try:
+        result = subprocess.run(
+            config["test_cmd"].split(),
+            capture_output=True, text=True, cwd=package_path,
+            timeout=60
+        )
+        output = result.stdout + result.stderr
+    except subprocess.TimeoutExpired:
+        output = "TIMEOUT: tests took too long"
 
     with open(source_path, "w") as f:
         f.write(original)
 
-    output = result.stdout + result.stderr
     passed, total = parse_test_output(output)
     return passed, total, output
 
