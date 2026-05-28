@@ -47,9 +47,15 @@ def generate_inputs(source_code, model, use_function_strings=False, lang="js", s
     strict_reminder = ""
     if strict_json:
         strict_reminder = """
-REMINDER: Your previous response could not be parsed as JSON. You MUST output ONLY a valid JSON array of arrays.
-No explanations, no markdown, no comments. Start your response with [ and end with ].
-Example of correct format: [[1], [0], [-1], ["hello"], [null]]
+
+CRITICAL: Your previous response failed JSON parsing. You MUST follow these rules EXACTLY:
+1. Output ONLY a JSON array of arrays — nothing else
+2. Each inner array contains the function arguments: [[arg1], [arg2], ...]  
+3. Do NOT write [[1, true], [2, false]] if function takes ONE argument — write [[1], [2]]
+4. Start with [ and end with ] — no text before or after
+5. No markdown backticks, no comments, no explanations
+6. Valid example for f(x): [[1], [0], [-1], ["hello"], [null], [true], [false]]
+7. Valid example for f(x,y): [[1, 2], [0, 0], ["a", "b"], [null, true]]
 """
 
     prompt = f"""Given a component, generate an input test suite that will test thoroughly the component's behavior. These input/output pairs will then be used to regenerate the module. Make sure to include all edge cases and key behaviors.
@@ -258,7 +264,7 @@ def extract_python_function(source, func_name):
             result.append(line)
     return '\n'.join(result)
 
-def generate_io_pairs(package_name, model, tests_dir="/app/tests", max_retries=1):
+def generate_io_pairs(package_name, model, tests_dir="/app/tests", max_retries=3):
     print(f"  Reading source for {package_name}...")
     source = get_source(package_name, tests_dir)
     if not source:
