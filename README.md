@@ -46,33 +46,46 @@ Developer tests are the real goal. I/O pairs are a proxy used during regeneratio
 For each (package, model) pair, the workflow is:
 
 1. **Input Generation** (`input_gen.py`)
-   - Read the original source code
-   - Prompt LLM to generate up to 30 test inputs that cover the function's behavior
-   - Execute each input against the original package
-   - Collect and store the results as I/O pairs (input → output, or input → error)
+   - Extract source code from package path (e.g., `is-number/index.js`, `primality/primality.py`)
+   - Call LLM with `generate_inputs(source_code, model)` to produce JSON array of input arrays (max 30 inputs)
+   - Example prompt output for `is-number`: `[[1], ["hello"], [null], [true], [NaN], [Infinity], [[]]]`
+   - Execute each input: `require(package)(input)` for JS, or Python equivalent
+   - Capture return value or exception: `{input: [...], output: X, error: null}` or `{input: [...], output: null, error: "TypeError"}`
+   - Store all I/O pairs to JSON file for regeneration stage
 
 2. **Regeneration** (`regenerate.py`)
-   - Take the I/O pairs from step 1
-   - Prompt LLM to describe the algorithm based on the I/O pairs
-   - Prompt LLM to write clean, correct code implementing that algorithm
-   - If JSON parsing fails, retry up to 3 times with:
-     - Stricter JSON format reminders
-     - Lower temperature (0.3 vs 0.7) for more deterministic output
-     - Modified prompt to catch common LLM mistakes (`NaN`, `undefined`, `True/False`, bare functions)
+   - Format I/O pairs as readable lines: `f(1) = true`, `f("hello") = false`, `f(x,y) => throws TypeError`
+   - Call `io_pairs_to_algorithm(io_pairs, model)` → LLM outputs natural language algorithm
+   - Call `algorithm_to_code_js/py(io_pairs, algorithm, model)` → LLM outputs module.exports or Python function
+   - Extract code: `extract_code(raw, lang)` removes markdown backticks and whitespace
+   - On LLM JSON parse failure (e.g., `JSON.parse()` or `json.loads()` fails):
+     - Retry up to 3 times
+     - Temperature: 0.7 → 0.3 on second attempt
+     - Enhanced prompt with `CRITICAL:` block and exact formatting rules
+   - Track retry count; mark as failed if all 3 retries exhaust
 
 3. **Verification** (`verify.py`)
-   - **I/O pair check:** Run the regenerated code against all I/O pairs from step 1; count how many produce the same output
-   - **Developer tests check:** Replace the original source file with regenerated code, run the full test suite (mocha, pytest, or TAP), restore the original file, count passing tests
-   - Save pass/fail metrics
+   - **I/O pair check:** Write regenerated code to temp file `{source}_lexo_tmp{ext}`, load via require/importlib, run each I/O pair, compare `JSON.stringify(output)` or `==` equality
+   - Count mismatches; return `(passed, total)` tuple
+   - **Developer tests check:** 
+     - Back up original source file
+     - Overwrite with regenerated code
+     - Run test command from config: `npx mocha test.js` (JS) or `python3 -m pytest tests/` (Python)
+     - Parse test output with `parse_test_output(output)` — supports mocha, pytest, TAP formats via regex
+     - Restore original file
+     - Return `(passed, total, test_output_log)`
 
 4. **Aggregation** (`main.py`)
-   - Run steps 1–3 for all packages × models
-   - Save detailed results to JSON
-   - Generate Figure 3 visualization (model vs. success rate)
+   - Iterate all (package, model) combinations
+   - For each pair, call `regenerate()` → `verify()` pipeline
+   - Save full results to JSON with keys: `{model, package, io_pairs_passed, io_pairs_total, dev_tests_passed, dev_tests_total}`
+   - Generate Plotly bar chart (Figure 3): x-axis = packages, y-axis = % dev tests passed, color = % I/O pairs passed
 
-**Note on retries:** JSON parse failures trigger retries within `regenerate.py`. The retry limit is per (package, model) pair — if all retries fail, that pair is marked as failed.
-
-**Special case — primality (Python):** The function signature is `is_prime(n)` (hardcoded in verify.py), so the regenerated code must preserve this exact name. Other packages are more flexible with return types and error handling.
+**Technical notes:**
+- **Function arguments serialization:** `concat-map`, `just-filter-object` take functions as args. Serialize as JSON strings: `[[1,2,3], "function(x) { return x*2; }"]`, eval at runtime.
+- **Retry trigger:** Only JSON parse failure triggers retry. Functional failures (wrong output) do not retry.
+- **Temp file cleanup:** All temp files (`_lexo_tmp`) are deleted after verification, even on error.
+- **Python hardcoding:** Python verification expects `is_prime()` function name (see `verify.py` line 84); package config specifies which functions to regenerate.
 
 ## Models
 
