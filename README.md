@@ -41,6 +41,39 @@ Developer tests are the real goal. I/O pairs are a proxy used during regeneratio
 | `verify.py` | Checks regenerated code against I/O pairs and original developer tests |
 | `main.py` | Runs all packages × models, saves results, generates figures |
 
+### Pipeline in Detail
+
+For each (package, model) pair, the workflow is:
+
+1. **Input Generation** (`input_gen.py`)
+   - Read the original source code
+   - Prompt LLM to generate up to 30 test inputs that cover the function's behavior
+   - Execute each input against the original package
+   - Collect and store the results as I/O pairs (input → output, or input → error)
+
+2. **Regeneration** (`regenerate.py`)
+   - Take the I/O pairs from step 1
+   - Prompt LLM to describe the algorithm based on the I/O pairs
+   - Prompt LLM to write clean, correct code implementing that algorithm
+   - If JSON parsing fails, retry up to 3 times with:
+     - Stricter JSON format reminders
+     - Lower temperature (0.3 vs 0.7) for more deterministic output
+     - Modified prompt to catch common LLM mistakes (`NaN`, `undefined`, `True/False`, bare functions)
+
+3. **Verification** (`verify.py`)
+   - **I/O pair check:** Run the regenerated code against all I/O pairs from step 1; count how many produce the same output
+   - **Developer tests check:** Replace the original source file with regenerated code, run the full test suite (mocha, pytest, or TAP), restore the original file, count passing tests
+   - Save pass/fail metrics
+
+4. **Aggregation** (`main.py`)
+   - Run steps 1–3 for all packages × models
+   - Save detailed results to JSON
+   - Generate Figure 3 visualization (model vs. success rate)
+
+**Note on retries:** JSON parse failures trigger retries within `regenerate.py`. The retry limit is per (package, model) pair — if all retries fail, that pair is marked as failed.
+
+**Special case — primality (Python):** The function signature is `is_prime(n)` (hardcoded in verify.py), so the regenerated code must preserve this exact name. Other packages are more flexible with return types and error handling.
+
 ## Models
 
 All accessed via [OpenRouter](https://openrouter.ai).
