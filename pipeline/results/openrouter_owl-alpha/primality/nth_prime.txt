@@ -1,0 +1,35 @@
+```python
+def nth_prime(n):
+    if type(n) is not int:
+        raise TypeError(f"nth_prime() takes (1) int type parameter. Given: {type(n)}.")
+    if n < 0:
+        raise ValueError("nth_prime() int parameter must be positive or zero.")
+    
+    k = n + 1  # k-th prime (1-indexed)
+    
+    # Compute upper bound for the k-th prime
+    if k <= 6:
+        upper_bound = 15
+    else:
+        import math
+        ln_k = math.log(k)
+        ln_ln_k = math.log(ln_k)
+        upper_bound = int(math.ceil(k * (ln_k + ln_ln_k) + k))
+    
+    # Sieve of Eratosthenes
+    sieve = [True] * (upper_bound + 1)
+    sieve[0] = False
+    sieve[1] = False
+    for i in range(2, int(upper_bound**0.5) + 1):
+        if sieve[i]:
+            for j in range(i * i, upper_bound + 1, i):
+                sieve[j] = False
+    
+    # Collect primes and return the k-th
+    count = 0
+    for num in range(2, upper_bound + 1):
+        if sieve[num]:
+            count += 1
+            if count == k:
+                return num
+```

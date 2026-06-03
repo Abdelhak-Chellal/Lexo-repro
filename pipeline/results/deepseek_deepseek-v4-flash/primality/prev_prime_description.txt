@@ -1,0 +1,25 @@
+The function `f(n)` returns the largest prime number strictly less than `n`. This is evident from the given test cases: for each `n` from 3 to 17, the output is the greatest prime smaller than `n`.
+
+### Algorithm
+
+1. **Input**: An integer `n` (assumed `n ≥ 3` based on the test suite).
+2. **Process**:
+   - Start from `i = n - 1` and go down to `2`.
+   - For each `i`, check if it is prime:
+     - If `i` is prime, return `i`.
+   - If no prime is found (theoretically impossible for `n ≥ 3` since `2` is always a candidate), return an error or a sentinel value.
+3. **Primality Test** (for a given integer `i`):
+   - If `i < 2`, it is not prime.
+   - For `d` from `2` to `floor(sqrt(i))`:
+     - If `i % d == 0`, then `i` is composite; stop.
+   - If no divisor is found, `i` is prime.
+
+### Edge Cases
+- For `n ≤ 2`, there is no prime strictly less than `n`. The test suite does not cover these cases; the function may be defined only for `n ≥ 3`, or could return `null`/`undefined` for smaller inputs.
+- The algorithm efficiently handles all `n ≥ 3` by scanning downward, ensuring the first prime encountered is the largest prime less than `n`.
+
+### Complexity
+- **Time**: In the worst case (when `n` is just above a prime gap), we may test up to `O(n)` numbers, each with a primality check of `O(√n)`, giving `O(n√n)`. For repeated calls, a precomputed sieve could be used.
+- **Space**: `O(1)` auxiliary space.
+
+This algorithm directly matches the behavior observed in the test suite.

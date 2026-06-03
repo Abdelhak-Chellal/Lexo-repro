@@ -1,0 +1,18 @@
+```javascript
+module.exports = function f(x) {
+    if (x === null || typeof x === 'boolean' || (typeof x === 'string' && x.trim() === '')) {
+        return false;
+    }
+    
+    if (typeof x === 'number') {
+        return true;
+    }
+    
+    if (typeof x === 'string') {
+        const pattern = /^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/;
+        return pattern.test(x);
+    }
+    
+    return false;
+};
+```

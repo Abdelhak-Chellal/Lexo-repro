@@ -1,0 +1,14 @@
+```javascript
+module.exports = function(inputDict, conditionStr) {
+    const condition = new Function('key', 'value', `return ${conditionStr}`);
+    const result = {};
+
+    for (const key in inputDict) {
+        if (inputDict.hasOwnProperty(key) && condition(key, inputDict[key])) {
+            result[key] = inputDict[key];
+        }
+    }
+
+    return result;
+};
+```

@@ -1,0 +1,38 @@
+```javascript
+module.exports = function leftPad(value, width, padChar) {
+    // Convert value to string
+    let strValue;
+    if (value === null || value === undefined) {
+        strValue = 'null';
+    } else if (typeof value === 'boolean') {
+        strValue = value.toString();
+    } else {
+        strValue = String(value);
+    }
+    
+    // Determine effective padding character
+    let effectivePad;
+    if (padChar === null || padChar === undefined || padChar === false || padChar === '') {
+        effectivePad = ' ';
+    } else {
+        const padStr = String(padChar);
+        effectivePad = padStr.charAt(0);
+    }
+    
+    // Calculate padding needed
+    const paddingNeeded = width - strValue.length;
+    
+    // If no padding needed, return as-is
+    if (paddingNeeded <= 0) {
+        return strValue;
+    }
+    
+    // Build padding string
+    let padString = '';
+    for (let i = 0; i < paddingNeeded; i++) {
+        padString += effectivePad;
+    }
+    
+    return padString + strValue;
+};
+```

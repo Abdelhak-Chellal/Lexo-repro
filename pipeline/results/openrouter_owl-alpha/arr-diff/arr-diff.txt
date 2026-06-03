@@ -1,0 +1,15 @@
+```javascript
+module.exports = function(primaryArray, ...exclusionArrays) {
+    const exclusionSet = new Set();
+    
+    for (const arg of exclusionArrays) {
+        if (Array.isArray(arg)) {
+            for (const element of arg) {
+                exclusionSet.add(element);
+            }
+        }
+    }
+    
+    return primaryArray.filter(element => !exclusionSet.has(element));
+};
+```

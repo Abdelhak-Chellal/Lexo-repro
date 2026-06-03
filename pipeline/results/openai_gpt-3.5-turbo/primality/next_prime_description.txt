@@ -1,0 +1,12 @@
+Algorithm:
+
+1) Define a function named nextprime() that takes an integer parameter n.
+2) Check if the input parameter n is an integer. If not, raise a TypeError with a message indicating that the parameter should be an integer.
+3) Implement a loop that starts from n + 1 and iterates until a prime number greater than n is found.
+4) Within the loop, check if the current number is a prime number by iterating from 2 to the square root of the number and checking for any divisors.
+5) If the current number is a prime number, return it.
+6) If no prime number greater than n is found, keep incrementing the number until a prime number is found.
+7) Use the nextprime() function in the main function f() to find the next prime number after the input parameter.
+8) Handle edge cases where the input parameter is not an integer, and raise a TypeError accordingly.
+
+This algorithm describes a function that calculates the next prime number after a given integer input. It ensures that the input is an integer and returns the next prime number greater than the input.

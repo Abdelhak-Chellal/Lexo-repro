@@ -1,0 +1,11 @@
+module.exports = function(input) {
+    if (input === null) {
+        return false;
+    }
+    try {
+        parseFloat(input);
+        return true;
+    } catch (error) {
+        return false;
+    }
+};

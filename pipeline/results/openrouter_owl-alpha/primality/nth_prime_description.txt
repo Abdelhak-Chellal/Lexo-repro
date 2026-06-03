@@ -1,0 +1,113 @@
+# Algorithm Design: `nth_prime(n)`
+
+## 1. Understanding the Test Suite
+
+The function `f(n)` maps an integer index `n` to the **(n+1)th prime number** (0-indexed). The test cases reveal:
+
+| n | f(n) | Prime # |
+|---|------|---------|
+| 0 | 2 | 1st prime |
+| 1 | 3 | 2nd prime |
+| 2 | 5 | 3rd prime |
+| 3 | 7 | 4th prime |
+| 4 | 11 | 5th prime |
+| 5 | 13 | 6th prime |
+| 10 | 31 | 11th prime |
+| 25 | 101 | 26th prime |
+| 50 | 233 | 51st prime |
+| 100 | 547 | 101st prime |
+| 999 | 7919 | 1000th prime |
+
+**Pattern:** `f(n)` returns the **(n+1)th prime number** (0-indexed).
+
+**Error handling:**
+- Negative integers → throw error: `"nth_prime() int parameter must be positive or zero."`
+- Float values (even `2.0`) → throw error: `"nth_prime() takes (1) int type parameter. Given: <class 'float'>."`
+
+---
+
+## 2. Problem Analysis
+
+**Core task:** Given a non-negative integer `n`, return the `(n+1)`th prime number.
+
+**Key sub-problems:**
+1. **Input validation** — reject negatives and non-int types
+2. **Prime generation** — efficiently generate primes until we reach the `(n+1)`th one
+
+**Complexity considerations:**
+- For `n = 999`, we need the 1000th prime = 7919
+- The Sieve of Eratosthenes is ideal: we need an upper bound estimate, then sieve
+
+**Upper bound for the k-th prime** (k = n+1):
+- For k ≥ 6: `p(k) < k * (ln(k) + ln(ln(k))) + k` (Rosser's theorem refinement)
+- A safe practical bound: `k * (log(k) + log(log(k))) + k` for k ≥ 6, and a fixed small table for k < 6
+
+---
+
+## 3. Step-by-Step Algorithm
+
+```
+FUNCTION nth_prime(n):
+
+    STEP 1: INPUT VALIDATION
+    ─────────────────────────
+    IF type(n) is not int:
+        RAISE error: "nth_prime() takes (1) int type parameter. Given: <class 'float'>."
+    
+    IF n < 0:
+        RAISE error: "nth_prime() int parameter must be positive or zero."
+
+    STEP 2: DETERMINE TARGET
+    ─────────────────────────
+    k ← n + 1    // We need the k-th prime (1-indexed)
+
+    STEP 3: COMPUTE UPPER BOUND FOR SIEVE
+    ─────────────────────────────────────
+    IF k ≤ 6:
+        upper_bound ← 15    // 6th prime is 13, so 15 is safe
+    ELSE:
+        ln_k ← natural_log(k)
+        ln_ln_k ← natural_log(ln_k)
+        upper_bound ← CEILING(k * (ln_k + ln_ln_k) + k)
+
+    STEP 4: SIEVE OF ERATOSTHENES
+    ─────────────────────────────
+    Create boolean array is_prime[0..upper_bound], initialize all to TRUE
+    Set is_prime[0] ← FALSE, is_prime[1] ← FALSE
+    
+    FOR i FROM 2 TO FLOOR(SQRT(upper_bound)):
+        IF is_prime[i] is TRUE:
+            FOR j FROM i*i TO upper_bound, STEP i:
+                is_prime[j] ← FALSE
+
+    STEP 5: COLLECT PRIMES AND RETURN k-th
+    ──────────────────────────────────────
+    count ← 0
+    FOR num FROM 2 TO upper_bound:
+        IF is_prime[num] is TRUE:
+            count ← count + 1
+            IF count == k:
+                RETURN num
+
+    // Fallback: if bound was insufficient (theoretically shouldn't happen)
+    INCREASE upper_bound and REPEAT Step 4-5
+```
+
+---
+
+## 4. Edge Cases
+
+| Edge Case | Handling |
+|-----------|----------|
+| `n = 0` | Returns 2 (the 1st prime) — sieve starts at 2 |
+| `n = 1` | Returns 3 (the 2nd prime) |
+| Very large `n` (e.g., 999) | Upper bound formula ensures sieve covers 7919 |
+| `n = -1, -5` | Caught by negative check before any computation |
+| `n = 1.5, 2.0` | Caught by type check (`float` rejected even if whole number) |
+| `n` as string/bool | Type check rejects non-int types |
+
+---
+
+## Summary
+
+The function `f(n)` is the **0-indexed nth prime function**: it returns the `(n+1)`th prime number. The algorithm uses **input validation** followed by the **Sieve of Eratosthenes** with a mathematically derived upper bound to efficiently find the target prime.

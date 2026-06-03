@@ -1,0 +1,12 @@
+```python
+def prev_prime(n):
+    if n <= 2:
+        raise ValueError(f"prev_prime() expect parameter n to be larger than 2. Given: {n}")
+    
+    candidate = n - 1
+    
+    while candidate >= 2:
+        if is_prime(candidate):
+            return candidate
+        candidate -= 1
+```

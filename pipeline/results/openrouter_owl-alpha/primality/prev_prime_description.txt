@@ -1,0 +1,84 @@
+Based on the provided test suite, we can deduce the behavior of the function `f(n)` as follows:
+
+---
+
+### **1. Understand the Test Suite**
+
+- **Inputs**: Integer values of `n`, including edge cases like 0, 1, 2.
+- **Outputs**:
+  - For `n > 2`: Returns a prime number less than `n`.
+  - For `n ≤ 2`: Throws an error: `"prev_prime() expect parameter n to be larger than 2. Given: <n>."`
+- **Observed Outputs**:
+  - `f(3) = 2` → largest prime < 3
+  - `f(4) = 3` → largest prime < 4
+  - `f(5) = 3` → largest prime < 5 (note: 5 is prime, but output is 3, so it's **strictly less than n**, not ≤ n)
+  - `f(6) = 5`, `f(7) = 5`, `f(8) = 7`, etc.
+  - `f(100) = 97`, `f(1000) = 997` → both are the largest primes less than 100 and 1000 respectively.
+
+> ✅ **Conclusion**: The function computes the **largest prime number strictly less than `n`**, often referred to as the **previous prime** or **predecessor prime**.
+
+---
+
+### **2. Analyze the Problem**
+
+- **Problem Definition**: Given an integer `n`, return the largest prime number `p` such that `p < n`.
+- **Constraints**:
+  - If `n ≤ 2`, no such prime exists (since 2 is the smallest prime), so throw an error.
+- **Complexity Considerations**:
+  - For large `n` (e.g., 1000), we need an efficient primality test or sieve.
+  - However, since we only need the **immediate previous prime**, we can iterate downward from `n-1` and check for primality.
+
+---
+
+### **3. Design the Algorithm**
+
+#### **Algorithm: Find Previous Prime**
+
+**Input**: Integer `n`  
+**Output**: Largest prime `p < n`, or error if `n ≤ 2`
+
+**Steps**:
+
+1. **Validate Input**:
+   - If `n ≤ 2`, throw error: `"prev_prime() expect parameter n to be larger than 2. Given: <n>."`
+
+2. **Initialize Candidate**:
+   - Set `candidate = n - 1`
+
+3. **Search Downward**:
+   - While `candidate ≥ 2`:
+     - If `candidate` is prime:
+       - Return `candidate`
+     - Else:
+       - Decrement `candidate` by 1
+
+4. **Primality Check (Helper Function)**:
+   - To check if a number `x` is prime:
+     - If `x < 2`: not prime
+     - If `x == 2`: prime
+     - If `x` is even: not prime
+     - For odd divisors from 3 to `√x`:
+       - If any divide `x`, not prime
+     - Else: prime
+
+> 🔍 **Note**: This downward search is efficient for typical inputs because primes are relatively dense for small-to-moderate `n`. For very large `n`, probabilistic primality tests (e.g., Miller-Rabin) could be used, but deterministic trial division suffices here given test cases up to 1000.
+
+---
+
+### **4. Handle Edge Cases**
+
+- **n = 0, 1, 2**: Explicitly handled by input validation → throw error.
+- **n = 3**: Returns 2 (only prime < 3).
+- **n is prime (e.g., 5, 7, 13)**: Returns the **next lower prime**, not `n` itself → confirmed by `f(5)=3`, `f(7)=5`, `f(13)=11`.
+- **Large n (100, 1000)**: Algorithm still works; 97 and 997 are correct previous primes.
+
+---
+
+### ✅ Final Algorithm Description
+
+> The function `f(n)` computes the **largest prime number strictly less than `n`**.  
+> - If `n ≤ 2`, it throws an error because no prime exists below 2.  
+> - Otherwise, it searches downward from `n - 1` and returns the first prime found.  
+> - Primality is determined via trial division up to the square root.
+
+This matches all given test cases and handles edge conditions appropriately.

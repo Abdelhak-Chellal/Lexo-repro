@@ -1,0 +1,10 @@
+```python
+def next_prime(x):
+    if x < 2:
+        return 2
+    candidate = x
+    while True:
+        if is_prime(candidate):
+            return candidate
+        candidate += 1
+```

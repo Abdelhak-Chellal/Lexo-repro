@@ -1,0 +1,59 @@
+Based on the provided test suite, the function `f(n)` returns `True` for the inputs: 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, and 47.
+
+**1. Understand the Test Suite:**
+*   **Input:** An integer `n`.
+*   **Output:** A boolean value (`True` or `False`).
+*   **Implicit Criteria:** All provided inputs for which `f(n)` returns `True` are prime numbers. No composite numbers or non-prime numbers (like 1, 4, 6, 8, 9, 10, etc.) are shown to return `True`. This strongly suggests the function checks for primality.
+
+**2. Analyze the Problem:**
+The problem is to determine if a given integer `n` is a prime number. A prime number is a natural number greater than 1 that has no positive divisors other than 1 and itself.
+
+**3. Design the Algorithm:**
+A straightforward algorithm to check for primality involves testing divisibility.
+
+**Algorithm: `is_prime(n)`**
+
+1.  **Handle base cases:**
+    *   If `n` is less than or equal to 1, return `False` (1 and non-positive numbers are not prime).
+    *   If `n` is 2 or 3, return `True` (2 and 3 are prime).
+    *   If `n` is divisible by 2 or 3 (i.e., `n % 2 == 0` or `n % 3 == 0`), return `False` (even numbers greater than 2 and multiples of 3 greater than 3 are not prime).
+
+2.  **Iterate through potential divisors:**
+    *   Start checking for divisors from `i = 5`.
+    *   Continue checking as long as `i * i <= n`. This is an optimization because if `n` has a factor greater than its square root, it must also have a factor smaller than its square root.
+    *   In each iteration, check if `n` is divisible by `i` or `n` is divisible by `i + 2`. This step efficiently checks for factors of the form `6k-1` and `6k+1` (e.g., 5 and 7, 11 and 13, etc.), skipping multiples of 2 and 3.
+    *   If `n` is divisible by `i` or `i + 2`, return `False`.
+    *   Increment `i` by 6 for the next pair of potential divisors.
+
+3.  **If no divisors found:**
+    *   If the loop completes without finding any divisors, it means `n` is a prime number, so return `True`.
+
+**Pseudocode:**
+
+```python
+def is_prime(n):
+    if n <= 1:
+        return False
+    if n <= 3: # Handles n=2 and n=3
+        return True
+    if n % 2 == 0 or n % 3 == 0:
+        return False
+
+    i = 5
+    while i * i <= n:
+        if n % i == 0 or n % (i + 2) == 0:
+            return False
+        i += 6
+
+    return True
+```
+
+**4. Handle Edge Cases:**
+*   **`n <= 1`:** The algorithm correctly returns `False` for 0, 1, and negative numbers, as they are not prime.
+*   **`n = 2` and `n = 3`:** These are the smallest primes and are handled explicitly.
+*   **Even numbers (e.g., 4, 6, 8, ...):** The `n % 2 == 0` check handles all even numbers greater than 2.
+*   **Multiples of 3 (e.g., 9, 15, 21, ...):** The `n % 3 == 0` check handles these.
+*   **Large prime numbers:** The `i * i <= n` condition ensures the algorithm is efficient for larger primes by limiting the number of iterations.
+*   **Large composite numbers:** The algorithm will correctly identify them as `False` by finding a divisor.
+
+This algorithm accurately describes the function `f(n)` based on the provided test suite, as it correctly identifies all the given prime numbers as `True`.

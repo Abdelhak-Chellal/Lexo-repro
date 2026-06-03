@@ -1,0 +1,227 @@
+### Problem Interpretation
+
+The function takes two inputs:
+
+- `path`: usually a string, but may also be `None`, numbers, booleans, objects, etc.
+- `suffix`: usually a string.
+
+It returns a modified path string where the **final file extension is replaced or appended** with the given suffix, while preserving the rest of the path.
+
+If `path` is not a string, the function returns it unchanged.
+
+---
+
+## What the tests imply
+
+### 1) Non-string input is returned unchanged
+Examples:
+- `None -> None`
+- `123 -> 123`
+- `True -> True`
+- `{'path': 'file.txt'} -> {'path': 'file.txt'}`
+
+So the function only operates on string paths.
+
+---
+
+### 2) Empty path stays empty
+- `f('', '.js') = ''`
+
+---
+
+### 3) Replace the last extension, not all dots
+Examples:
+- `'file.txt' + '.js' -> 'file.js'`
+- `'a.b.c' + '.md' -> 'a.b.md'`
+- `'relative/path.with.dots.ext' + '.js' -> 'relative/path.with.dots.js'`
+
+So only the portion after the last `.` in the final path segment is replaced.
+
+---
+
+### 4) If there is no extension, append suffix
+Examples:
+- `'file' + '.js' -> 'file.js'`
+- `'../a/b/c' + '.out' -> '../a/b/c.out'`
+- `'noext' + 'ext' -> 'noextext'`
+
+---
+
+### 5) Hidden files beginning with `.` are treated specially
+Examples:
+- `'.hidden' + '.js' -> '.hidden.js'`
+- `'.hidden.txt' + '.js' -> '.hidden.js'`
+- `'/tmp/.env' + '.txt' -> '/tmp/.env.txt'`
+
+This suggests a leading dot at the start of the final segment is **not** treated as an extension separator unless there is another dot later.
+
+---
+
+### 6) Preserve directory prefixes exactly
+Examples:
+- `'./file.txt' -> './file.js'`
+- `'../dir/file.txt' -> '../dir/file.js'`
+- `'C:\\dir\\file.txt' -> 'C:\\dir\\file.js'`
+
+Only the final path segment is modified.
+
+---
+
+### 7) Suffix can be empty or unusual
+Examples:
+- `'file.txt', '' -> 'file'`
+- `'noext', '.' -> 'noext.'`
+- `'./', ' .js' -> './. .js'`
+- `'./folder/', ' .js' -> './folder .js'`
+- `'/', ' .js' -> '/ .js'`
+
+So the suffix is used verbatim, even if it contains spaces or is just `.`.
+
+---
+
+# Algorithm Design
+
+## High-level idea
+1. If `path` is not a string, return it unchanged.
+2. If `path` is the empty string, return it unchanged.
+3. Split the path into:
+   - directory prefix
+   - final segment (basename)
+4. In the final segment, find the correct dot to replace:
+   - use the last dot in the basename
+   - but do **not** treat a leading dot as an extension separator if it is the only dot
+5. Replace everything from that dot onward with `suffix`.
+6. Reassemble and return.
+
+---
+
+## Step-by-step approach
+
+### Step 1: Validate input type
+If `path` is not an instance of string:
+- return `path`
+
+### Step 2: Handle empty string
+If `path == ''`:
+- return `''`
+
+### Step 3: Find the last path separator
+We need to preserve the directory prefix.
+Treat both `/` and `\` as separators.
+
+Find the index of the last occurrence of either separator:
+- `last_sep = max(path.rfind('/'), path.rfind('\\'))`
+
+Then:
+- `prefix = path[:last_sep+1]`
+- `basename = path[last_sep+1:]`
+
+If no separator exists:
+- `prefix = ''`
+- `basename = path`
+
+### Step 4: Decide whether basename has an extension
+Find the last dot in `basename`:
+- `dot = basename.rfind('.')`
+
+Apply these rules:
+
+- If `dot <= 0`:
+  - there is no removable extension
+  - append suffix to basename
+- Else:
+  - replace from that dot onward with suffix
+
+This rule matches:
+- `file.txt -> file`
+- `.hidden -> .hidden` should not strip the leading dot
+- `.hidden.txt -> .hidden` because dot is after the hidden-file prefix
+
+### Step 5: Return combined result
+- `prefix + modified_basename`
+
+---
+
+# Pseudocode
+
+```python
+def f(path, suffix):
+    if not isinstance(path, str):
+        return path
+
+    if path == '':
+        return ''
+
+    # split directory prefix and basename
+    last_slash = max(path.rfind('/'), path.rfind('\\'))
+    prefix = path[:last_slash + 1]
+    basename = path[last_slash + 1:]
+
+    dot = basename.rfind('.')
+
+    if dot <= 0:
+        new_basename = basename + suffix
+    else:
+        new_basename = basename[:dot] + suffix
+
+    return prefix + new_basename
+```
+
+---
+
+# Why this works for the tests
+
+- `file.txt` → basename `file.txt`, dot at 4 → `file` + `.js`
+- `a.b.c` → last dot before `c` → `a.b` + `.md`
+- `.hidden` → dot at 0 → append suffix → `.hidden.js`
+- `.hidden.txt` → last dot at 7 → `.hidden` + `.js`
+- `/tmp/file.txt` → prefix `/tmp/`, basename `file.txt`
+- `C:\\dir\\file.txt` → prefix `C:\\dir\\`, basename `file.txt`
+- `noext` → no dot → append suffix
+- `noext`, `.` → `noext.`
+- `file.txt`, `''` → `file`
+
+---
+
+# Complexity
+
+Let `n` be the length of the string path.
+
+- Finding separators and dot: `O(n)`
+- Building result: `O(n)`
+
+Overall:
+- **Time:** `O(n)`
+- **Space:** `O(n)` for the output string
+
+---
+
+# Edge Cases to Handle
+
+1. **Non-string input**
+   - return unchanged
+
+2. **Empty path**
+   - return unchanged
+
+3. **Path ends with separator**
+   - `'./'`, `'/'`, `'./folder/'`
+   - treat final basename as empty and append suffix to that empty basename
+
+4. **Suffix with spaces or unusual characters**
+   - use literally, no trimming
+
+5. **Hidden files**
+   - leading dot alone should not count as extension separator
+
+6. **Windows paths**
+   - backslashes should be treated as separators too
+
+---
+
+# Final algorithm summary
+
+Modify only string paths by replacing the extension of the last path segment with `suffix`.  
+If the last segment has no extension, append `suffix`.  
+Treat a leading dot in the last segment as part of the filename, not an extension marker, unless there is another dot later.  
+Return non-string inputs unchanged.

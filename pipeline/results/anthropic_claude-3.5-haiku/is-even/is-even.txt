@@ -1,0 +1,19 @@
+module.exports = function(x) {
+    if (x === null || typeof x === 'boolean' || Array.isArray(x) || typeof x === 'object') {
+        throw new Error('is-odd expects a number');
+    }
+    
+    if (typeof x === 'string') {
+        try {
+            x = parseInt(x);
+        } catch {
+            throw new Error('is-odd expects a number');
+        }
+    }
+    
+    if (!Number.isInteger(x)) {
+        throw new Error('is-odd expects an integer');
+    }
+    
+    return x % 2 === 0;
+};

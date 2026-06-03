@@ -1,0 +1,16 @@
+Based on the test suite provided, the algorithm for the function `f(n)` seems to be checking if the input number `n` is a prime number or not. 
+
+Here is an algorithm that describes the function:
+
+Algorithm f(n):
+1) If n is less than 2, return False (as 0 and 1 are not prime numbers).
+2) If n is 2, return True (2 is the smallest prime number).
+3) For each number i from 2 to the square root of n:
+   - If n is divisible by i, return False (as n is not a prime number).
+4) If none of the above conditions are met, return True (indicating that n is a prime number).
+
+This algorithm checks if the input number `n` is prime by iterating through all numbers from 2 to the square root of `n` and checking for divisibility. It returns True if `n` is a prime number and False otherwise.
+
+Edge cases to consider:
+- Handling negative numbers: Depending on the definition of prime numbers, negative numbers may not be considered prime.
+- Handling large numbers: The algorithm should efficiently handle large numbers for performance reasons.

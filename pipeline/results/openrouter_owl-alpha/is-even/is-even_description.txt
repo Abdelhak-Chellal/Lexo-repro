@@ -1,0 +1,86 @@
+# Algorithm: is-odd Function
+
+## 1. Understanding the Test Suite
+
+The function `f` (named `is-odd`) takes a single argument and returns a boolean or throws errors under specific conditions.
+
+**Key observations from the test cases:**
+
+| Input | Output | Pattern |
+|-------|--------|---------|
+| 2, 0, -4, 100, -100 | True | Even numbers → True |
+| 1, -1, 3, 999999, -999999 | False | Odd numbers → False |
+| '2' | True | String that represents a valid integer → True |
+| '', 'even' | throws | Non-numeric string → error |
+| None, True, False, {}, [] | throws | Non-numeric types → error |
+| 1.5, 2.1, -2.1 | throws | Non-integer numbers → error |
+| f(None, True) | throws | Multiple args or invalid → error |
+
+## 2. Problem Definition
+
+**The function determines whether a given input represents an even integer.**
+
+- Returns `True` if the value is an even integer
+- Returns `False` if the value is an odd integer
+- Throws an error for invalid inputs (non-numbers, non-integer numbers, non-numeric strings, multiple arguments)
+
+## 3. Algorithm Design
+
+```python
+def is_odd(value):
+    # Step 1: Validate input type
+    if value is None:
+        raise ValueError("is-odd expects a number.")
+    
+    if isinstance(value, bool):
+        raise ValueError("is-odd expects a number.")
+    
+    if isinstance(value, (dict, list)):
+        raise ValueError("is-odd expects a number.")
+    
+    # Step 2: Handle string inputs
+    if isinstance(value, str):
+        if value == '' or not is_valid_integer_string(value):
+            raise ValueError("is-odd expects a number.")
+        # Convert valid numeric string to integer
+        num = int(value)
+    elif isinstance(value, (int, float)):
+        # Step 3: Check if number is an integer (not float with decimals)
+        if isinstance(value, float) and not value.is_integer():
+            raise ValueError("is-odd expects an integer.")
+        num = int(value)
+    else:
+        raise ValueError("is-odd expects a number.")
+    
+    # Step 4: Determine if the integer is odd or even
+    if num % 2 == 0:
+        return True   # Even number
+    else:
+        return False  # Odd number
+```
+
+**Helper function:**
+```python
+def is_valid_integer_string(s):
+    """Check if string represents a valid integer (e.g., '2', '-4', '100')"""
+    if not s:
+        return False
+    # Allow optional leading minus sign
+    if s[0] == '-':
+        s = s[1:]
+    return s.isdigit()
+```
+
+## 4. Edge Cases
+
+- **Zero**: Handled → returns `True` (0 is even)
+- **Negative numbers**: Handled via modulo operator
+- **Large numbers**: Python handles arbitrary precision integers
+- **Float that is integer-valued** (e.g., `2.0`): Should be accepted as integer
+- **Empty string**: Throws error (covered)
+- **Boolean values**: Explicitly rejected despite being subclass of int in Python
+- **Multiple arguments**: Function signature accepts single argument, so extra args cause error
+
+## Summary
+
+The `is-odd` function validates that its input is a valid integer (either directly or as a numeric string), then returns `True` for even integers and `False` for odd integers, throwing descriptive errors for all invalid inputs.

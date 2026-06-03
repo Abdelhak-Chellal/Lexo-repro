@@ -1,0 +1,22 @@
+```javascript
+module.exports = function(dict, ...keysArgs) {
+    let keys;
+    if (keysArgs.length === 1 && Array.isArray(keysArgs[0])) {
+        keys = keysArgs[0];
+    } else {
+        keys = keysArgs;
+    }
+    
+    const result = {};
+    const seen = new Set();
+    
+    for (const key of keys) {
+        if (dict.hasOwnProperty(key) && !seen.has(key)) {
+            result[key] = dict[key];
+            seen.add(key);
+        }
+    }
+    
+    return result;
+};
+```

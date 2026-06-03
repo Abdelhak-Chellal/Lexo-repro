@@ -1,0 +1,11 @@
+```javascript
+module.exports = function(input_value) {
+    if (input_value === null) {
+        return [null];
+    }
+    if (!Array.isArray(input_value)) {
+        return [input_value];
+    }
+    return input_value;
+};
+```

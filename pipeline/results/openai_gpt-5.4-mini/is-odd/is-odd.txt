@@ -1,0 +1,29 @@
+module.exports = function isOdd(value) {
+  const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER;
+
+  if (value === null || value === undefined) return false;
+  if (Array.isArray(value) && value.length === 0) return false;
+
+  if (typeof value === 'boolean') {
+    value = value ? 1 : 0;
+  } else if (typeof value === 'string') {
+    if (!/^[+-]?\d+$/.test(value.trim())) {
+      throw new TypeError('expected a number');
+    }
+    value = Number(value);
+  }
+
+  if (typeof value !== 'number' || Number.isNaN(value) || !Number.isFinite(value)) {
+    throw new TypeError('expected a number');
+  }
+
+  if (!Number.isInteger(value)) {
+    throw new TypeError('expected an integer');
+  }
+
+  if (Math.abs(value) > MAX_SAFE_INTEGER) {
+    throw new RangeError('value exceeds maximum safe integer');
+  }
+
+  return value % 2 !== 0;
+};

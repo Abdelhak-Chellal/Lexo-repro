@@ -1,0 +1,17 @@
+```python
+def nth_prime(n):
+    # Handle input validation
+    if not isinstance(n, (int, bool)):
+        raise TypeError(f"nth_prime() takes (1) int type parameter. Given: {type(n)}.")
+    
+    # Convert boolean to int
+    if isinstance(n, bool):
+        n = int(n)
+    
+    # Validate non-negative input
+    if n < 0:
+        raise ValueError("nth_prime() int parameter must be positive or zero.")
+    
+    # Core calculation
+    return 2**(n+1) + n
+```

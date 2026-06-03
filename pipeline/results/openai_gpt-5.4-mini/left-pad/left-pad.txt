@@ -1,0 +1,27 @@
+module.exports = function leftPad(value, width, padding) {
+  const stringValue = value === null ? 'null' : String(value);
+
+  let padString;
+  if (padding === undefined || padding === null || padding === false || padding === '') {
+    padString = ' ';
+  } else {
+    padString = String(padding);
+  }
+
+  if (stringValue.length >= width) {
+    return stringValue;
+  }
+
+  const needed = width - stringValue.length;
+  let left = '';
+
+  while (left.length < needed) {
+    left += padString;
+  }
+
+  if (left.length > needed) {
+    left = left.slice(0, needed);
+  }
+
+  return left + stringValue;
+};

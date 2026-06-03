@@ -1,0 +1,18 @@
+module.exports = function(filepath, newExtension) {
+    if (filepath === null) return null;
+    if (typeof filepath !== 'string') return filepath;
+    if (filepath === '') return '';
+
+    if (newExtension === '') {
+        const lastDotIndex = filepath.lastIndexOf('.');
+        return lastDotIndex !== -1 ? filepath.slice(0, lastDotIndex) : filepath;
+    }
+
+    const lastDotIndex = filepath.lastIndexOf('.');
+    
+    if (lastDotIndex === -1) {
+        return filepath + newExtension;
+    }
+
+    return filepath.slice(0, lastDotIndex) + newExtension;
+};

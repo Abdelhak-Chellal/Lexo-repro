@@ -1,0 +1,16 @@
+module.exports = function (array) {
+  var valuesToRemove = [];
+
+  for (var i = 1; i < arguments.length; i++) {
+    var arg = arguments[i];
+    if (Array.isArray(arg)) {
+      for (var j = 0; j < arg.length; j++) {
+        valuesToRemove.push(arg[j]);
+      }
+    }
+  }
+
+  return array.filter(function (item) {
+    return valuesToRemove.indexOf(item) === -1;
+  });
+};

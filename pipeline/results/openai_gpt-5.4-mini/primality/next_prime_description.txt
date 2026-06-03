@@ -1,0 +1,147 @@
+Here’s a plausible algorithm that matches the test suite.
+
+## 1) Understand the test suite
+
+From the I/O pairs:
+
+- `f(0) = 2`
+- `f(1) = 2`
+- `f(-1) = 2`
+- `f(-10) = 2`
+
+So all non-positive inputs, and also `1`, map to `2`.
+
+For positive inputs:
+
+- `f(2) = 3`
+- `f(3) = 5`
+- `f(4) = 5`
+- `f(5) = 7`
+- `f(6) = 7`
+- `f(7) = 11`
+- `f(8) = 11`
+- `f(9) = 11`
+- `f(10) = 11`
+- `f(11) = 13`
+- `f(12) = 13`
+
+This suggests:
+
+- The function returns the **smallest prime number greater than or equal to `n`**,
+- with a special case that everything `<= 1` returns `2`.
+
+This matches all examples:
+- next prime after 2 is 3
+- next prime after 3 is 3, but the test gives 5 for 3, so it is actually **strictly greater than `n`** for positive inputs
+- thus the function seems to return the **next prime strictly greater than `n`**, except for `n <= 1`, where it returns 2.
+
+Check:
+- `2 -> 3`
+- `3 -> 5`
+- `4 -> 5`
+- `5 -> 7`
+- `6 -> 7`
+- `7 -> 11`
+- `8,9,10 -> 11`
+- `11 -> 13`
+- `12 -> 13`
+
+Yes, this fits exactly.
+
+---
+
+## 2) Analyze the problem
+
+### Problem definition
+Given an integer `n`, return:
+
+- `2` if `n <= 1`
+- otherwise, the **smallest prime number strictly greater than `n`**
+
+This is essentially computing the **next prime** after `n`.
+
+### Complexity
+A straightforward primality-based approach is sufficient:
+
+- Check numbers `n+1, n+2, ...` until a prime is found.
+- Each primality test can be done in `O(sqrt(k))`.
+- In practice, this is efficient for small-to-moderate integers.
+
+---
+
+## 3) Design the algorithm
+
+### Step-by-step approach
+
+1. If `n <= 1`, return `2`.
+2. Set `candidate = n + 1`.
+3. While `candidate` is not prime:
+   - increment `candidate`
+4. Return `candidate`.
+
+### Prime test
+To test whether `x` is prime:
+
+- If `x < 2`, not prime
+- If `x == 2`, prime
+- If `x` is even, not prime
+- Otherwise, test odd divisors from `3` to `sqrt(x)`.
+
+---
+
+## 4) Handle edge cases
+
+### Edge cases covered
+- `n < 0` → return `2`
+- `n = 0` → return `2`
+- `n = 1` → return `2`
+- `n = 2` → return `3`
+- Prime input like `n = 3` → return next prime, `5`
+
+### Additional considerations
+- Large inputs may require a more optimized primality test if performance matters.
+- For the given suite, the simple method is enough.
+
+---
+
+## Pseudocode
+
+```python
+def f(n):
+    if n <= 1:
+        return 2
+
+    candidate = n + 1
+    while not is_prime(candidate):
+        candidate += 1
+
+    return candidate
+
+
+def is_prime(x):
+    if x < 2:
+        return False
+    if x == 2:
+        return True
+    if x % 2 == 0:
+        return False
+
+    d = 3
+    while d * d <= x:
+        if x % d == 0:
+            return False
+        d += 2
+
+    return True
+```
+
+---
+
+## Summary
+
+The function computes the **next prime strictly greater than the input**, with all inputs `<= 1` mapping to `2`.
+
+If you want, I can also express this as:
+- a concise mathematical definition,
+- a flowchart-style algorithm,
+- or a reverse-engineered specification.

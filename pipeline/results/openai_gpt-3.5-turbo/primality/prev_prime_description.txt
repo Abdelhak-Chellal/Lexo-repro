@@ -1,0 +1,14 @@
+Algorithm:
+
+1) Start
+2) Define the function f(num) that takes an integer as input
+3) Check if the input number is less than or equal to 1
+4) If true, return the input number
+5) If false, subtract 4 from the input number
+6) Recursively call the function with the new number obtained in step 5 as input
+7) Return the final result
+8) End
+
+Edge Cases:
+- If the input number is negative, handle it appropriately (e.g., return an error message or handle it as a positive number)
+- If the input number is a floating-point number, round it to the nearest integer before performing calculations

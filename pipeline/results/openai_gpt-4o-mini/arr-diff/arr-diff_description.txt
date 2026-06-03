@@ -1,0 +1,47 @@
+To design an algorithm that describes the function `f` based on the provided test suite, we will follow the outlined steps:
+
+### 1) Understand the Test Suite
+
+The test cases show that the function `f` takes two lists as inputs. The first list contains integers, and the second list can contain integers, `None`, or boolean values (True/False). The output is a list of integers from the first list that are not present in the second list. 
+
+### 2) Analyze the Problem
+
+The goal of the function appears to be filtering the first list by removing any elements that are present in the second list. The second list may include elements that are not integers, but only integers from the first list should be considered for filtering. 
+
+### 3) Design the Algorithm
+
+#### Step-by-Step Approach:
+
+1. **Input Validation**: Ensure both inputs are lists.
+2. **Create a Set for Fast Lookup**: Convert the second list into a set to allow for O(1) average-time complexity when checking for membership.
+3. **Filter the First List**: Iterate through the first list and collect elements that are not in the set created from the second list.
+4. **Return the Result**: Return the collected elements as a list.
+
+#### Pseudocode:
+
+```python
+def f(list1, list2):
+    # Step 1: Validate inputs (if needed)
+    if not isinstance(list1, list) or not isinstance(list2, list):
+        raise ValueError("Both inputs must be lists.")
+        
+    # Step 2: Create a set from list2 for fast lookup
+    set2 = set(list2)
+    
+    # Step 3: Filter list1
+    result = [item for item in list1 if item not in set2 and isinstance(item, int)]
+    
+    # Step 4: Return the result
+    return result
+```
+
+### 4) Handle Edge Cases
+
+- **Empty Lists**: If either list is empty, the function should handle it correctly. 
+- **Non-Integer Values in the Second List**: Since we only want to filter by integers, any non-integer values in the second list should not affect the output.
+- **Duplicates in the First List**: If there are duplicates in the first list, they should be preserved unless they match an integer in the second list.
+- **Presence of Special Values**: The function should correctly handle `None`, booleans, and other non-integer types in the second list by ignoring them during comparison.
+
+### Final Algorithm
+
+The algorithm effectively handles the given test cases and edge scenarios based on the analysis. It uses basic list and set operations to achieve the desired output efficiently.

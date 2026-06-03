@@ -1,0 +1,22 @@
+```javascript
+module.exports = function(filePath, newExtension) {
+    if (filePath === null) return null;
+    if (typeof filePath !== 'string') return filePath;
+    if (newExtension === null) newExtension = "null";
+
+    const path = require('path');
+    const directory = path.dirname(filePath);
+    const fileName = path.basename(filePath);
+    const baseName = path.parse(fileName).name;
+    const currentExtension = path.extname(fileName);
+
+    let newFileName;
+    if (newExtension === "") {
+        newFileName = baseName; // Remove current extension
+    } else {
+        newFileName = baseName + newExtension; // Add new extension
+    }
+
+    return path.join(directory, newFileName);
+};
+```

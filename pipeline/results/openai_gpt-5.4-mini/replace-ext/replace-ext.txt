@@ -1,0 +1,26 @@
+module.exports = function replaceExt(path, suffix) {
+  if (typeof path !== 'string') {
+    return path;
+  }
+
+  if (path === '') {
+    return '';
+  }
+
+  const lastForwardSlash = path.lastIndexOf('/');
+  const lastBackSlash = path.lastIndexOf('\\');
+  const lastSeparator = Math.max(lastForwardSlash, lastBackSlash);
+
+  const prefix = path.slice(0, lastSeparator + 1);
+  const basename = path.slice(lastSeparator + 1);
+  const lastDot = basename.lastIndexOf('.');
+
+  let newBasename;
+  if (lastDot <= 0) {
+    newBasename = basename + suffix;
+  } else {
+    newBasename = basename.slice(0, lastDot) + suffix;
+  }
+
+  return prefix + newBasename;
+};

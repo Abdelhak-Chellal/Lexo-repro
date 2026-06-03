@@ -1,0 +1,8 @@
+Based on the given test suite, the function f(x) returns the smallest prime number that is greater than or equal to x. For negative inputs, it defaults to returning 2, which is the smallest prime number.
+
+Algorithm Description:
+1. If the input x is less than 2, return 2 immediately.
+2. Otherwise, starting from x, check each subsequent integer to see if it is a prime number.
+3. The first prime number found in this search is the output of the function.
+
+This algorithm handles all provided test cases, including edge cases for negative numbers and large numbers.

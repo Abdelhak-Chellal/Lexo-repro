@@ -1,0 +1,22 @@
+module.exports = function (value) {
+  var NUMBER_ERROR = 'is-odd expects a number.';
+  var INTEGER_ERROR = 'is-odd expects an integer.';
+
+  function fail(message) {
+    throw new TypeError(message);
+  }
+
+  if (arguments.length === 0) fail(NUMBER_ERROR);
+  if (typeof value === 'boolean' || value === null || value === undefined) fail(NUMBER_ERROR);
+
+  if (typeof value === 'string') {
+    if (value.trim() === '') fail(NUMBER_ERROR);
+    value = Number(value);
+  }
+
+  if (typeof value !== 'number' || Number.isNaN(value)) fail(NUMBER_ERROR);
+  if (!Number.isFinite(value)) fail(INTEGER_ERROR);
+  if (!Number.isInteger(value)) fail(INTEGER_ERROR);
+
+  return value % 2 === 0;
+};

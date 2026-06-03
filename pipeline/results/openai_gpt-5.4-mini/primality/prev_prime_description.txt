@@ -1,0 +1,115 @@
+### 1) Understand the Test Suite
+
+From the input/output pairs:
+
+- `f(3) = 2`
+- `f(4) = 3`
+- `f(5) = 3`
+- `f(6) = 5`
+- `f(7) = 5`
+- `f(8) = 7`
+- `f(9) = 7`
+- `f(10) = 7`
+- `f(11) = 7`
+- `f(12) = 11`
+- `f(13) = 11`
+- `f(17) = 13`
+- `f(18) = 17`
+- `f(19) = 17`
+- `f(20) = 19`
+
+The outputs look like numbers less than or equal to `n`, often the largest prime strictly less than `n`, except when `n` itself is prime, where the output is the previous prime.
+
+So this appears to be:
+
+> **f(n) = the largest prime number smaller than n**  
+> equivalently, the **previous prime** before `n`.
+
+Examples:
+- For `n = 12`, previous prime is `11`
+- For `n = 20`, previous prime is `19`
+- For `n = 17` (prime), previous prime is `13`
+
+---
+
+### 2) Analyze the Problem
+
+We need an algorithm that, given an integer `n`, returns the greatest prime number `< n`.
+
+This is the classic **previous prime** problem.
+
+#### Observations
+- The answer is always a prime.
+- The answer is always less than `n`.
+- If `n` is prime, we must not return `n`; we return the prime just before it.
+- For small values:
+  - `f(2)` or `f(1)` would be undefined if we require a prime strictly less than `n`.
+  - The smallest valid output in the test suite is `2` for input `3`.
+
+#### Complexity
+A simple approach is to test candidates below `n` for primality until one is found.
+- Worst-case time: about `O(n sqrt(n))` if done naively.
+- Can be improved by checking only odd numbers and using an efficient primality test.
+
+---
+
+### 3) Design the Algorithm
+
+#### Step-by-step approach
+1. Start from `n - 1`.
+2. Decrease by 1 until a prime is found.
+3. Return that prime.
+
+#### Primality test
+To check whether a number `x` is prime:
+- If `x < 2`, it is not prime.
+- If `x == 2`, it is prime.
+- If `x` is even, it is not prime.
+- Otherwise, test odd divisors from `3` up to `sqrt(x)`.
+
+#### Pseudocode
+```text
+function f(n):
+    x = n - 1
+    while x >= 2:
+        if isPrime(x):
+            return x
+        x = x - 1
+
+function isPrime(x):
+    if x < 2:
+        return false
+    if x == 2:
+        return true
+    if x % 2 == 0:
+        return false
+    for d from 3 to floor(sqrt(x)) step 2:
+        if x % d == 0:
+            return false
+    return true
+```
+
+---
+
+### 4) Handle Edge Cases
+
+#### Edge cases to consider
+- `n <= 2`: no prime exists below `n`
+  - Example: `f(1)`, `f(2)` are undefined under this interpretation.
+- `n = 3`: return `2`
+- `n` itself prime: still return the previous prime
+  - Example: `f(17) = 13`
+- Very large `n`: naive primality checking may be slow; for efficiency, a sieve or probabilistic primality test could be used depending on constraints.
+
+---
+
+### Final Interpretation
+
+The function computes:
+
+> **the largest prime number less than the input `n`**
+
+If you want, I can also provide:
+- a Python implementation,
+- a more optimized algorithm,
+- or a proof that the test suite matches this interpretation.

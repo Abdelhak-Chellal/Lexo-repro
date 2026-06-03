@@ -1,0 +1,64 @@
+Based on the test suite, here's an analysis and algorithm design:
+
+Problem Description:
+- The function appears to find the largest prime number less than or equal to the input number
+- It's called "prev_prime()"
+- Accepts only integers greater than 2
+- Throws type errors for non-integer inputs
+- Throws value errors for inputs <= 2
+
+Algorithm Design:
+
+```python
+def prev_prime(n):
+    # Input validation
+    if not isinstance(n, int):
+        raise TypeError(f"prev_prime() expects parameter n to be int. Given: {type(n)}")
+    
+    if n <= 2:
+        raise ValueError(f"prev_prime() expects parameter n to be larger than 2. Given: {n}")
+    
+    # Prime checking helper function
+    def is_prime(num):
+        if num < 2:
+            return False
+        for i in range(2, int(num**0.5) + 1):
+            if num % i == 0:
+                return False
+        return True
+    
+    # Iterate downwards to find largest prime
+    for candidate in range(n, 1, -1):
+        if is_prime(candidate):
+            return candidate
+```
+
+Key Algorithm Components:
+1. Input Validation
+   - Check input is integer
+   - Check input is > 2
+
+2. Prime Detection
+   - Efficient primality test up to square root
+   - O(sqrt(n)) complexity for prime checking
+
+3. Largest Prime Search
+   - Iterate downwards from input
+   - Return first prime encountered
+   - Guarantees largest prime <= input
+
+Time Complexity: O(n * sqrt(n))
+Space Complexity: O(1)
+
+The algorithm systematically checks each number below the input, starting from the input itself, and returns the first prime number encountered, which will be the largest prime less than or equal to the input.
+
+Verification against test cases:
+- Handles edge cases (4, 5, 10, 11)
+- Works for larger numbers (100, 1000)
+- Throws correct exceptions for invalid inputs
+- Consistent with mathematical definition of previous prime
+
+Potential Optimizations:
+- Implement more efficient prime checking for very large numbers
+- Use sieve methods for precomputing primes
+- Memoization for repeated calls

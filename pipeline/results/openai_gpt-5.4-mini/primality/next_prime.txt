@@ -1,0 +1,7 @@
+def next_prime(n):
+    if n <= 1:
+        return 2
+    candidate = n + 1
+    while not is_prime(candidate):
+        candidate += 1
+    return candidate

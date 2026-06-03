@@ -1,0 +1,9 @@
+def between(a, b):
+    if a > b:
+        return []
+    start = max(a, 2)
+    result = []
+    for x in range(start, b + 1):
+        if is_prime(x):
+            result.append(x)
+    return result

@@ -1,0 +1,14 @@
+def next_prime(n):
+    if not isinstance(n, int):
+        raise TypeError(f"nextprime() expect parameter n to be int. Given: {type(n)}.")
+    
+    if n is True:
+        return 2
+    if n is False:
+        return 2
+    
+    current = max(2, n)
+    while not is_prime(current):
+        current += 1
+    
+    return current

@@ -12,6 +12,30 @@ client = OpenAI(
 
 PYTHON_PACKAGES = ["primality"]
 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+RESULTS_DIR = os.path.join(SCRIPT_DIR, "results")
+
+
+def save_result(package_name, func_name, model, code, description=None, is_error=False):
+    """Save code to results/<model>/<package>/<func>.txt
+    and the algorithm description to <func>_description.txt"""
+    model_folder = model.replace("/", "_")
+    folder = os.path.join(RESULTS_DIR, model_folder, package_name)
+    os.makedirs(folder, exist_ok=True)
+
+    suffix = "_error" if is_error else ""
+    code_path = os.path.join(folder, f"{func_name}{suffix}.txt")
+    with open(code_path, "w", encoding="utf-8") as f:
+        f.write(code)
+    print(f"  [saved] {code_path}")
+
+    if description:
+        desc_path = os.path.join(folder, f"{func_name}_description.txt")
+        with open(desc_path, "w", encoding="utf-8") as f:
+            f.write(description)
+        print(f"  [saved] {desc_path}")
+
+
 def format_io_pairs(io_pairs):
     formatted = []
     for p in io_pairs:
@@ -21,6 +45,7 @@ def format_io_pairs(io_pairs):
         else:
             formatted.append(f"f({args}) = {repr(p['output'])}")
     return "\n".join(formatted)
+
 
 def io_pairs_to_algorithm(io_pairs, model):
     io_str = format_io_pairs(io_pairs)
@@ -43,6 +68,7 @@ I/O Pairs:
         timeout=60,
     )
     return response.choices[0].message.content.strip()
+
 
 def algorithm_to_code_js(io_pairs, algorithm, package_name, model):
     io_str = format_io_pairs(io_pairs)
@@ -72,6 +98,7 @@ Do not include any explanation, just the code."""
         timeout=60,
     )
     return response.choices[0].message.content.strip()
+
 
 def algorithm_to_code_py(io_pairs, algorithm, package_name, model):
     io_str = format_io_pairs(io_pairs)
@@ -103,6 +130,7 @@ Do not include any explanation, just the code."""
     )
     return response.choices[0].message.content.strip()
 
+
 def extract_code(raw, lang="js"):
     if lang == "py":
         raw = re.sub(r'```python', '', raw)
@@ -111,6 +139,7 @@ def extract_code(raw, lang="js"):
         raw = re.sub(r'```js', '', raw)
     raw = re.sub(r'```', '', raw)
     return raw.strip()
+
 
 def regenerate(package_name, io_pairs, model):
     is_python = package_name in PYTHON_PACKAGES
@@ -125,17 +154,11 @@ def regenerate(package_name, io_pairs, model):
     else:
         raw_code = algorithm_to_code_js(io_pairs, algorithm, package_name, model)
 
+    save_result(package_name, package_name, model, raw_code, description=algorithm)
     code = extract_code(raw_code, lang=lang)
+
     return code, algorithm
 
-if __name__ == "__main__":
-    from input_gen import generate_io_pairs
-
-    print("\n=== primality ===")
-    io_pairs, source = generate_io_pairs("primality", "openai/gpt-4o-mini")
-    code, algorithm = regenerate("primality", io_pairs, "openai/gpt-4o-mini")
-    print("=== GENERATED CODE ===")
-    print(code)
 
 def regenerate_primality(all_io_pairs, model):
     all_code = []
@@ -145,9 +168,11 @@ def regenerate_primality(all_io_pairs, model):
 
     for func_name, io_pairs in all_io_pairs.items():
         print(f"  Regenerating {func_name}...")
+        algorithm = None  # Pre-define so it's accessible in the except block
         try:
             io_pairs_limited = io_pairs[:15]
             algorithm = io_pairs_to_algorithm(io_pairs_limited, model)
+
             prompt = (
                 "Generate a Python function given a set of input-output examples.\n\n"
                 "CRITICAL RULES:\n"
@@ -166,13 +191,23 @@ def regenerate_primality(all_io_pairs, model):
                 temperature=0.7,
                 max_tokens=2000,
             )
-            code = extract_code(response.choices[0].message.content.strip(), lang="py")
+            raw = response.choices[0].message.content.strip()
+            save_result("primality", func_name, model, raw, description=algorithm)
+            code = extract_code(raw, lang="py")
+
             all_code.append(code)
             all_code.append("")
         except Exception as e:
+            error_content = f"Exception: {e}\n"
+            try:
+                error_content += f"\nRaw model response:\n{response.choices[0].message.content}"
+            except Exception:
+                pass
+            # Saves the error AND the generated algorithm if it managed to complete step 1
+            save_result("primality", func_name, model, error_content, description=algorithm, is_error=True)
             print(f"  Warning: {func_name} regeneration failed: {e}")
 
-    # add rand_prime as a simple wrapper since it uses randomness
+    # Add rand_prime as a simple wrapper since it uses randomness
     all_code.append("""def rand_prime(m, n, strategy=None):
     import random
     primes = between(m, n)
@@ -182,3 +217,13 @@ def regenerate_primality(all_io_pairs, model):
 """)
 
     return "\n".join(all_code)
+
+
+if __name__ == "__main__":
+    from input_gen import generate_io_pairs
+
+    print("\n=== primality ===")
+    io_pairs, source = generate_io_pairs("primality", "openai/gpt-4o-mini")
+    code, algorithm = regenerate("primality", io_pairs, "openai/gpt-4o-mini")
+    print("=== GENERATED CODE ===")
+    print(code)

@@ -1,0 +1,78 @@
+# Algorithm Design for Function `f`
+
+## 1. Understanding the Test Suite
+
+The function `f` takes up to three arguments:
+- **arg1**: The value to be padded (string, number, boolean, None, etc.)
+- **arg2**: The total desired width (integer)
+- **arg3** (optional): The padding character (defaults to space `' '`)
+
+The function **left-pads** the string representation of `arg1` with the padding character so that the total length equals `arg2`. If the string is already equal to or longer than `arg2`, it returns the string unchanged.
+
+## 2. Key Observations
+
+| Observation | Evidence |
+|---|---|
+| Default pad char is space | `f('hello', 10)` → `'     hello'` |
+| Non-string inputs are converted | `f(123, 10)` → `'       123'`, `f(None, 10)` → `'      null'`, `f(True, 10)` → `'      true'` |
+| If width ≤ string length, return as-is | `f('hello', 3)` → `'hello'`, `f('hello', 0)` → `'hello'`, `f('hello', -1)` → `'hello'` |
+| Multi-char pad strings are truncated to fit | `f('hello', 6, '!!')` → `'!!hello'` (only 1 char of `'!!'` used) |
+| `None`, `False`, and `''` as pad char → treated as space | `f('hello', 10, None)` → `'     hello'`, `f('hello', 10, False)` → `'     hello'`, `f('hello', 10, '')` → `'     hello'` |
+| Pad char `'0'` is valid | `f('hello', 10, '0')` → `'00000hello'` |
+
+## 3. Algorithm
+
+```
+FUNCTION f(value, width, pad_char=' '):
+
+    // Step 1: Convert value to its string representation
+    IF value IS None:
+        str_value = "null"
+    ELSE IF value IS True:
+        str_value = "true"
+    ELSE IF value IS False:
+        str_value = "false"
+    ELSE:
+        str_value = STRING(value)
+
+    // Step 2: Determine the effective padding character
+    IF pad_char IS None OR pad_char IS False OR pad_char IS '' OR pad_char IS ' ':
+        effective_pad = ' '
+    ELSE IF pad_char IS 0:
+        effective_pad = '0'
+    ELSE:
+        effective_pad = FIRST CHARACTER of STRING(pad_char)
+
+    // Step 3: Calculate padding needed
+    padding_needed = width - LENGTH(str_value)
+
+    // Step 4: If no padding needed, return as-is
+    IF padding_needed <= 0:
+        RETURN str_value
+
+    // Step 5: Build the padding string
+    pad_string = REPEAT(effective_pad, padding_needed)
+
+    // Step 6: Return padded result
+    RETURN pad_string + str_value
+```
+
+## 4. Edge Cases Handled
+
+| Edge Case | Behavior |
+|---|---|
+| `width` ≤ 0 | Return string unchanged |
+| `width` < string length | Return string unchanged |
+| `value` is `None` | Convert to `"null"` |
+| `value` is boolean | Convert to `"true"`/`"false"` |
+| `pad_char` is `None`/`False`/`''` | Treat as space |
+| `pad_char` is multi-character | Use only the first character |
+| `pad_char` is `0` (integer) | Use `'0'` as pad character |
+| `pad_char` is `' '` (space) | Use space (same as default) |
+| `value` is numeric | Convert to string representation |
+| Missing `pad_char` argument | Default to space |
+
+## 5. Complexity
+
+- **Time Complexity**: O(n) where n = `width` (for building the padding string)
+- **Space Complexity**: O(n) for the output string

@@ -1,0 +1,20 @@
+```javascript
+module.exports = function(text, length, pad_char) {
+    if (pad_char === null) {
+        pad_char = ' ';
+    } else {
+        pad_char = String(pad_char);
+    }
+
+    const text_length = text.length;
+
+    if (text_length >= length) {
+        return text;
+    }
+
+    const padding_needed = length - text_length;
+    const padding = pad_char.repeat(padding_needed);
+
+    return padding + text;
+};
+```

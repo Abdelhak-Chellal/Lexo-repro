@@ -1,0 +1,137 @@
+### 1) Understand the Test Suite
+
+The function takes two integers and returns a list of numbers.
+
+From the examples:
+
+- `f(1, 10) = [2, 3, 5, 7]`
+- `f(4, 10) = [5, 7]`
+- `f(17, 29) = [17, 19, 23, 29]`
+
+These outputs are all **prime numbers** in the inclusive range from the first argument to the second argument.
+
+Other examples confirm this:
+
+- `f(2, 2) = [2]`
+- `f(3, 3) = [3]`
+- `f(19, 19) = [19]`
+
+Negative or small bounds show that primes are only returned when they fall within the interval:
+
+- `f(-5, 5) = [2, 3, 5]`
+- `f(-3, 3) = [2, 3]`
+- `f(-10, -1) = []`
+- `f(0, 0) = []`
+- `f(0, 1) = []`
+
+So the function returns **all prime numbers between the two inputs, inclusive**, sorted in ascending order.
+
+---
+
+### 2) Analyze the Problem
+
+We need to compute the set of prime numbers in a numeric interval `[a, b]`.
+
+Important observations:
+
+- If `a > b`, the result is empty, e.g. `f(10, 1) = []`.
+- Values less than `2` cannot be prime.
+- The output is ordered ascending.
+- The interval may include negative numbers or zero, but only primes ≥ 2 matter.
+
+This is essentially a **prime filtering** problem over a range.
+
+---
+
+### 3) Design the Algorithm
+
+#### Core idea
+1. Normalize the interval:
+   - If `a > b`, return `[]`.
+2. Start from `max(a, 2)` because primes begin at 2.
+3. For each integer `x` from `max(a, 2)` to `b`, check whether `x` is prime.
+4. If prime, append it to the result list.
+
+#### Primality check
+To determine whether `x` is prime:
+- If `x < 2`, not prime.
+- If `x == 2`, prime.
+- If `x` is even and greater than 2, not prime.
+- Otherwise test divisibility by odd numbers from `3` up to `sqrt(x)`.
+
+This is efficient enough for typical interval filtering.
+
+---
+
+### 4) Handle Edge Cases
+
+#### Edge cases covered by the tests
+- Empty ranges: `a > b` → `[]`
+- Ranges entirely below 2 → `[]`
+- Single-value ranges:
+  - if the value is prime, return `[value]`
+  - otherwise `[]`
+- Negative bounds: ignore anything below 2
+
+#### Additional edge cases
+- If the interval contains only one prime candidate, return a one-element list.
+- If both bounds are the same composite number, return `[]`.
+- Large intervals should still work correctly; a sieve could be used for better performance if needed.
+
+---
+
+## Algorithm in Pseudocode
+
+```text
+function f(a, b):
+    if a > b:
+        return []
+
+    start = max(a, 2)
+    result = []
+
+    for x from start to b:
+        if isPrime(x):
+            result.append(x)
+
+    return result
+
+
+function isPrime(n):
+    if n < 2:
+        return false
+    if n == 2:
+        return true
+    if n % 2 == 0:
+        return false
+
+    d = 3
+    while d * d <= n:
+        if n % d == 0:
+            return false
+        d += 2
+
+    return true
+```
+
+---
+
+## Complexity
+
+Let `N = b - a + 1`.
+
+- Each number is tested for primality.
+- A primality test takes `O(sqrt(m))` for number `m`.
+
+So total complexity is roughly:
+
+- **Time:** `O(N * sqrt(b))`
+- **Space:** `O(1)` excluding output
+
+If performance for large ranges matters, a **Sieve of Eratosthenes** on the interval could be used instead, but the test suite strongly suggests a straightforward prime-range filter.
+
+---
+
+## Final Description
+
+The function returns a sorted list of all prime numbers in the inclusive interval `[a, b]`, ignoring all values less than 2 and returning an empty list if the interval is invalid or contains no primes.

@@ -1,0 +1,17 @@
+```javascript
+module.exports = function(data, keys) {
+    if (typeof keys === 'string') {
+        keys = [keys];
+    }
+
+    const result = {};
+
+    for (const key of keys) {
+        if (key in data) {
+            result[key] = data[key];
+        }
+    }
+
+    return result;
+};
+```

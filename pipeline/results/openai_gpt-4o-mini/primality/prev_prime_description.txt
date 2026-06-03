@@ -1,0 +1,52 @@
+Based on the provided test suite, we can infer that the function `f(n)` is designed to return the largest prime number that is less than `n`. If `n` is less than or equal to 2, the function throws an exception indicating that the input must be greater than 2. 
+
+### Step-by-Step Algorithm Design
+
+1. **Input Validation**: Check if `n` is less than or equal to 2. If so, throw an exception with a message indicating that the parameter must be larger than 2.
+
+2. **Find the Largest Prime Less Than `n`**:
+   - Initialize a variable `candidate` to `n - 1` (the number just below `n`).
+   - While `candidate` is greater than or equal to 2:
+     - Check if `candidate` is a prime number.
+       - If it is, return `candidate`.
+       - If it is not, decrement `candidate` by 1.
+   - If no prime is found (which theoretically shouldn't happen for valid inputs above 2), return an indication of failure (though this is more of a safeguard).
+
+3. **Prime Checking Function**:
+   - To check if a number is prime, use the following steps:
+     - If the number is less than 2, return false.
+     - Check divisibility from 2 up to the square root of the number. If divisible by any number in this range, it is not prime.
+
+### Pseudocode
+
+```pseudocode
+function f(n):
+    if n <= 2:
+        throw Exception("prev_prime() expect parameter n to be larger than 2. Given: " + n)
+    
+    candidate = n - 1
+    
+    while candidate >= 2:
+        if is_prime(candidate):
+            return candidate
+        candidate = candidate - 1
+    
+    // Optional safeguard; should never hit this point for valid inputs
+    return None // or some indication of failure
+
+function is_prime(num):
+    if num < 2:
+        return false
+    for i from 2 to sqrt(num):
+        if num % i == 0:
+            return false
+    return true
+```
+
+### Edge Cases Handling
+
+- **Inputs less than or equal to 2**: As specified in the test suite, any input less than or equal to 2 should throw an exception. This is already handled in the input validation step.
+- **Performance Considerations**: For large values of `n`, the algorithm's efficiency can be improved using a more efficient prime-checking method, like the Sieve of Eratosthenes to precompute primes up to `n`. However, for the function's purpose of finding a single prime, a direct check may suffice for the expected input range based on the test cases.
+- **Negative Inputs**: Any negative inputs will also throw the same exception, as they fall under the condition of being less than or equal to 2.
+
+This algorithm effectively captures the requirements indicated by the test suite, ensuring that it handles all specified cases and adheres to the expected behavior.

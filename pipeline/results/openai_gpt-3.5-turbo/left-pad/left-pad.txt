@@ -1,0 +1,13 @@
+```javascript
+module.exports = function(s, n, c) {
+    if (s.length >= n) {
+        return s;
+    } else {
+        let diff = n - s.length;
+        if (typeof c !== 'string' || c.length !== 1) {
+            c = ' ';
+        }
+        return c.repeat(diff) + s;
+    }
+}
+```

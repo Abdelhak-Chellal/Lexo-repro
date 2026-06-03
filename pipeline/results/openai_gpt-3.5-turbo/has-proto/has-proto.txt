@@ -1,0 +1,5 @@
+```javascript
+module.exports = function has_proto() {
+  return true;
+}
+```

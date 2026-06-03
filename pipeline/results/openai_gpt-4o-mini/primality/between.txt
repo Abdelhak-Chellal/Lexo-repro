@@ -1,0 +1,12 @@
+```python
+def between(a, b):
+    if a >= b:
+        return []
+    
+    primes = []
+    for n in range(a, b):
+        if is_prime(n):
+            primes.append(n)
+    
+    return primes
+```

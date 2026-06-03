@@ -1,0 +1,13 @@
+Algorithm:
+
+1) Define a function f that takes three parameters: a string s, an integer n, and a character c.
+2) If the length of the string s is greater than or equal to n, return the string s as it is.
+3) If the length of the string s is less than n:
+    a) Calculate the number of characters needed to reach the length n by subtracting the length of s from n.
+    b) If c is None or an empty string, set c to a space ' '.
+    c) Repeat the character c the calculated number of times and concatenate it with the string s.
+    d) Return the concatenated string as the result.
+4) Handle edge cases:
+    a) If s is an empty string, return an empty string.
+    b) If c is not a string or a single character, set c to a space ' '.
+5) Implement the function based on the algorithm described above.

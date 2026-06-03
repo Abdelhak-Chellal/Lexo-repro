@@ -1,0 +1,7 @@
+```javascript
+module.exports = function f() {
+  if (typeof variable === 'undefined') {
+    throw new Error("Cannot read properties of undefined (reading 'length')");
+  }
+};
+```

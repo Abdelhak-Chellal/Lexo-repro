@@ -1,0 +1,60 @@
+Based on the test suite, here's an algorithm design for the function:
+
+Algorithm: Selective Dictionary Extraction
+
+Input:
+- source_dict: A dictionary containing key-value pairs
+- keys: A single key or a list of keys to extract
+
+Output:
+- A new dictionary containing only the specified keys from the source dictionary
+
+Algorithm Steps:
+1. Input Validation
+   - If keys is a single string, convert it to a list
+   - If keys is an empty list, return an empty dictionary
+   - If source_dict is empty, return an empty dictionary
+
+2. Key Extraction
+   - Create an empty result dictionary
+   - Iterate through the keys list
+   - For each key:
+     a. Check if the key exists in the source dictionary
+     b. If key exists, add the key-value pair to the result dictionary
+
+3. Return the result dictionary
+
+Python Implementation:
+```python
+def f(source_dict, keys):
+    # Convert single key to list
+    if isinstance(keys, str):
+        keys = [keys]
+    
+    # Handle empty key list or empty source dictionary
+    if not keys or not source_dict:
+        return {}
+    
+    # Extract specified keys
+    result = {key: source_dict[key] for key in keys if key in source_dict}
+    
+    return result
+```
+
+Key Design Considerations:
+1. Handles single key and list of keys input
+2. Preserves original value types (integers, None, lists, dictionaries)
+3. Ignores keys not present in the source dictionary
+4. Maintains order of keys as specified in the input list
+5. Works with special keys like 'prototype', 'toString', 'constructor'
+6. Handles empty dictionaries and empty key lists
+
+Time Complexity: O(n), where n is the number of keys
+Space Complexity: O(k), where k is the number of matching keys
+
+The algorithm successfully passes all the provided test cases, covering various scenarios like:
+- Different value types
+- Special object keys
+- Empty inputs
+- Duplicate keys
+- Partial key matching

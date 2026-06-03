@@ -1,0 +1,16 @@
+module.exports = function(sourceDict, keys) {
+    if (typeof keys === 'string') {
+        keys = [keys];
+    }
+    
+    if (!keys || !Object.keys(sourceDict).length) {
+        return {};
+    }
+    
+    return keys.reduce((result, key) => {
+        if (sourceDict.hasOwnProperty(key)) {
+            result[key] = sourceDict[key];
+        }
+        return result;
+    }, {});
+};

@@ -1,0 +1,107 @@
+```javascript
+function f(path, newExt) {
+  if (typeof path !== 'string') {
+    return path;
+  }
+
+  if (path === '') {
+    return '';
+  }
+
+  newExt = String(newExt);
+
+  // Normalize path: resolve . and ..
+  function normalize(p) {
+    var sep = p.indexOf('/') !== -1 ? '/' : (p.indexOf('\\') !== -1 ? '\\' : null);
+    if (!sep) return p;
+
+    var parts = p.split(sep);
+    var resolved = [];
+    for (var i = 0; i < parts.length; i++) {
+      if (parts[i] === '.' || parts[i] === '') {
+        continue;
+      } else if (parts[i] === '..') {
+        if (resolved.length > 0 && resolved[resolved.length - 1] !== '..') {
+          resolved.pop();
+        } else {
+          resolved.push('..');
+        }
+      } else {
+        resolved.push(parts[i]);
+      }
+    }
+
+    // Preserve leading separator
+    var result = resolved.join(sep);
+    if (p[0] === sep) {
+      result = sep + result;
+    }
+    // Preserve trailing separator
+    if (p[p.length - 1] === sep) {
+      result = result + sep;
+    }
+    return result;
+  }
+
+  var normalized = normalize(path);
+
+  // Determine separator
+  var sep = '/';
+  if (normalized.indexOf('\\') !== -1 && normalized.indexOf('/') === -1) {
+    sep = '\\';
+  }
+
+  // Split into directory and filename
+  var lastSep = normalized.lastIndexOf(sep);
+  var dirPart, filename;
+
+  if (lastSep === -1) {
+    dirPart = '';
+    filename = normalized;
+  } else {
+    dirPart = normalized.substring(0, lastSep + 1);
+    filename = normalized.substring(lastSep + 1);
+  }
+
+  // Handle trailing slash (filename is empty)
+  if (filename === '') {
+    // Re-split dirPart
+    var innerLastSep = dirPart.lastIndexOf(sep);
+    if (innerLastSep !== -1) {
+      filename = dirPart.substring(innerLastSep + 1);
+      dirPart = dirPart.substring(0, innerLastSep + 1);
+    } else {
+      filename = dirPart;
+      dirPart = '';
+    }
+  }
+
+  // Replace extension in filename
+  var newFilename;
+
+  if (filename === '.') {
+    newFilename = '.' + newExt;
+  } else if (filename === '..') {
+    newFilename = '..' + newExt;
+  } else if (filename.charAt(0) === '.' && filename.indexOf('.', 1) === -1) {
+    // Hidden file with no extension
+    newFilename = filename + newExt;
+  } else {
+    var lastDot = filename.lastIndexOf('.');
+    if (lastDot > 0) {
+      var base = filename.substring(0, lastDot);
+      newFilename = base + newExt;
+    } else {
+      newFilename = filename + newExt;
+    }
+  }
+
+  // Reconstruct
+  if (dirPart === '') {
+    return newFilename;
+  }
+  return dirPart + newFilename;
+}
+
+module.exports = f;
+```

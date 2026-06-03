@@ -1,0 +1,26 @@
+```javascript
+module.exports = function isOdd(x) {
+  if (x === null || x === undefined) {
+    return false;
+  }
+  
+  if (typeof x === 'boolean') {
+    return x;
+  }
+  
+  if (typeof x !== 'number') {
+    throw new Error('expected a number');
+  }
+  
+  if (!Number.isInteger(x)) {
+    throw new Error('expected an integer');
+  }
+  
+  const MAX_SAFE_INTEGER = 9007199254740991;
+  if (Math.abs(x) > MAX_SAFE_INTEGER) {
+    throw new Error('value exceeds maximum safe integer');
+  }
+  
+  return x % 2 !== 0;
+};
+```

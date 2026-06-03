@@ -1,0 +1,142 @@
+### 1) Understand the Test Suite
+
+The function `f` takes:
+
+- a **source object** or array
+- one or more **keys / key-like values**
+
+and returns a new object containing only the requested properties from the source.
+
+From the tests:
+
+- `f({'a': 3, 'b': 5, 'c': 9}, ['a', 'c']) -> {'a': 3, 'c': 9}`
+- `f([1, 2, 3], ['0', '1']) -> {'0': 1, '1': 2}`
+- `f([1, 2, 3], ['length']) -> {'length': 3}`
+
+So it behaves like a **property picker / projection**:
+- Only properties that exist on the source are copied.
+- Order of keys in the result follows the order of requested keys.
+- Duplicate requested keys appear only once in the result because object keys are unique.
+- Nonexistent keys are ignored.
+- It works for arrays too, treating indices and `"length"` as valid properties.
+- It ignores inherited or prototype properties such as `"toString"`, `"hasOwnProperty"`, `"constructor"`.
+
+Also important:
+- If the key input is not iterable-like / array-like in a certain way, behavior varies:
+  - `f([1,2,3], 0) = {}`  
+  - `f({'a':3,'b':5}, True) = {}`
+  - `f({'a':3,'b':5}, None)` throws an error about reading `length`, so the implementation likely expects a collection with a `length` property and iterates by index.
+- Objects with a `length` and indexed properties can be used as key lists.
+
+---
+
+### 2) Analyze the Problem
+
+This is essentially a **shallow property selection** function.
+
+#### Input
+- `obj`: an object or array
+- `keys`: either:
+  - an array of keys
+  - multiple key arguments
+  - or an array-like object with numeric indices and `length`
+
+#### Output
+- A new object containing only own properties of `obj` whose keys are present in the provided key list.
+
+#### Key observations
+- Only **own properties** are copied, not inherited ones.
+- Key matching is by exact property name:
+  - `'A'` and `'a'` are different.
+- Arrays are treated as objects.
+- The result is always a plain object `{}`.
+
+#### Complexity
+If there are `n` requested keys, the algorithm should be `O(n)` time with `O(n)` output space.
+
+---
+
+### 3) Design the Algorithm
+
+A suitable algorithm:
+
+1. Determine the list of requested keys.
+   - If more than two arguments are passed, use arguments after the first as the key list.
+   - If the second argument is array-like, iterate over its elements using `length` and numeric indices.
+2. Create an empty result object.
+3. For each key in the requested key list:
+   - Check whether the source object has that key as an **own property**.
+   - If yes and the key is not already in the result, copy `obj[key]` into the result.
+4. Return the result.
+
+---
+
+### 4) Handle Edge Cases
+
+#### Duplicate keys
+- `['a', 'a', 'a'] -> {'a': 3}`
+- Since object keys are unique, repeated assignment is harmless.
+
+#### Invalid or missing keys
+- `['d'] -> {}`
+- Ignore keys not found on the source.
+
+#### Arrays as sources
+- Treat numeric indices as string keys.
+- Include `"length"` if requested.
+
+#### Array-like key sources
+- `{'0': 'a', '1': 'b', 'length': 2}` works like `['a', 'b']`
+
+#### Dangerous prototype keys
+- Must use own-property checking to exclude:
+  - `toString`
+  - `hasOwnProperty`
+  - `constructor`
+
+#### Non-array-like second argument
+- If second argument is a non-iterable primitive like `0` or `True`, return `{}`.
+- If `None` is passed and the implementation tries to read `.length`, it throws; this suggests the function does not guard against `null/undefined` before reading length.
+
+---
+
+### Pseudocode
+
+```text
+function f(obj, ...keysInput):
+    result = {}
+
+    if keysInput has exactly 1 item:
+        keys = keysInput[0]
+        if keys is null:
+            throw error when reading length
+        if keys is array-like:
+            for i from 0 to keys.length - 1:
+                key = keys[i]
+                if key is own property of obj:
+                    result[key] = obj[key]
+        else if keys is a primitive and not array-like:
+            return {}
+    else:
+        # multiple key arguments
+        keys = keysInput
+        for each key in keys:
+            if key is own property of obj:
+                result[key] = obj[key]
+
+    return result
+```
+
+---
+
+### More direct description
+
+This function is a **safe shallow pick**:
+- It returns an object containing only the selected own properties from the source.
+- The keys can be supplied as:
+  - a list/array
+  - separate arguments
+  - an array-like object
+- It preserves the order of the requested keys and ignores missing or prototype-inherited properties.
+
+If you want, I can also provide a concrete JavaScript implementation that matches the tests exactly.

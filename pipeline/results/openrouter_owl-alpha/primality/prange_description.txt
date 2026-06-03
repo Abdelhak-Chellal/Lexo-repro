@@ -1,0 +1,201 @@
+To design an algorithm that describes the function `f(n)` based on the provided test suite, we follow a structured approach:
+
+---
+
+### **1. Understand the Test Suite**
+
+#### **Inputs and Outputs**
+- **Input**: A single parameter `n`.
+- **Output**: A list of prime numbers.
+
+#### **Observed Behavior**
+- For non-negative integers:
+  - `f(0)` → `[]` (empty list)
+  - `f(1)` → `[2]`
+  - `f(2)` → `[2, 3]`
+  - `f(3)` → `[2, 3, 5]`
+  - `f(5)` → `[2, 3, 5, 7, 11]`
+  - `f(10)` → first 10 primes
+  - `f(25)` → first 25 primes
+  - `f(100)` → first 100 primes
+- For invalid inputs:
+  - Negative numbers → throws error: `"prange() int parameter must be positive or zero."`
+  - Floats → throws error: `"prange() takes (1) int type parameter. Given: <class 'float'>."`
+  - Strings → similar type error
+  - `None` → type error
+  - `True` → treated as `1` (since `True == 1` in Python), so returns `[2]`
+
+> Note: The function appears to return the **first `n` prime numbers**, not primes less than `n`. This is confirmed by:
+> - `f(1) = [2]` → 1st prime
+> - `f(2) = [2, 3]` → first 2 primes
+> - `f(5) = [2, 3, 5, 7, 11]` → first 5 primes
+> - `f(10)` → first 10 primes
+> - `f(100)` → first 100 primes
+
+Also, `f(0)` returns an empty list, which aligns with "first 0 primes".
+
+---
+
+### **2. Analyze the Problem**
+
+#### **Core Functionality**
+- The function `f(n)` returns the **first `n` prime numbers** in a list.
+- It must:
+  - Accept only **non-negative integers**.
+  - Reject floats, strings, `None`, and negative integers with specific error messages.
+  - Handle `True` as `1` (since `True` is an `int` subclass in Python).
+
+#### **Edge Cases**
+- `n = 0` → return `[]`
+- `n = 1` → return `[2]`
+- Large `n` (e.g., 100) → must efficiently generate primes
+- Invalid types → raise appropriate exceptions
+
+---
+
+### **3. Design the Algorithm**
+
+We need to:
+1. **Validate input**
+2. **Generate the first `n` primes**
+
+#### **Step-by-Step Algorithm**
+
+```python
+def f(n):
+    # Step 1: Input Validation
+    if not isinstance(n, int) or isinstance(n, bool):
+        # Note: bool is subclass of int, so we must exclude it explicitly
+        # But wait: f(True) = [2], and True is int-like
+        # However, in Python, True is instance of int → so we must allow it?
+        # But test says f(True) = [2], so True is accepted as 1
+        # So we must allow bool? But test says f('hello') throws, f(1.5) throws, f(None) throws
+        # But f(True) works → so we must allow bool as valid?
+        # However, in Python, True is int → so isinstance(True, int) is True
+        # So we don't need to exclude bool — it's already handled
+        # But we must reject non-int types: float, str, None
+        # So: if not isinstance(n, int), raise error
+        # But wait: True is int → so it passes
+        # So we can just check: if not isinstance(n, int)
+        # But the error message says: "prange() takes (1) int type parameter. Given: <class 'float'>"
+        # So we must check type exactly? Or just that it's int?
+        # Since True is allowed, and True is int, we can allow all int instances
+        # But we must reject float, str, None
+        # So: if not isinstance(n, int), raise TypeError with message
+        raise TypeError(f"prange() takes (1) int type parameter. Given: {type(n)}")
+    
+    if n < 0:
+        raise ValueError("prange() int parameter must be positive or zero.")
+    
+    # Step 2: Handle n == 0
+    if n == 0:
+        return []
+    
+    # Step 3: Generate first n primes
+    primes = []
+    candidate = 2
+    while len(primes) < n:
+        if is_prime(candidate):
+            primes.append(candidate)
+        candidate += 1
+    return primes
+```
+
+But we need an efficient `is_prime` function.
+
+#### **Efficient Prime Checking**
+We can use trial division up to √n.
+
+```python
+def is_prime(num):
+    if num < 2:
+        return False
+    if num == 2:
+        return True
+    if num % 2 == 0:
+        return False
+    for i in range(3, int(num**0.5) + 1, 2):
+        if num % i == 0:
+            return False
+    return True
+```
+
+But for large `n` (like 100), this is acceptable. For much larger `n`, we might use Sieve of Eratosthenes, but since we don't know the upper bound of the nth prime, trial division is simpler.
+
+Alternatively, we can use a **dynamic sieve** or **incremental sieve**, but for clarity and correctness, trial division is fine.
+
+---
+
+### **4. Handle Edge Cases**
+
+- `n = 0` → return `[]`
+- `n = 1` → return `[2]`
+- `n = True` → `True` is `1`, so return `[2]` → works because `isinstance(True, int)` is `True`
+- `n = False` → `False == 0`, so return `[]` → acceptable
+- Negative `n` → raise `ValueError`
+- Non-int types → raise `TypeError` with correct message
+
+> Note: The error message for `True` is not thrown, so we must **not** reject `bool`. Since `True` is an `int` in Python, and the test accepts it, we allow it.
+
+But the error message for `float`, `str`, `None` includes the type, so we must format the message accordingly.
+
+---
+
+### **Final Algorithm**
+
+```python
+def f(n):
+    # Validate input type
+    if not isinstance(n, int):
+        raise TypeError(f"prange() takes (1) int type parameter. Given: {type(n)}")
+    
+    # Validate non-negative
+    if n < 0:
+        raise ValueError("prange() int parameter must be positive or zero.")
+    
+    # Handle n == 0
+    if n == 0:
+        return []
+    
+    # Generate first n primes
+    primes = []
+    candidate = 2
+    while len(primes) < n:
+        if is_prime(candidate):
+            primes.append(candidate)
+        candidate += 1
+    return primes
+
+def is_prime(num):
+    if num < 2:
+        return False
+    if num == 2:
+        return True
+    if num % 2 == 0:
+        return False
+    for i in range(3, int(num**0.5) + 1, 2):
+        if num % i == 0:
+            return False
+    return True
+```
+
+---
+
+### **Optimization Note**
+For better performance on large `n`, we could:
+- Use the **Sieve of Eratosthenes** with an upper bound estimate for the nth prime.
+- The nth prime is approximately `n * log(n) + n * log(log(n))` for `n >= 6`.
+- But for simplicity and correctness across all test cases, trial division is acceptable.
+
+---
+
+### **Conclusion**
+
+The function `f(n)` returns the **first `n` prime numbers** in a list, with strict input validation:
+- Only non-negative integers (including `True`/`False`) are accepted.
+- Invalid types raise `TypeError` with a formatted message.
+- Negative integers raise `ValueError`.
+
+The algorithm uses trial division to check primality and iterates until `n` primes are found.
+
+This design satisfies all test cases and handles edge cases appropriately.

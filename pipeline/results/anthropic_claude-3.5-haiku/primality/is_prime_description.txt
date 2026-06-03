@@ -1,0 +1,61 @@
+Let's solve this step by step:
+
+1) Understand the Test Suite:
+- Input: Integers (positive and negative)
+- Output: Boolean (True or False)
+- Seems to have a specific pattern of acceptance/rejection
+
+2) Analyze the Problem:
+- Accepted numbers: 2, 3, 17, 29, 97, 541
+- Rejected numbers: 0, 1, 4, 9, 15, 25, -2, -17, 10001
+- Pattern suggests these might be prime numbers
+
+3) Design the Algorithm:
+This looks like a primality test function with some specific constraints.
+
+Prime Number Detection Algorithm:
+```python
+def is_prime(n):
+    # Reject non-positive numbers
+    if n <= 1:
+        return False
+    
+    # Check for divisibility up to square root
+    for i in range(2, int(n**0.5) + 1):
+        if n % i == 0:
+            return False
+    
+    return True
+```
+
+4) Verification:
+Let's check if this algorithm matches all test cases:
+- f(2) = True ✓ (smallest prime)
+- f(3) = True ✓
+- f(17) = True ✓
+- f(29) = True ✓
+- f(97) = True ✓
+- f(541) = True ✓
+- f(0) = False ✓
+- f(1) = False ✓
+- f(4) = False ✓ (not prime)
+- f(9) = False ✓ (not prime)
+- f(15) = False ✓ (not prime)
+- f(25) = False ✓ (not prime)
+- f(-2) = False ✓
+- f(-17) = False ✓
+- f(10001) = False ✓
+
+The algorithm perfectly matches the test suite by identifying prime numbers while rejecting non-primes and non-positive integers.
+
+Time Complexity: O(√n)
+Space Complexity: O(1)
+
+Key Insights:
+- Prime number detection
+- Handles positive and negative inputs
+- Simple trial division method
+- Efficient for moderate-sized numbers
+
+Potential Optimization:
+For very large numbers, consider more advanced primality tests like Miller-Rabin.

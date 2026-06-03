@@ -1,0 +1,19 @@
+module.exports = function (value) {
+  if (arguments.length === 0) return false;
+  if (value === null || value === undefined) return false;
+
+  if (typeof value === 'boolean') return false;
+
+  if (typeof value === 'number') {
+    return Number.isFinite(value);
+  }
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (trimmed.length === 0) return false;
+
+    return /^[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/.test(trimmed);
+  }
+
+  return false;
+};

@@ -1,0 +1,143 @@
+# Algorithm Design: `f(path, new_ext)` — Replace File Extension
+
+## Step 1: Understand the Test Suite
+
+The function takes two arguments: a `path` (string or other type) and a `new_ext` (string or other type), and returns a string with the file extension replaced.
+
+## Step 2: Analyze the Problem
+
+Key observations from the test cases:
+
+1. **Non-string inputs**: If `path` is not a string (None, int, bool, dict, list), return it unchanged.
+2. **Empty path**: Return empty string.
+3. **Extension replacement logic**: The function replaces the **last** dot-separated segment (the "extension") with `new_ext`. But there are nuances:
+   - `'file.tar.gz'` → `'file.tar.zip'` — only the **last** extension is replaced.
+   - `'noext'` → `'noext.js'` — if no extension exists, append `new_ext`.
+   - `'file.txt'` with `''` → `'file'` — empty new_ext removes the old extension.
+   - `'.hidden'` → `'.hidden.txt'` — leading dot in filename (hidden files) is NOT treated as an extension separator.
+   - `'..'` → `'...js'` — dots in directory components are treated as extensions.
+   - `'.'` → `'.ext'` — single dot treated as having an extension.
+   - `'./'` → `'./..js'` — trailing slash, the last component is empty, so it becomes `'' + '.js'` → `'.js'`, but result is `'./..js'` — meaning the last component before the slash is `'.'` which gets extension replaced.
+   - Path normalization: `'./dir/../file.txt'` → `'./file.js'` — the path is **normalized** (resolves `..`).
+
+## Step 3: Design the Algorithm
+
+```
+FUNCTION f(path, new_ext):
+
+1. If path is not a string, return path as-is.
+2. If path is empty string, return empty string.
+3. Convert new_ext to string (str(new_ext)).
+
+4. Normalize the path:
+   - Split path by '/' and '\\' (handle both separators).
+   - Resolve '..' components (simplify the path).
+   - Rejoin with original separator style.
+
+5. Split the normalized path into directory and filename:
+   - Find the last occurrence of '/' or '\\'.
+   - dir_part = everything before last separator (or empty).
+   - filename = everything after last separator.
+
+6. Handle trailing slash:
+   - If filename is empty (path ends with separator), treat the component before the trailing slash as the "filename" for extension purposes, but reattach the slash after.
+
+7. Replace extension in filename:
+   - If filename is empty (trailing slash case): new_filename = new_ext (but from tests, './' → './..js', so the '.' before '/' is treated as filename with ext replaced).
+   - Find the last '.' in filename.
+   - If filename starts with '.' and has no other dots (hidden file like '.hidden'): base = filename (no extension to replace), append new_ext.
+   - If filename is '.' or '..': treat as having extension '.' or '..' → replace last segment after last dot.
+   - Otherwise: base = filename up to last '.', new_filename = base + new_ext.
+   - If no dot in filename: new_filename = filename + new_ext.
+
+8. Reconstruct: return dir_part + separator + new_filename (with trailing slash if applicable).
+```
+
+## Step 4: Handle Edge Cases
+
+- **Non-string path**: Return unchanged (None, int, bool, dict, list).
+- **Non-string new_ext**: Convert to string (`None` → `'null'`, `123` → `'123'`).
+- **Empty path**: Return `''`.
+- **Root path `/`**: `/.js` — root has no filename, treat as empty filename → append new_ext.
+- **Path normalization**: Resolve `..` and `.` in path components.
+- **Trailing slash**: The component before the slash gets extension replaced, slash preserved.
+- **Hidden files** (`.hidden`): Leading dot is not an extension separator; append new_ext.
+- **Multiple dots** (`a.b.c.d`): Only replace the last segment after the final dot.
+- **Empty new_ext**: Remove the old extension (strip from last dot onward).
+
+## Refined Algorithm (Pseudocode)
+
+```
+FUNCTION f(path, new_ext):
+    IF type(path) is not str:
+        RETURN path
+    
+    IF path == "":
+        RETURN ""
+    
+    new_ext = str(new_ext)
+    
+    # Normalize path (resolve . and ..)
+    normalized = normalize_path(path)
+    
+    # Split into directory and filename
+    sep = last separator ('/' or '\\') in normalized
+    IF sep found:
+        dir_part = normalized[:sep_index]
+        filename = normalized[sep_index+1:]
+        separator = normalized[sep_index]
+    ELSE:
+        dir_part = ""
+        filename = normalized
+        separator = ""
+    
+    # Handle trailing slash (filename is empty)
+    IF filename == "":
+        # The dir_part's last component is the "filename"
+        # From test: './' → './..js', so we treat '.' as filename
+        # Re-split dir_part
+        IF dir_part contains separator:
+            last_sep = last separator in dir_part
+            filename = dir_part[last_sep+1:]
+            dir_part = dir_part[:last_sep+1]  # keep trailing separator
+        ELSE:
+            filename = dir_part
+            dir_part = ""
+            separator = ""
+    
+    # Replace extension
+    IF filename == ".":
+        # Single dot: treat as having empty extension
+        new_filename = new_ext  # but test: '.' + '.ext' → '..ext'
+        # Actually: '.' has no extension, so append → '.' + new_ext
+        new_filename = filename + new_ext
+    ELIF filename == "..":
+        new_filename = filename + new_ext  # '..' + 'js' → '...js'
+    ELIF filename starts with "." and has no other dots:
+        # Hidden file, no extension to replace
+        new_filename = filename + new_ext
+    ELSE:
+        last_dot = last '.' in filename
+        IF last_dot found and last_dot > 0:
+            base = filename[:last_dot]
+            new_filename = base + new_ext
+        ELSE:
+            new_filename = filename + new_ext
+    
+    # Reconstruct
+    IF dir_part == "":
+        RETURN new_filename
+    ELIF dir_part ends with separator:
+        RETURN dir_part + new_filename
+    ELSE:
+        RETURN dir_part + separator + new_filename
+```
+
+## Summary
+
+The function **`f(path, new_ext)`** performs the following:
+
+1. **Type guard**: Non-string `path` → return as-is.
+2. **Path normalization**: Resolves `.` and `..` components.
+3. **Extension replacement**: Finds the last `.` in the filename (with special handling for hidden files, `.`, `..`, and trailing slashes) and replaces everything after it with `new_ext` (or appends `new_ext` if no extension exists).
+4. **Reconstruction**: Joins the directory and modified filename back together.

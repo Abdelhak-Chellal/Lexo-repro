@@ -1,0 +1,10 @@
+```javascript
+module.exports = function(list1, list2) {
+    if (!Array.isArray(list1) || !Array.isArray(list2)) {
+        throw new Error("Both inputs must be arrays.");
+    }
+    
+    const set2 = new Set(list2);
+    return list1.filter(item => typeof item === 'number' && !set2.has(item));
+};
+```

@@ -1,0 +1,48 @@
+Based on the comprehensive test suite, here's an algorithm that describes the function:
+
+```python
+def is_even(x):
+    # Type and input validation
+    if x is None or isinstance(x, bool) or isinstance(x, list) or isinstance(x, dict):
+        raise ValueError("is-odd expects a number")
+    
+    # Handle string inputs by converting to int
+    if isinstance(x, str):
+        try:
+            x = int(x)
+        except ValueError:
+            raise ValueError("is-odd expects a number")
+    
+    # Handle float inputs
+    if not isinstance(x, int):
+        raise ValueError("is-odd expects an integer")
+    
+    # Core logic: check if number is even
+    return x % 2 == 0
+```
+
+Algorithm Analysis:
+1. Input Validation
+   - Reject None, boolean, list, and dict inputs
+   - Convert string inputs to integers if possible
+   - Reject non-integer numeric inputs (floats)
+
+2. Even Number Identification
+   - Use modulo operator (%) to check divisibility by 2
+   - If x % 2 == 0, the number is even
+   - Returns True for even numbers (0, 2, 4, -2, -4, 100, -100)
+   - Returns False for odd numbers (1, 3, -1, -3, 999999, -999999)
+
+3. Error Handling
+   - Raises ValueError for invalid input types
+   - Specific error message: "is-odd expects a number"
+
+Time Complexity: O(1)
+Space Complexity: O(1)
+
+The algorithm covers all test cases, including:
+- Positive and negative even numbers
+- Zero
+- String representations of numbers
+- Rejecting non-numeric inputs
+- Handling various edge cases

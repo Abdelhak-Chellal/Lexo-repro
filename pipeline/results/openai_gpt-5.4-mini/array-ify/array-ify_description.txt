@@ -1,0 +1,102 @@
+### 1) Understand the Test Suite
+
+From the examples, the function `f` behaves like this:
+
+- If the input is a **primitive value**:
+  - `None`, numbers, strings, booleans
+  - it returns a **one-element list containing that value**
+  - Examples:
+    - `f(0) -> [0]`
+    - `f('hello') -> ['hello']`
+    - `f(True) -> [True]`
+
+- If the input is a **list**:
+  - it returns the list **unchanged**
+  - Examples:
+    - `f([1, 2, 3]) -> [1, 2, 3]`
+    - `f([]) -> []`
+    - nested lists stay as they are
+
+- If the input is a **dictionary/object**:
+  - it returns a **one-element list containing that object**
+  - Examples:
+    - `f({'a': 1}) -> [{'a': 1}]`
+    - `f({'nested': {'arr': [1]}}) -> [{'nested': {'arr': [1]}}]`
+
+So the function is essentially:
+
+- **lists pass through**
+- **everything else gets wrapped into a list**
+
+---
+
+### 2) Analyze the Problem
+
+This is a simple type-based transformation problem.
+
+#### Core rule
+- If `x` is already a list, return `x`
+- Otherwise, return `[x]`
+
+This explains all cases:
+- primitives become singleton lists
+- dictionaries become singleton lists
+- arrays/lists remain unchanged
+- nested structures are preserved as-is
+
+#### Complexity
+- Time: **O(1)**, because only type checking is needed
+- Space:
+  - **O(1)** if the input is already a list and returned directly
+  - **O(1)** additional wrapping space otherwise
+
+---
+
+### 3) Design the Algorithm
+
+#### Step-by-step approach
+1. Check whether the input value is a list/array.
+2. If yes, return it unchanged.
+3. Otherwise, create and return a new list containing the input as its only element.
+
+#### Pseudocode
+```python
+def f(x):
+    if isinstance(x, list):
+        return x
+    return [x]
+```
+
+If the environment distinguishes arrays from other iterable objects, the check should specifically identify arrays/lists rather than generic iterables.
+
+---
+
+### 4) Handle Edge Cases
+
+The test suite already covers many important edge cases:
+- `None`
+- empty string
+- `False`
+- empty list
+- nested lists
+- nested dictionaries
+- dictionary keys that resemble array properties like `'length'` or `'0'`
+
+Important implications:
+- Do **not** try to flatten lists.
+- Do **not** convert dictionaries into lists of values or keys.
+- Do **not** treat strings as lists, even though they are iterable in some languages.
+- Do **not** special-case `None`, booleans, or empty collections beyond the list check.
+
+---
+
+### Final Algorithm
+
+> Return the input unchanged if it is a list; otherwise wrap it in a single-element list.
+
+```python
+def f(x):
+    return x if isinstance(x, list) else [x]
+```
+
+If you want, I can also express this in JavaScript, TypeScript, or in formal specification style.

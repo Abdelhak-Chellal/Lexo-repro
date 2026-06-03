@@ -1,0 +1,13 @@
+def nth_prime(n):
+    if not isinstance(n, int):
+        raise TypeError(f"nth_prime() takes (1) int type parameter. Given: {type(n)}.")
+    if n < 0:
+        raise ValueError("nth_prime() int parameter must be positive or zero.")
+
+    count = -1
+    candidate = 1
+    while count < n:
+        candidate += 1
+        if is_prime(candidate):
+            count += 1
+    return candidate
