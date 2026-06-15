@@ -1,17 +1,23 @@
 ```javascript
-module.exports = function(data, keys) {
+module.exports = function(dictionary, keys) {
+    if (dictionary === null) {
+        throw new Error("Cannot use 'in' operator to search for keys in null");
+    }
+    
+    const result = {};
+    
     if (typeof keys === 'string') {
         keys = [keys];
+    } else if (keys === null) {
+        throw new Error("Cannot read properties of null (reading 'length')");
     }
-
-    const result = {};
-
+    
     for (const key of keys) {
-        if (key in data) {
-            result[key] = data[key];
+        if (key in dictionary) {
+            result[key] = dictionary[key];
         }
     }
-
+    
     return result;
 };
 ```

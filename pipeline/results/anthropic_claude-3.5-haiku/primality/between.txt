@@ -1,0 +1,5 @@
+def between(start, end):
+    start = max(2, start)
+    if start > end:
+        return []
+    return [num for num in range(start, end + 1) if is_prime(num)]

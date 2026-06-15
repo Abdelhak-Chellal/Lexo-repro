@@ -1,10 +1,21 @@
 ```javascript
-module.exports = function(list1, list2) {
-    if (!Array.isArray(list1) || !Array.isArray(list2)) {
-        throw new Error("Both inputs must be arrays.");
+module.exports = function(listA, listB) {
+    if (listA === null) {
+        return [];
+    }
+    if (listB === null) {
+        return listA;
     }
     
-    const set2 = new Set(list2);
-    return list1.filter(item => typeof item === 'number' && !set2.has(item));
+    const result = [];
+    const lookupSet = new Set(listB);
+    
+    for (const item of listA) {
+        if (!lookupSet.has(item)) {
+            result.push(item);
+        }
+    }
+
+    return result;
 };
 ```

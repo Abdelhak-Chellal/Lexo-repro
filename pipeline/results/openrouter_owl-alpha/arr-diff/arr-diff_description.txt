@@ -1,98 +1,97 @@
-# Algorithm Design for Function `f`
+# Algorithm Design: Array Difference Function
 
-## 1. Understanding the Test Suite
+## Problem Analysis
 
-From the I/O pairs, I can observe the following patterns:
+Based on the test suite, the function `f` performs a **multi-set difference** operation:
 
-- **Input**: A primary array as the first argument, followed by one or more additional arrays (or non-array values) as subsequent arguments.
-- **Output**: A new array containing elements from the primary array that are **not present** in any of the subsequent arrays.
+- **Input**: A primary array followed by one or more exclusion arrays (or values)
+- **Output**: Elements from the primary array that are NOT present in ANY of the exclusion arrays
 - **Key behaviors**:
-  - Elements are removed based on **value equality** (using strict `===` / `==` semantics, as seen with `None`, `0`, `False`, `True`, `1`, `''` — note that `0` removes both `0` and `False`, and `1` is not removed by `0`, suggesting standard JS-like equality).
-  - Duplicates in the primary array are all removed if the value appears in any exclusion array.
-  - If a subsequent argument is not an array (e.g., `None`, `'not an array'`), it is **ignored**.
-  - Empty arrays as exclusion arguments have no effect.
-  - The order of the result preserves the original order of the primary array.
+  - Returns empty array if primary is empty
+  - Returns full primary array if no valid exclusion arrays provided
+  - Handles multiple exclusion arrays (union of all exclusions)
+  - Ignores non-array arguments (treats them as no exclusions)
+  - Preserves duplicates in the result
+  - Uses strict equality for comparison
 
-## 2. Problem Definition
+## Algorithm
 
-**Problem**: Given a primary array and a variable number of exclusion arrays, return a new array containing only the elements from the primary array that do not appear in any of the exclusion arrays.
-
-**Complexity**: O(n × m) where n is the size of the primary array and m is the total number of elements across all exclusion arrays.
-
-## 3. Algorithm Design
-
-```
-FUNCTION f(primaryArray, ...exclusionArrays):
+```python
+def f(primary_array, *exclusion_args):
+    """
+    Returns elements from primary_array that are not present in any exclusion arrays.
     
-    // Step 1: Validate primaryArray
-    IF primaryArray is not an array:
-        RETURN primaryArray (or handle as edge case)
+    Args:
+        primary_array: The source array to filter
+        *exclusion_args: Variable number of exclusion arrays
     
-    // Step 2: Build a Set of values to exclude
-    exclusionSet = new Set()
+    Returns:
+        Filtered array with elements not found in any exclusion array
+    """
     
-    FOR EACH exclusionArg IN exclusionArrays:
-        IF exclusionArg is an array:
-            FOR EACH element IN exclusionArg:
-                ADD element TO exclusionSet
+    # Step 1: Handle empty primary array
+    if not primary_array:
+        return []
     
-    // Step 3: Filter primaryArray
+    # Step 2: Collect all exclusion values from valid exclusion arrays
+    exclusion_set = set()
+    has_valid_exclusion = False
+    
+    for arg in exclusion_args:
+        # Only process array-like arguments (lists/tuples)
+        if isinstance(arg, (list, tuple)):
+            has_valid_exclusion = True
+            exclusion_set.update(arg)
+    
+    # Step 3: If no valid exclusion arrays, return primary array as-is
+    if not has_valid_exclusion:
+        return list(primary_array)
+    
+    # Step 4: Filter primary array - keep elements NOT in exclusion set
     result = []
+    for element in primary_array:
+        if element not in exclusion_set:
+            result.append(element)
     
-    FOR EACH element IN primaryArray:
-        IF element is NOT IN exclusionSet:
-            APPEND element TO result
-    
-    // Step 4: Return result
-    RETURN result
+    return result
 ```
 
-## 4. Edge Cases Handled
+## Step-by-Step Explanation
 
-| Edge Case | Behavior |
-|---|---|
-| Empty primary array | Returns `[]` |
-| Empty exclusion arrays | Returns primary array unchanged |
-| Non-array exclusion arguments | Ignored |
-| Duplicate values in primary | All instances removed if value is excluded |
-| Falsy values (`None`, `0`, `False`, `''`) | Handled via Set membership |
-| All elements excluded | Returns `[]` |
-| No elements excluded | Returns primary array unchanged |
-| Multiple exclusion arrays | Union of all exclusion values used |
+### Step 1: Handle Empty Primary Array
+- If `primary_array` is empty, immediately return `[]`
+- This covers test cases: `f([], [1, 2])`, `f([], [])`
 
-## Implementation (JavaScript)
+### Step 2: Process Exclusion Arguments
+- Iterate through all arguments after the primary array
+- Only consider arguments that are arrays (lists/tuples)
+- Ignore non-array types: strings, numbers, None, booleans, dicts
+- Collect all values from valid exclusion arrays into a set for O(1) lookup
 
-```javascript
-function f(primaryArray, ...exclusionArrays) {
-    // Build exclusion set from all valid array arguments
-    const exclusionSet = new Set();
-    
-    for (const arg of exclusionArrays) {
-        if (Array.isArray(arg)) {
-            for (const element of arg) {
-                exclusionSet.add(element);
-            }
-        }
-    }
-    
-    // Filter primary array
-    return primaryArray.filter(element => !exclusionSet.has(element));
-}
-```
+### Step 3: No Valid Exclusions
+- If no valid exclusion arrays found, return the primary array unchanged
+- This handles: `f([1,2,3])`, `f([1,2,3], 'not an array')`, etc.
 
-## Verification Against Test Cases
+### Step 4: Filter Primary Array
+- Iterate through each element in primary array
+- Check if element is NOT in the exclusion set
+- If not excluded, add to result
+- Preserves order and duplicates from original array
 
-| Test | Expected | Result |
-|---|---|---|
-| `f([1,2,3], [2,4])` | `[1,3]` | ✅ |
-| `f([1,2,3], [])` | `[1,2,3]` | ✅ |
-| `f([], [1,2])` | `[]` | ✅ |
-| `f([1,2,3], 'not an array')` | `[1,2,3]` | ✅ |
-| `f([1,1,2,3], [1])` | `[2,3]` | ✅ |
-| `f([None,None,0,False,''], [0])` | `[None,None,False,'']` | ✅ |
-| `f([1,2,3], [2], [3])` | `[1]` | ✅ |
-| `f([1,2,3,4,5], [2,4], [1,3])` | `[5]` | ✅ |
-| `f([1,2,3], None)` | `[1,2,3]` | ✅ |
-| `f(['a','b','c'], ['b'])` | `['a','c']` | ✅ |
+## Edge Cases Handled
 
-All test cases pass with this algorithm.
+| Edge Case | Example | Result |
+|-----------|---------|--------|
+| Empty primary | `f([], [1,2])` | `[]` |
+| No exclusions | `f([1,2,3])` | `[1,2,3]` |
+| All excluded | `f([1,2,3], [1,2,3])` | `[]` |
+| No matches | `f([1,2,3], [4,5,6])` | `[1,2,3]` |
+| Multiple exclusions | `f([1,2,3], [1], [2])` | `[3]` |
+| Non-array args | `f([1,2,3], 42)` | `[1,2,3]` |
+| Mixed types | `f([1,'1',True], [1])` | `['1',True]` |
+| Duplicates | `f([1,1,2,2,3], [1,2])` | `[3]` |
+
+## Complexity
+
+- **Time**: O(n + m) where n = primary array length, m = total exclusion elements
+- **Space**: O(m) for the exclusion set + O(n) for result array

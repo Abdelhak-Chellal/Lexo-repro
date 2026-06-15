@@ -1,7 +1,5 @@
 ```javascript
-module.exports = function f() {
-  if (typeof variable === 'undefined') {
-    throw new Error("Cannot read properties of undefined (reading 'length')");
-  }
+module.exports = function f(list, func) {
+    return list.map((x, i) => eval(`(${func})`)(x, i));
 };
 ```

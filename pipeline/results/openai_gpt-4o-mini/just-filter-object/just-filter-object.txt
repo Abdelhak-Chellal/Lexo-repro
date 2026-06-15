@@ -1,14 +1,14 @@
 ```javascript
-module.exports = function(inputDict, conditionStr) {
-    const condition = new Function('key', 'value', `return ${conditionStr}`);
-    const result = {};
-
-    for (const key in inputDict) {
-        if (inputDict.hasOwnProperty(key) && condition(key, inputDict[key])) {
-            result[key] = inputDict[key];
+module.exports = function(inputObject, funcString) {
+    const func = eval(`(function(key, value) ${funcString})`);
+    const outputObject = {};
+    
+    for (const [key, value] of Object.entries(inputObject)) {
+        if (func(key, value)) {
+            outputObject[key] = value;
         }
     }
-
-    return result;
+    
+    return outputObject;
 };
 ```

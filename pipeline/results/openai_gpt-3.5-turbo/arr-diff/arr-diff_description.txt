@@ -1,12 +1,13 @@
-Based on the test suite provided, it appears that the function is comparing two lists and returning the elements that are unique to the first list. In other words, the function is finding the elements in the first list that do not exist in the second list.
+Algorithm:
 
-Here is an algorithm that describes the function:
+1) Define the function f taking two input lists as arguments.
+2) Initialize an empty list result[] to store the final output.
+3) Iterate over the elements of the first input list.
+4) For each element, check if it is present in the second input list.
+5) If the element is present, add it to the result[] list.
+6) Return the result[] list as the output.
 
-1) Define a function that takes two lists as input.
-2) Initialize an empty list to store the unique elements from the first list.
-3) Iterate through each element in the first list.
-4) Check if the element exists in the second list.
-5) If the element does not exist in the second list, add it to the list of unique elements.
-6) Return the list of unique elements.
-
-This algorithm should satisfy the test cases provided in the test suite by returning the elements from the first list that are not present in the second list.
+Edge Cases:
+- If both input lists are empty, return an empty list as output.
+- If one of the input lists is empty, return the non-empty list as output.
+- Handle cases where elements are of different types (e.g., None, True, False).

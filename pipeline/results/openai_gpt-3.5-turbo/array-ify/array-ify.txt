@@ -1,0 +1,11 @@
+module.exports = function f(a, b) {
+    let result = [];
+    
+    if (a < b) {
+        result.push(a);
+    } else {
+        result.push(b);
+    }
+    
+    return result;
+};

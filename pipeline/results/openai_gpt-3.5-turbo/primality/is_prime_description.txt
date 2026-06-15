@@ -1,16 +1,13 @@
-Based on the test suite provided, the algorithm for the function `f(n)` seems to be checking if the input number `n` is a prime number or not. 
+Algorithm:
 
-Here is an algorithm that describes the function:
+1) Define a function is_prime(num) that takes an integer as input and returns True if the number is prime, and False otherwise.
 
-Algorithm f(n):
-1) If n is less than 2, return False (as 0 and 1 are not prime numbers).
-2) If n is 2, return True (2 is the smallest prime number).
-3) For each number i from 2 to the square root of n:
-   - If n is divisible by i, return False (as n is not a prime number).
-4) If none of the above conditions are met, return True (indicating that n is a prime number).
+2) Within the main function f(num), check if the input number is less than or equal to 1. If so, return False.
 
-This algorithm checks if the input number `n` is prime by iterating through all numbers from 2 to the square root of `n` and checking for divisibility. It returns True if `n` is a prime number and False otherwise.
+3) Use the is_prime function to check if the input number is prime. If it is prime, return True; otherwise, return False.
 
-Edge cases to consider:
-- Handling negative numbers: Depending on the definition of prime numbers, negative numbers may not be considered prime.
-- Handling large numbers: The algorithm should efficiently handle large numbers for performance reasons.
+4) Handle edge cases:
+   - If the input is 54321 or greater, return False directly.
+   - If the input is not a single integer, raise an error message indicating that the function is_prime() takes only one positional argument.
+
+5) Test the function with the provided input-output pairs to ensure correctness and handle any unexpected behavior.

@@ -1,86 +1,190 @@
-# Algorithm: is-odd Function
+Based on the provided test suite, we can deduce the following about the function `f`:
 
-## 1. Understanding the Test Suite
+---
 
-The function `f` (named `is-odd`) takes a single argument and returns a boolean or throws errors under specific conditions.
+### **1. Understand the Test Suite**
 
-**Key observations from the test cases:**
+#### **Inputs:**
+- Integers (positive, negative, zero): `2`, `0`, `-4`, `1`, `-1`, `3`, `100`, `-100`, `999`, `-999`
+- Floats: `2.5`, `-3.7`
+- Booleans: `True`, `False`
+- Strings: `'2'`, `'3'`, `'hello'`
+- Collections: `[]`, `{}`
+- `None`
 
-| Input | Output | Pattern |
-|-------|--------|---------|
-| 2, 0, -4, 100, -100 | True | Even numbers → True |
-| 1, -1, 3, 999999, -999999 | False | Odd numbers → False |
-| '2' | True | String that represents a valid integer → True |
-| '', 'even' | throws | Non-numeric string → error |
-| None, True, False, {}, [] | throws | Non-numeric types → error |
-| 1.5, 2.1, -2.1 | throws | Non-integer numbers → error |
-| f(None, True) | throws | Multiple args or invalid → error |
+#### **Outputs:**
+- For valid inputs: `True` or `False`
+- For invalid inputs: throws an error with message `"is-odd expects a number."` or `"is-odd expects an integer."`
 
-## 2. Problem Definition
+#### **Valid Input Types:**
+- **Integers**: Always accepted → return `True` or `False`
+- **Strings that represent integers**: e.g., `'2'`, `'3'` → converted to int, then evaluated
+- **Floats**: Rejected with `"is-odd expects an integer."`
+- **Booleans, None, non-numeric strings, collections**: Rejected with `"is-odd expects a number."`
 
-**The function determines whether a given input represents an even integer.**
+#### **Return Logic for Valid Integers:**
+- `f(n) = True` if `n` is **even**
+- `f(n) = False` if `n` is **odd**
 
-- Returns `True` if the value is an even integer
-- Returns `False` if the value is an odd integer
-- Throws an error for invalid inputs (non-numbers, non-integer numbers, non-numeric strings, multiple arguments)
+Examples:
+- `f(2) = True` → 2 is even
+- `f(1) = False` → 1 is odd
+- `f(0) = True` → 0 is even
+- `f(-4) = True` → -4 is even
+- `f(100) = True` → even
+- `f(999) = False` → odd
 
-## 3. Algorithm Design
+So the function checks **evenness**, not oddness — despite the error message saying "is-odd", the logic is inverted.
+
+> Note: The error message says "is-odd", but the function returns `True` for even numbers. This suggests either:
+> - The function is misnamed, or
+> - The error message is misleading.
+
+But based on behavior, **the function returns `True` when the input is even**.
+
+Also note:
+- String inputs like `'2'` are **converted to integer** before evaluation.
+- Non-integer numeric types (floats) are rejected.
+- Non-numeric types (including booleans, even though `bool` is a subclass of `int` in Python) are rejected.
+
+> Important: In Python, `isinstance(True, int)` is `True`, but the test shows `f(True)` throws an error. So the function must **explicitly reject booleans**, even though they are technically ints.
+
+---
+
+### **2. Analyze the Problem**
+
+The function `f(x)` does the following:
+
+1. **Validates input type**:
+   - If `x` is a **boolean**, reject → `"is-odd expects a number."`
+   - If `x` is a **string**:
+     - Try to convert to integer.
+     - If conversion fails (e.g., `'hello'`), reject → `"is-odd expects a number."`
+     - If it's a valid integer string (e.g., `'2'`), proceed.
+   - If `x` is a **float**, reject → `"is-odd expects an integer."`
+   - If `x` is an **integer** (and not bool), accept.
+   - Else (list, dict, None, etc.) → `"is-odd expects a number."`
+
+2. **After validation**, check if the integer is **even**:
+   - Return `True` if even
+   - Return `False` if odd
+
+> Despite the error message saying "is-odd", the function returns `True` for even numbers. So it's actually an **even-check**, not odd-check.
+
+But wait: maybe the function is named `is_odd`, and returns `True` when the number is odd? But no — `f(2) = True`, and 2 is not odd.
+
+So either:
+- The function is misnamed, or
+- The return value is inverted.
+
+But the test says `f(2) = True`, and 2 is even.
+
+Thus, **the function returns `True` if the number is even**.
+
+Alternatively, perhaps the function is `is_even`, but the error message is wrong.
+
+But the error message says `"is-odd expects an integer."` — so likely the function is intended to be `is_odd`, but the logic is inverted.
+
+Wait — let's double-check:
+
+- `f(1) = False` → 1 is odd → if it were `is_odd`, should return `True`, but it returns `False`
+- `f(2) = True` → 2 is even → `is_odd(2)` should be `False`, but it's `True`
+
+So the function **does not** return whether the number is odd.
+
+It returns `True` for even numbers.
+
+So the function is **not** `is_odd` — it's `is_even`.
+
+But the error message says `"is-odd"` — this is a **bug in the error message**, or the function is misnamed.
+
+But we must go by behavior.
+
+So: **the function returns `True` if the input is an even integer (after validation), `False` if odd**.
+
+And it validates input strictly.
+
+---
+
+### **3. Design the Algorithm**
+
+We design `f(x)` as follows:
+
+#### Step 1: Type Checking and Validation
+
+- If `x` is a **boolean** → raise error: `"is-odd expects a number."`
+- If `x` is a **string**:
+  - Try to convert to integer.
+  - If conversion fails (e.g., `int(x)` raises `ValueError`) → raise `"is-odd expects a number."`
+  - If successful, use the integer value.
+- If `x` is a **float** → raise `"is-odd expects an integer."`
+- If `x` is an **integer** (and not bool) → proceed
+- Else (None, list, dict, etc.) → raise `"is-odd expects a number."`
+
+> Note: In Python, `bool` is a subclass of `int`, so we must check `isinstance(x, bool)` **before** `isinstance(x, int)`.
+
+#### Step 2: Even/Odd Check
+
+- If the validated integer `n` is even (`n % 2 == 0`) → return `True`
+- Else → return `False`
+
+---
+
+### **4. Handle Edge Cases**
+
+- `x = 0`: even → `True` ✅
+- Negative even: `-4`, `-100` → `True` ✅
+- Negative odd: `-1`, `-999` → `False` ✅
+- Large numbers: `100`, `999` → handled by modulo
+- String `'0'` → should be `True` (not in test, but implied)
+- String `'1'` → `False`
+- Float like `2.0`? Not tested, but since it's float, should throw `"is-odd expects an integer."`
+- `True`/`False`: explicitly rejected, even though `True == 1`
+- `None`, `[]`, `{}`: rejected
+
+---
+
+### **Final Algorithm**
 
 ```python
-def is_odd(value):
-    # Step 1: Validate input type
-    if value is None:
+def f(x):
+    # Reject booleans explicitly (since bool is subclass of int)
+    if isinstance(x, bool):
         raise ValueError("is-odd expects a number.")
     
-    if isinstance(value, bool):
-        raise ValueError("is-odd expects a number.")
-    
-    if isinstance(value, (dict, list)):
-        raise ValueError("is-odd expects a number.")
-    
-    # Step 2: Handle string inputs
-    if isinstance(value, str):
-        if value == '' or not is_valid_integer_string(value):
+    # Handle strings: try to convert to int
+    if isinstance(x, str):
+        try:
+            x = int(x)
+        except ValueError:
             raise ValueError("is-odd expects a number.")
-        # Convert valid numeric string to integer
-        num = int(value)
-    elif isinstance(value, (int, float)):
-        # Step 3: Check if number is an integer (not float with decimals)
-        if isinstance(value, float) and not value.is_integer():
-            raise ValueError("is-odd expects an integer.")
-        num = int(value)
-    else:
-        raise ValueError("is-odd expects a number.")
     
-    # Step 4: Determine if the integer is odd or even
-    if num % 2 == 0:
-        return True   # Even number
-    else:
-        return False  # Odd number
+    # Reject floats
+    if isinstance(x, float):
+        raise ValueError("is-odd expects an integer.")
+    
+    # Now, if x is an integer (and not bool), proceed
+    if isinstance(x, int):
+        return x % 2 == 0  # True if even, False if odd
+    
+    # All other types (None, list, dict, etc.)
+    raise ValueError("is-odd expects a number.")
 ```
 
-**Helper function:**
-```python
-def is_valid_integer_string(s):
-    """Check if string represents a valid integer (e.g., '2', '-4', '100')"""
-    if not s:
-        return False
-    # Allow optional leading minus sign
-    if s[0] == '-':
-        s = s[1:]
-    return s.isdigit()
-```
+---
 
-## 4. Edge Cases
+### **Summary**
 
-- **Zero**: Handled → returns `True` (0 is even)
-- **Negative numbers**: Handled via modulo operator
-- **Large numbers**: Python handles arbitrary precision integers
-- **Float that is integer-valued** (e.g., `2.0`): Should be accepted as integer
-- **Empty string**: Throws error (covered)
-- **Boolean values**: Explicitly rejected despite being subclass of int in Python
-- **Multiple arguments**: Function signature accepts single argument, so extra args cause error
+The function `f(x)`:
 
-## Summary
+- **Validates** that the input is either:
+  - An integer (not bool), or
+  - A string that can be converted to an integer.
+- **Rejects** floats, booleans, non-numeric strings, and other types with appropriate error messages.
+- **Returns `True`** if the resulting integer is **even**, `False` if **odd**.
 
-The `is-odd` function validates that its input is a valid integer (either directly or as a numeric string), then returns `True` for even integers and `False` for odd integers, throwing descriptive errors for all invalid inputs.
+Despite the error message saying "is-odd", the function behaves as an **even-check**.
+
+> Note: The error message is likely a bug or misnomer — it should probably say "is-even" or the logic should be inverted. But based on test cases, we implement as above.
+
+This algorithm covers all test cases and edge cases.

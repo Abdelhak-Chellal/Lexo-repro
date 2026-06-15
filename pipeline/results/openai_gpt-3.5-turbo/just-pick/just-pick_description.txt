@@ -1,0 +1,9 @@
+Algorithm:
+1) Initialize an empty dictionary result.
+2) If the input keys list is None or empty, return an empty dictionary.
+3) If the input keys list is not a list, convert it to a list with a single element.
+4) Iterate over the input dictionary keys:
+   a) If the current key is in the input keys list, add the key-value pair to the result dictionary.
+5) Return the result dictionary. 
+
+This algorithm ensures that only the key-value pairs corresponding to the specified keys are included in the output dictionary. It handles edge cases such as when the input keys list is None, empty, or not a list.

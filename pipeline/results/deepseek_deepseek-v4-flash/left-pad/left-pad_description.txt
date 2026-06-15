@@ -1,0 +1,36 @@
+The function `f(s, n, pad)` returns a string that is the result of left-padding the input string `s` with a repeated padding string until the number of repetitions equals the difference between `n` and the length of `s`. If `n` is not greater than the length of `s`, the original string is returned unchanged. The padding string is determined by the third argument:
+
+- If no third argument is provided, or it is `None`, `False`, or an empty string (`''`), the padding defaults to a single space `' '`.
+- Otherwise, the argument is converted to its string representation (e.g., integer `123` becomes `"123"`, boolean `True` becomes `"true"`).
+
+The padding is applied by repeating the fill string exactly `n - len(s)` times (not truncated) and prepending it to `s`.
+
+## Algorithm
+
+1. **Input**:  
+   - `s`: a string  
+   - `n`: an integer (target)  
+   - `pad`: optional argument (default: no value)
+
+2. **If `n` ≤ `len(s)`**:  
+   - Return `s` unchanged.
+
+3. **Determine the fill string**:  
+   - If `pad` is not provided, or `pad` is `None`, or `pad` is `False`, or `pad` is the empty string `''`:  
+       Set `fill = ' '` (a single space).  
+   - Else:  
+       Set `fill = str(pad)` (convert to string).
+
+4. **Compute the number of repetitions**:  
+   - `count = n - len(s)`
+
+5. **Build the padding**:  
+   - `padding = fill * count` (repeat `fill` exactly `count` times).
+
+6. **Return** `padding + s`.
+
+## Notes on edge cases
+- Negative `n` is handled by step 2 (`n ≤ len(s)`) and returns `s`.
+- `n = 0` returns `s` as long as `len(s) ≥ 0`.
+- The resulting string may be longer than `n` because the fill string can have length greater than 1.
+- Boolean and numeric types are converted to their string representations (`True` → `"true"`, `False` → `"false"` but note: `False` is treated as falsy and defaults to space, as seen in the test suite).

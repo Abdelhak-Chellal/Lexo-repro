@@ -1,0 +1,13 @@
+Algorithm:
+
+1) Define a function f(n) that takes an integer n as input.
+2) If n is less than 2, return 2 as the output.
+3) Otherwise, initialize two variables a and b to 2 and 3 respectively.
+4) Iterate from i = 2 to n.
+5) Calculate the next term in the sequence using the formula: next = a + b + 1.
+6) Update a to b and b to next for each iteration.
+7) Once the iteration is complete, return the value of b as the output.
+
+Edge Cases:
+- Handle cases where n is negative by returning an error message or returning a default value.
+- Handle cases where n is a large number to ensure the algorithm doesn't run into performance issues.

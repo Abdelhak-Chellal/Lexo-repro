@@ -1,138 +1,160 @@
-### 1) Understand the Test Suite
+### 1) Understand the test suite
 
-The function `f` takes a **list/array as its first argument** and then one or more additional arguments that may or may not be arrays.
+The function `f` takes:
 
-From the tests, the function returns a version of the first array with certain elements removed.
+- a **list-like first argument** (the main array)
+- one or more **extra arguments** that act like “things to remove”
 
-Key observations:
+From the examples, `f` returns a new list containing items from the first list **with some values removed**.
 
-- `f([1, 2, 3], [2]) -> [1, 3]`
-- `f([1, 2, 2, 3], [2]) -> [1, 3]`
-  - removes **all occurrences** of values found in the removal array
-- `f([1, 2, 3], [2, 3], [1]) -> []`
-  - all extra array arguments are combined as removal values
-- `f([1, 2, 3], None) -> [1, 2, 3]`
-- `f([1, 2, 3], 5) -> [1, 2, 3]`
-- `f([1, 2, 3], 'not-an-array') -> [1, 2, 3]`
-  - non-array arguments are ignored
-- Comparison is **strict / identity-like**, not string-coerced:
-  - `3` does not equal `'3'`
-  - `1`, `True`, `False`, `None` are treated distinctly
-- Nested objects/arrays are compared by **reference**, not deep equality:
-  - `{'a': 1}` in one list does not match another separately created `{'a': 1}`
-  - `[[1]]` in the source is not removed by passing a separate `[[1]]`
+Important observations:
 
-So the function behaves like a **multi-argument array difference / subtraction** using only valid array arguments after the first.
+- Removal is based on **strict equality**, not type-coercing equality:
+  - `1` is **not** equal to `'1'`
+  - `0` is **not** equal to `False`
+  - `None` and `''` are distinct
+- If a removal value is not present, nothing happens.
+- If the second argument is:
+  - `[]`, `None`, or a non-list scalar like `5`, then it is treated as a single value or ignored depending on whether it can meaningfully represent removals; the tests suggest it does **not** remove anything unless it matches elements by strict equality.
+- Multiple removal arguments are combined: remove all values appearing in any of them.
+- Duplicate values in the removal lists do not matter beyond the first match.
+- The operation removes **all occurrences** of a matching value from the input list.
 
 ---
 
-### 2) Analyze the Problem
+### 2) Analyze the problem
 
-#### Problem Definition
-Given:
-- a source list `A`
-- zero or more additional arguments `B1, B2, ...`
+This is essentially a **filtering / set-difference** problem on a list, but with these nuances:
 
-Return a new list containing elements of `A` except those that appear in any of the additional arguments that are themselves arrays/lists.
+- The input list may contain duplicates.
+- Removal targets may be:
+  - lists
+  - `None`
+  - scalars
+  - nested objects like lists/dicts
+- Equality should be **deep/value equality** as used by normal language equality for those structures, but not coercive:
+  - `[1]` matches `[1]`
+  - `{'a': 1}` matches `{'a': 1}`
+  - `[1]` does not match `[[1]]`
+- Removal is performed against **all provided removal arguments**, flattening the effect of each argument into a single removal set.
 
-#### Matching Rules
-- Only consider extra arguments that are arrays/lists.
-- Remove elements from `A` if they are **strictly equal** to any element in the collected removal arrays.
-- Preserve order of remaining elements.
-- Remove all occurrences from `A`, not just the first.
-- Do not mutate the original input list.
+So the algorithm should:
 
-This is essentially a `difference` operation with filtering of non-array inputs.
-
-#### Complexity
-Let:
-- `n = len(A)`
-- `m = total number of elements across all valid removal arrays`
-
-A straightforward algorithm uses a hash/set for primitive values and a list-based fallback for objects if identity semantics are required. Given the tests, strict equality with reference semantics suggests a membership structure that respects identity for non-primitives.
+1. Interpret each extra argument as one or more values to remove.
+2. Compare each element of the first list against all removal values.
+3. Keep only elements that do not match any removal value.
 
 ---
 
-### 3) Design the Algorithm
+### 3) Design the algorithm
 
-#### Step-by-step approach
+A straightforward algorithm:
 
-1. Initialize an empty collection `remove_values`.
-2. For each argument after the first:
-   - If it is an array/list, add each of its elements to `remove_values`.
-   - Otherwise ignore it.
-3. Traverse the first array `A` from left to right.
-4. Keep an element only if it is **not contained** in `remove_values`.
-5. Return the filtered result.
+#### Step A: Collect removal values
+- Initialize an empty collection `R`.
+- For each extra argument:
+  - If the argument is a list/iterable of removal candidates, add each candidate to `R`.
+  - If it is `None`, ignore it.
+  - If it is a scalar or non-list object, treat it as a single removal candidate only if the test behavior indicates it should be considered; the suite suggests non-list non-matching values simply cause no removals unless they exactly match an element.
 
-#### Important detail: equality semantics
-The tests imply strict matching:
-- numbers match only same numbers
-- booleans match only same booleans
-- strings match only same strings
-- arrays/objects match only if they are the same instance/reference, not structurally equal
+Given the examples, the safe interpretation is:
 
-So the containment check must behave like:
-- primitive strict equality
-- reference identity for objects/arrays
+- If an extra argument is a list, use its elements as removal values.
+- If an extra argument is not a list, treat it as a single value to compare against list elements.
+- If it is `None`, it does not remove anything.
 
----
+#### Step B: Filter the input list
+- Create result list `out = []`.
+- For each element `x` in the first list:
+  - If `x` equals any value in `R`, skip it.
+  - Otherwise, append `x` to `out`.
 
-### 4) Handle Edge Cases
-
-#### Covered by tests
-- Empty source array: `f([], []) = []`
-- No valid removal arrays: returns source unchanged
-- Multiple removal arrays
-- Duplicate removal values
-- Duplicate source values
-- Non-array extra args ignored
-- `None` ignored
-- Type distinctions preserved (`3` vs `'3'`, `1` vs `True`)
-- Nested arrays/objects compared by reference, not deep equality
-
-#### Additional edge cases to consider
-- First argument not being an array:
-  - Not shown in tests, but a robust implementation should decide whether to return empty, throw, or coerce. Based on the suite, the function seems intended to accept an array first.
-- Very large inputs:
-  - Use a set/identity-based membership structure for efficiency.
-- Immutability:
-  - Return a new array rather than modifying input.
+#### Step C: Return result
+- Return `out`.
 
 ---
 
-## Concise Algorithm Description
+### 4) Handle edge cases
 
-**Function behavior:**  
-Return a new array containing elements of the first array that do not appear in any later argument that is an array. Ignore all non-array later arguments. Use strict/reference equality for comparisons.
+#### Duplicate removals
+Example:
+- `f([1, 2, 2, 3], [2, 2]) = [1, 3]`
 
-### Pseudocode
+So duplicates in removal arguments should not affect correctness.
+
+#### Mixed types
+Example:
+- `f([1, '1', True, False], [True, '1']) = [1, False]`
+
+So comparisons must be exact, not coerced.
+
+#### Nested structures
+Examples:
+- `f([[1], 2, 3], [[1]]) = [[1], 2, 3]`
+- `f([{'a': 1}, 2], [{'a': 1}]) = [{'a': 1}, 2]`
+
+This indicates that nested lists/dicts are compared by structural equality, but only exact matching structures are removed.
+
+#### Empty / null removal inputs
+- `f([1, 2, 3], []) = [1, 2, 3]`
+- `f([1, 2, 3], None) = [1, 2, 3]`
+
+So empty or absent removal means no change.
+
+#### Multiple removal arguments
+Examples:
+- `f([1, 2, 3], [2], [3]) = [1]`
+- `f([1, 2, 3], [2], None) = [1, 3]`
+- `f([1, 2, 3], [2], [2, 3]) = [1]`
+
+So all extra arguments are merged logically.
+
+---
+
+### Algorithm in pseudocode
 
 ```text
-function f(source, ...args):
-    remove_values = empty collection
+function f(arr, *removals):
+    remove_values = empty list
 
-    for arg in args:
-        if arg is an array:
-            for item in arg:
-                add item to remove_values
+    for each r in removals:
+        if r is None:
+            continue
+        if r is a list:
+            append all elements of r to remove_values
+        else:
+            append r to remove_values
 
-    result = empty array
-    for item in source:
-        if item not in remove_values:
-            append item to result
+    result = []
+    for x in arr:
+        if x is equal to any value in remove_values:
+            continue
+        result.append(x)
 
     return result
 ```
 
-### Interpretation
-This is equivalent to:
+---
 
-- `source.filter(x => x is not contained in any valid removal array)`
+### Complexity
 
-with strict equality semantics.
+Let:
+- `n = len(arr)`
+- `m = total number of removal candidates`
 
-If you'd like, I can also provide:
-- a JavaScript implementation,
-- a Python implementation,
-- or a more formal specification of the function.
+Using a simple scan, time complexity is:
+
+- **O(n × m)**
+
+Space complexity:
+
+- **O(m)** for storing removal values
+- **O(n)** for the result
+
+If optimized with a hashable set, complexity could improve, but because inputs may include unhashable values like lists/dicts, a linear comparison approach is the most general and safest.
+
+---
+
+### Final inferred behavior
+
+`f` removes from the first list every element that appears in any of the subsequent arguments, using strict structural equality, preserving order of the remaining elements.

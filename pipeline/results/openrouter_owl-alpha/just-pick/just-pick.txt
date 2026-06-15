@@ -1,22 +1,23 @@
 ```javascript
-module.exports = function(dict, ...keysArgs) {
-    let keys;
-    if (keysArgs.length === 1 && Array.isArray(keysArgs[0])) {
-        keys = keysArgs[0];
-    } else {
-        keys = keysArgs;
+module.exports = function(source, ...args) {
+  if (source === null || source === undefined) {
+    throw new TypeError("Cannot use 'in' operator to search for '" + (args[0] && args[0][0] || args[0]) + "' in null");
+  }
+  
+  let keys;
+  if (args.length === 1 && Array.isArray(args[0])) {
+    keys = args[0];
+  } else {
+    keys = args;
+  }
+  
+  const result = {};
+  for (const key of keys) {
+    if (key in source) {
+      result[key] = source[key];
     }
-    
-    const result = {};
-    const seen = new Set();
-    
-    for (const key of keys) {
-        if (dict.hasOwnProperty(key) && !seen.has(key)) {
-            result[key] = dict[key];
-            seen.add(key);
-        }
-    }
-    
-    return result;
+  }
+  
+  return result;
 };
 ```

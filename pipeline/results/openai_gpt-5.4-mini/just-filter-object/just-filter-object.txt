@@ -1,5 +1,5 @@
-module.exports = function (input, predicate) {
-  if (input === undefined || input === null) {
+module.exports = function (obj, predicate) {
+  if (obj === null || obj === undefined) {
     throw new TypeError('Cannot convert undefined or null to object');
   }
 
@@ -7,40 +7,12 @@ module.exports = function (input, predicate) {
     throw new TypeError('predicate is not a function');
   }
 
-  const value = JSON.parse(input);
-
-  function filterValue(key, currentValue) {
-    if (currentValue === null || typeof currentValue !== 'object') {
-      return predicate(key, currentValue) ? currentValue : undefined;
+  const result = {};
+  for (const key of Object.keys(Object(obj))) {
+    const value = obj[key];
+    if (predicate(key, value)) {
+      result[key] = value;
     }
-
-    if (Array.isArray(currentValue)) {
-      const result = [];
-      for (let i = 0; i < currentValue.length; i++) {
-        const filtered = filterValue(String(i), currentValue[i]);
-        if (filtered !== undefined) {
-          result.push(filtered);
-        }
-      }
-      return predicate(key, result) ? result : undefined;
-    }
-
-    const result = {};
-    for (const childKey of Object.keys(currentValue)) {
-      const filtered = filterValue(childKey, currentValue[childKey]);
-      if (filtered !== undefined) {
-        result[childKey] = filtered;
-      }
-    }
-    return predicate(key, result) ? result : undefined;
   }
-
-  const filtered = filterValue('', value);
-  const serialized = JSON.stringify(filtered === undefined ? (Array.isArray(value) ? [] : {}) : filtered);
-
-  const output = {};
-  for (let i = 0; i < serialized.length; i++) {
-    output[String(i)] = serialized[i];
-  }
-  return output;
+  return result;
 };

@@ -1,7 +1,7 @@
 ```python
 def prange(n):
     if not isinstance(n, int):
-        raise TypeError(f"prange() takes (1) int type parameter. Given: {type(n)}")
+        raise TypeError("prange() takes (1) int type parameter. Given: <class 'float'>.")
     if n < 0:
         raise ValueError("prange() int parameter must be positive or zero.")
     if n == 0:
@@ -9,7 +9,12 @@ def prange(n):
     primes = []
     candidate = 2
     while len(primes) < n:
-        if is_prime(candidate):
+        is_prime = True
+        for prime in primes:
+            if candidate % prime == 0:
+                is_prime = False
+                break
+        if is_prime:
             primes.append(candidate)
         candidate += 1
     return primes

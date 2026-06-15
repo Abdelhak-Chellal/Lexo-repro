@@ -1,6 +1,10 @@
 def prev_prime(n):
-    x = n - 1
-    while x >= 2:
-        if is_prime(x):
-            return x
-        x -= 1
+    if type(n) is not int:
+        raise TypeError(f"prev_prime() expect parameter n to be int. Given: {type(n)}.")
+    if n <= 2:
+        raise ValueError(f"prev_prime() expect parameter n to be larger than 2. Given: {n}.")
+    candidate = n - 1
+    while candidate >= 2:
+        if is_prime(candidate):
+            return candidate
+        candidate -= 1

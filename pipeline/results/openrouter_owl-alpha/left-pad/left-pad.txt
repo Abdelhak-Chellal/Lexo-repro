@@ -1,38 +1,33 @@
 ```javascript
-module.exports = function leftPad(value, width, padChar) {
-    // Convert value to string
-    let strValue;
-    if (value === null || value === undefined) {
-        strValue = 'null';
-    } else if (typeof value === 'boolean') {
-        strValue = value.toString();
-    } else {
-        strValue = String(value);
-    }
-    
-    // Determine effective padding character
-    let effectivePad;
-    if (padChar === null || padChar === undefined || padChar === false || padChar === '') {
-        effectivePad = ' ';
-    } else {
-        const padStr = String(padChar);
-        effectivePad = padStr.charAt(0);
-    }
-    
-    // Calculate padding needed
-    const paddingNeeded = width - strValue.length;
-    
-    // If no padding needed, return as-is
-    if (paddingNeeded <= 0) {
-        return strValue;
-    }
-    
-    // Build padding string
-    let padString = '';
-    for (let i = 0; i < paddingNeeded; i++) {
-        padString += effectivePad;
-    }
-    
-    return padString + strValue;
+module.exports = function(value, width, padChar) {
+  // Coerce value to string
+  var s;
+  if (value === null || value === undefined) {
+    s = 'null';
+  } else if (typeof value === 'boolean') {
+    s = value.toString().toLowerCase();
+  } else {
+    s = String(value);
+  }
+
+  // Resolve padChar
+  if (padChar === null || padChar === undefined || padChar === '') {
+    padChar = ' ';
+  }
+
+  // Coerce padChar to string
+  padChar = String(padChar);
+
+  // If width is not larger than string length, return as-is
+  if (width <= s.length) {
+    return s;
+  }
+
+  // Build padding
+  var paddingNeeded = width - s.length;
+  var fullPad = padChar.repeat(Math.ceil(paddingNeeded / padChar.length));
+  var padding = fullPad.substring(0, paddingNeeded);
+
+  return padding + s;
 };
 ```

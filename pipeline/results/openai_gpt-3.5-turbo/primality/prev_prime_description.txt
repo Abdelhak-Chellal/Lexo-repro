@@ -1,14 +1,21 @@
+Based on the test suite provided, the function `f(n)` is expected to return the largest prime number less than `n` (excluding `n` itself). If the input `n` is less than or equal to 2, the function should throw an exception indicating that the input should be larger than 2.
+
+Here is an algorithm that describes the function:
+
 Algorithm:
+1. Define the function `f(n)`
+2. If `n <= 2`, throw an exception "prev_prime() expects parameter n to be larger than 2. Given: n".
+3. Initialize a variable `result` to store the largest prime number less than `n`.
+4. Iterate from `n-1` to 2 in reverse order:
+   a. Check if the current number is prime using a helper function `is_prime(num)`.
+   b. If the number is prime, set `result` to this number and break out of the loop.
+5. Return `result`.
 
-1) Start
-2) Define the function f(num) that takes an integer as input
-3) Check if the input number is less than or equal to 1
-4) If true, return the input number
-5) If false, subtract 4 from the input number
-6) Recursively call the function with the new number obtained in step 5 as input
-7) Return the final result
-8) End
+Helper Function `is_prime(num)`:
+1. Define a helper function `is_prime(num)` that takes a number `num` as input.
+2. If `num` is less than 2, return False.
+3. Iterate from 2 to the square root of `num`:
+   a. If `num` is divisible by any number in this range, return False.
+4. If the loop completes without finding a divisor, return True.
 
-Edge Cases:
-- If the input number is negative, handle it appropriately (e.g., return an error message or handle it as a positive number)
-- If the input number is a floating-point number, round it to the nearest integer before performing calculations
+By following this algorithm, the function `f(n)` should be able to return the largest prime number less than `n` while handling edge cases where `n` is less than or equal to 2.

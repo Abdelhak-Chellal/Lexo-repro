@@ -1,34 +1,24 @@
-module.exports = function isOdd(value) {
-  if (arguments.length !== 1) {
+```javascript
+module.exports = function(x) {
+  if (typeof x === 'boolean') {
     throw new Error('is-odd expects a number.');
   }
-
-  if (value === null || value === undefined) {
-    throw new Error('is-odd expects a number.');
-  }
-
-  if (typeof value === 'boolean') {
-    throw new Error('is-odd expects a number.');
-  }
-
-  if (typeof value === 'object') {
-    throw new Error('is-odd expects a number.');
-  }
-
-  if (typeof value === 'string') {
-    if (value === '' || !/^-?\d+$/.test(value)) {
+  
+  if (typeof x === 'string') {
+    const num = Number(x);
+    if (isNaN(num) || !Number.isInteger(num)) {
       throw new Error('is-odd expects a number.');
     }
-    const num = parseInt(value, 10);
     return num % 2 === 0;
   }
-
-  if (typeof value === 'number') {
-    if (!Number.isInteger(value)) {
+  
+  if (typeof x === 'number') {
+    if (!Number.isInteger(x)) {
       throw new Error('is-odd expects an integer.');
     }
-    return value % 2 === 0;
+    return x % 2 === 0;
   }
-
+  
   throw new Error('is-odd expects a number.');
 };
+```

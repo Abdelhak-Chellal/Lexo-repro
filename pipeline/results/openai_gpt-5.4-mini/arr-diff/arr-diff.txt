@@ -1,16 +1,30 @@
-module.exports = function (array) {
-  var valuesToRemove = [];
+module.exports = function arrDiff(array) {
+  var removeValues = [];
 
   for (var i = 1; i < arguments.length; i++) {
     var arg = arguments[i];
+    if (arg == null) continue;
+
     if (Array.isArray(arg)) {
       for (var j = 0; j < arg.length; j++) {
-        valuesToRemove.push(arg[j]);
+        removeValues.push(arg[j]);
       }
+    } else {
+      removeValues.push(arg);
     }
   }
 
-  return array.filter(function (item) {
-    return valuesToRemove.indexOf(item) === -1;
-  });
+  function isRemoved(value) {
+    for (var k = 0; k < removeValues.length; k++) {
+      if (value === removeValues[k]) return true;
+    }
+    return false;
+  }
+
+  var result = [];
+  for (var idx = 0; idx < array.length; idx++) {
+    if (!isRemoved(array[idx])) result.push(array[idx]);
+  }
+
+  return result;
 };

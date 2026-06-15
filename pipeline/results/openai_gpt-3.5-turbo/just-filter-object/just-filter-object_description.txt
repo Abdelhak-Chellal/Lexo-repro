@@ -1,0 +1,25 @@
+Algorithm:
+1) Create an empty dictionary result to store the filtered key-value pairs.
+2) Iterate over each key-value pair in the input dictionary.
+3) Apply the provided function to each key-value pair:
+   a) If the function returns True, add the key-value pair to the result dictionary.
+   b) If the function returns False or None, skip the key-value pair.
+4) Return the result dictionary containing the filtered key-value pairs.
+
+Code implementation in Python:
+
+```python
+def f(dictionary, filter_func):
+    result = {}
+    for key, value in dictionary.items():
+        if eval(filter_func):
+            result[key] = value
+    return result
+
+# Test Cases
+print(f({'a': 3, 'b': 5, 'c': 9}, 'value < 6'))  # Output: {'a': 3, 'b': 5}
+print(f({'a1': 3, 'b1': 5, 'a2': 9}, "key[0] == 'a'"))  # Output: {'a1': 3, 'a2': 9}
+print(f({'a': 3, 'b': 5, 'c': None}, 'value'))  # Output: {'a': 3, 'b': 5}
+print(f({'test': 1, 'example': 2}, 'value % 2 == 0'))  # Output: {'example': 2}
+print(f({'key1': 'value1', 'key2': 'value2'}, 'len(key) > 4'))  # Output: {}
+```

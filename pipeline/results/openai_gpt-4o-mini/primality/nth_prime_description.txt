@@ -1,62 +1,80 @@
-To design an algorithm based on the provided test suite, we need to analyze the function's behavior based on the given input-output pairs. 
+To derive the function described by the test suite, we need to analyze the inputs and outputs provided, understand the problem being solved, and then outline an algorithm that meets the requirements. Here's a structured breakdown:
 
-### Step 1: Understand the Test Suite
+### 1) Understand the Test Suite
+The test cases provide various input-output pairs for a function `f(n)`, alongside expected behaviors for invalid inputs. The outputs suggest a relationship between the input integers and their respective outputs:
 
-The test suite provides pairs of inputs and outputs for the function \( f(n) \). By examining the outputs for various inputs, we can infer that the function appears to be related to prime numbers. The output values correspond to the \( n \)-th prime number plus 2. 
+- **Inputs:** Non-negative integers (0, 1, 5, 10, 20, etc.)
+- **Outputs:** Corresponding integer outputs (2, 3, 13, 31, etc.)
+- **Invalid Inputs:** The function is expected to raise exceptions for negative numbers, strings, `None`, and floats.
 
-- For example:
-  - \( f(0) = 2 \) (the 0th prime)
-  - \( f(1) = 3 \) (the 1st prime)
-  - \( f(2) = 5 \) (the 2nd prime)
-  - \( f(3) = 7 \) (the 3rd prime)
-  - \( f(4) = 11 \) (the 4th prime)
-  - ...
+### 2) Analyze the Problem
+From the outputs given for specific inputs, we can infer that the function might be related to prime numbers. The outputs appear to be a sequence of prime numbers:
 
-### Step 2: Analyze the Problem
+- f(0) = 2 (the first prime)
+- f(1) = 3 (the second prime)
+- f(5) = 13 (the sixth prime)
+- f(10) = 31 (the eleventh prime)
+- ...
 
-The function seems to return the \( n \)-th prime number. The sequence of prime numbers begins with 2, 3, 5, 7, 11, 13, 17, 19, 23, and so on. 
+This suggests that `f(n)` returns the (n+1)th prime number, where n is the input index.
 
-Given \( n \), the function's task is to find the \( n \)-th prime number.
+### 3) Design the Algorithm
+To implement the function `f(n)`, we can follow these steps:
 
-### Step 3: Design the Algorithm
+1. **Input Validation:**
+   - Check if `n` is an integer.
+   - Check if `n` is non-negative.
+   - If `n` is invalid, raise appropriate exceptions.
 
-We can outline the steps for the algorithm as follows:
+2. **Generate Primes:**
+   - Use a method to generate prime numbers up to a certain limit. The Sieve of Eratosthenes is a good choice for efficiency.
+   - Store the primes in a list.
 
-1. **Initialize a list** to store prime numbers, starting with the first prime number (2).
-2. **Use a loop** to iterate through numbers, starting from 2, to check for primality until we have found the \( n \)-th prime number.
-3. For each number:
-   - **Check if it's prime**:
-     - A number is prime if it is greater than 1 and not divisible by any prime number less than or equal to its square root.
-4. **Store the prime** in the list if it is found to be prime.
-5. **Return the \( n \)-th prime** from the list once it is populated with enough prime numbers.
+3. **Return the Prime:**
+   - Return the (n+1)th prime from the list.
+
+### 4) Handle Edge Cases
+- Ensure that the function correctly handles input types: negative integers, strings, `None`, and floats, by raising appropriate exceptions.
+- Consider edge cases such as `f(0)` (the first prime) and larger inputs (e.g., `f(1000)`) to ensure performance remains acceptable.
 
 ### Pseudocode
-
 ```python
-def is_prime(num):
-    if num < 2:
-        return False
-    for i in range(2, int(num**0.5) + 1):
-        if num % i == 0:
-            return False
-    return True
+def nth_prime(n):
+    # Input validation
+    if not isinstance(n, int):
+        raise TypeError(f"nth_prime() takes (1) int type parameter. Given: {type(n).__name__}.")
+    if n < 0:
+        raise ValueError("nth_prime() int parameter must be positive or zero.")
+    
+    # Function to generate prime numbers up to a certain limit
+    def generate_primes(limit):
+        sieve = [True] * (limit + 1)  # true means prime
+        sieve[0] = sieve[1] = False  # 0 and 1 are not primes
+        for start in range(2, int(limit**0.5) + 1):
+            if sieve[start]:
+                for multiple in range(start*start, limit + 1, start):
+                    sieve[multiple] = False
+        return [num for num, is_prime in enumerate(sieve) if is_prime]
 
-def f(n):
-    primes = []
-    candidate = 2
+    # Estimate the limit for prime generation
+    # A rough estimate can be taken as n * log(n) for larger n
+    if n == 0:
+        return 2
+    limit = max(15, int(n * (log(n) if n > 1 else 1)))
+    
+    primes = generate_primes(limit)
+    
+    # Ensure we have enough primes
     while len(primes) <= n:
-        if is_prime(candidate):
-            primes.append(candidate)
-        candidate += 1
+        limit *= 2
+        primes = generate_primes(limit)
+    
     return primes[n]
+
+# Example usage
+print(nth_prime(0))  # Output: 2
+print(nth_prime(1))  # Output: 3
+print(nth_prime(5))  # Output: 13
 ```
 
-### Step 4: Handle Edge Cases
-
-1. **Negative Input**: The function is defined for non-negative integers, so we should handle cases where \( n < 0 \) by returning an error or a specific value (such as `None`).
-2. **Large Inputs**: The algorithm may become slow for very large values of \( n \). In such cases, using more efficient prime-finding algorithms (like the Sieve of Eratosthenes) would be beneficial.
-3. **Memory Constraints**: If the list of primes grows very large, memory management should be considered.
-
-### Conclusion
-
-The designed function \( f(n) \) effectively computes the \( n \)-th prime number using a straightforward method. The algorithm is simple and easy to understand, though optimization techniques may be necessary for larger inputs to enhance performance.
+This code outlines a function that meets the requirements of generating the nth prime number, handles invalid inputs, and includes a mechanism for generating primes efficiently.

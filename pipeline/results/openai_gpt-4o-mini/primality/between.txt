@@ -1,12 +1,12 @@
 ```python
 def between(a, b):
-    if a >= b:
+    if a > b:
         return []
-    
-    primes = []
-    for n in range(a, b):
-        if is_prime(n):
-            primes.append(n)
-    
-    return primes
+    if a < 2:
+        a = 2
+    result = []
+    for number in range(a, b + 1):
+        if is_prime(number):
+            result.append(number)
+    return result
 ```

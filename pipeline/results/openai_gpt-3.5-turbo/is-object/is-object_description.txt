@@ -1,0 +1,10 @@
+Algorithm:
+
+1) Define the function f(input) that takes a single argument.
+2) Check if the input is of type dictionary (dict).
+3) If the input is a dictionary, return True.
+4) If the input is not a dictionary, return False.
+
+Edge Cases:
+- Handle cases where the input is None, a string, a list, or a boolean value by returning False.
+- If the input is a number, consider it as False since numbers are not dictionaries.

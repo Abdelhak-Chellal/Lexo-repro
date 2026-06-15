@@ -1,19 +1,17 @@
-module.exports = function (value) {
-  if (arguments.length === 0) return false;
-  if (value === null || value === undefined) return false;
-
-  if (typeof value === 'boolean') return false;
+module.exports = function isNumber(value) {
+  if (typeof value === 'boolean' || value == null) return false;
 
   if (typeof value === 'number') {
     return Number.isFinite(value);
   }
 
-  if (typeof value === 'string') {
-    const trimmed = value.trim();
-    if (trimmed.length === 0) return false;
+  if (typeof value !== 'string') return false;
 
-    return /^[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/.test(trimmed);
-  }
+  const input = value.trim();
+  if (input === '') return false;
+
+  if (/^[-+]?0[xX][0-9a-fA-F]+$/.test(input)) return true;
+  if (/^[-+]?((\d+\.?\d*)|(\.\d+))(e[-+]?\d+)?$/i.test(input)) return true;
 
   return false;
 };

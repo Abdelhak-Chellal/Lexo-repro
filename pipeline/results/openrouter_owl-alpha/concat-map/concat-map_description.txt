@@ -1,87 +1,165 @@
-# Algorithm Design: FlatMap Function
+To determine the algorithm described by the function `f`, we analyze the provided input-output pairs systematically.
 
-## 1. Understanding the Test Suite
+---
 
-The function `f` takes two parameters:
-- **Input array**: A list of elements (e.g., `[1, 2, 3]`)
-- **Callback function**: A string representation of a function that transforms each element
+### **Step 1: Understand the Test Suite**
 
-The function applies the callback to each element and **flattens** the results by one level into a single output array.
-
-## 2. Problem Analysis
-
-This is a **flatMap** operation (also known as `concatMap` or `map + flatten`):
-- **Map**: Apply a transformation function to each element
-- **Flatten**: If the transformation returns an array, spread its elements into the result; if it returns a non-array value, include it directly
-
-Key observations from test cases:
-- When callback returns a scalar → include scalar directly
-- When callback returns an array → spread array elements into result
-- When callback returns `null` → include `None` (treated as scalar)
-- Empty input → empty output
-- Nested arrays are preserved (only one level of flattening)
-
-## 3. Algorithm Design
+We are given multiple test cases of the form:
 
 ```
-FUNCTION flatMap(inputArray, callbackString):
-    // Step 1: Parse the callback string into an executable function
-    callback = parseFunction(callbackString)
-    
-    // Step 2: Initialize result array
-    result = []
-    
-    // Step 3: Iterate through each element
-    FOR i = 0 TO length(inputArray) - 1:
-        element = inputArray[i]
-        
-        // Step 4: Apply callback (pass element and index)
-        transformed = callback(element, i)
-        
-        // Step 5: Check if result is an array
-        IF isArray(transformed):
-            // Flatten one level: spread array elements
-            FOR EACH item IN transformed:
-                APPEND item TO result
-        ELSE:
-            // Keep scalar/null values as-is
-            APPEND transformed TO result
-    
-    // Step 6: Return flattened result
-    RETURN result
+f(array, string) = result
 ```
 
-## 4. Edge Cases Handled
+Where:
+- The first argument is a list (possibly empty).
+- The second argument is a **string representation of a JavaScript-like function**.
+- The output is a transformed list.
 
-| Edge Case | Example | Behavior |
-|-----------|---------|----------|
-| Empty input | `f([], ...)` | Returns `[]` |
-| Single element | `f([1], ...)` | Processes normally |
-| Null return | `f([1,2,3], 'return null')` | Includes `None` values |
-| Empty array return | `f([1,2,3], 'return []')` | Skips element (no output) |
-| Nested arrays | `f([1], 'return [[1]]')` | Preserves inner structure |
-| Falsy values (0, '', false) | Various | Included as-is |
-| Index parameter | `f([1,2,3], 'return i')` | Passes index to callback |
+We must infer what `f` does based on these examples.
 
-## Implementation (Python)
+---
 
-```python
-def f(input_array, callback_str):
-    # Parse callback string (simplified - in practice use eval or Function constructor)
-    callback = eval(callback_str.replace('function', 'lambda'))
-    
+### **Step 2: Analyze the Behavior**
+
+Let’s examine key patterns:
+
+#### **Observation 1: Function is applied to each element**
+In all non-empty cases, the output has **one or more elements per input element**, suggesting the function is applied **once per element** in the array.
+
+Example:
+```js
+f([1,2,3], 'function(x) { return x*2; }') → [2,4,6]
+```
+→ Each element is doubled.
+
+#### **Observation 2: Return value handling depends on type**
+
+Let’s look at how the return value of the callback is used:
+
+| Input Function | Return Type | Output Behavior |
+|----------------|-------------|------------------|
+| `x => x*2`     | number      | flat values → `[2,4,6]` |
+| `x => [x, -x]` | array       | flattened into result → `[1,-1,2,-2,...]` |
+| `x => [[x,i]]` | array of arrays | **not** flattened → `[[1,0],[2,1],[3,2]]` |
+| `x => []`      | empty array | contributes **nothing** → result is `[]` |
+| `x => null`    | null        | treated as `None` in output → `[None, None, None]` |
+| `x => {val:x}` | object      | included as-is → `[{val:1}, ...]` |
+
+So:
+- If the callback returns a **non-array, non-null** value → it is added directly.
+- If it returns an **array**, that array is **flattened into the result**.
+- If it returns `null` → it becomes `None` in output.
+- If it returns an **empty array** → nothing is added (i.e., element is skipped).
+- But if it returns an array **containing arrays**, like `[[x,i]]`, then the inner array is **not further flattened** — only the top-level array is spread.
+
+This strongly suggests **one level of flattening**: i.e., if the callback returns an array, its elements are **concatenated** into the result. But if those elements are themselves arrays, they are **not unpacked further**.
+
+This is **exactly** the behavior of **flatMap** in JavaScript (or similar constructs in other languages):  
+> `flatMap` maps each element using a mapping function, then flattens the result **by one level**.
+
+Also note:
+- When the function returns a scalar (number, string, boolean, object, null), it is treated as a single element.
+- When it returns an array, its contents are spread into the result.
+- Empty arrays contribute zero elements.
+
+#### **Observation 3: Function receives element and index**
+
+Some functions use a second parameter `i`:
+```js
+f([1,2,3], 'function(x, i) { return [x, i]; }') → [1,0,2,1,3,2]
+```
+So the callback receives `(element, index)` — just like in `Array.prototype.map` or `flatMap`.
+
+Also:
+```js
+f([1,2,3], 'function() { return arguments[0]; }') → [1,2,3]
+```
+Confirms that the function is called with standard arguments (element, index, array?), but at least `arguments[0]` works — so it's invoked with proper arguments.
+
+#### **Observation 4: Edge Cases**
+
+- Empty input → always returns `[]`.
+- Returning `null` → becomes `None` in output (note: in the I/O, `null` is represented as `None`, likely due to Python-style notation).
+- Throwing an error → propagates (e.g., `null(x)` throws).
+
+---
+
+### **Step 3: Design the Algorithm**
+
+Based on the above, here is the algorithm:
+
+---
+
+### ✅ **Algorithm Description**
+
+**Function**: `f(arr, func_str)`
+
+**Input**:
+- `arr`: a list (possibly empty)
+- `func_str`: a string representing a function that takes up to two arguments: `(element, index)`
+
+**Output**: a new list
+
+**Steps**:
+
+1. **Parse the function string** into an executable function `callback`.
+   - This may involve evaluating the string (e.g., via `eval` or a parser), but the exact mechanism is abstracted.
+   - The resulting function should accept `(x, i)` as parameters.
+
+2. **Initialize an empty result list**: `result = []`
+
+3. **Iterate over each element in `arr` with its index**:
+   - For each index `i` from `0` to `len(arr) - 1`:
+     - Let `x = arr[i]`
+     - Call `value = callback(x, i)`
+     - **Handle the return value**:
+       - If `value` is an **array** (or list-like):
+         - **Extend** `result` with the elements of `value` (i.e., one level of flattening)
+       - Else if `value` is `null` (or `None` in Python terms):
+         - Append `None` to `result`
+       - Else:
+         - Append `value` directly to `result`
+
+4. **Return `result`**
+
+> 🔍 **Key nuance**: Only **one level of flattening** occurs. Nested arrays inside the returned array are preserved as-is.
+
+---
+
+### **Step 4: Handle Edge Cases**
+
+- **Empty input array**: return `[]` immediately.
+- **Callback throws an error**: let it propagate (do not catch).
+- **Callback returns `null`**: map to `None` in output (as per I/O convention).
+- **Callback returns empty array**: contributes nothing (no elements added).
+- **Callback ignores arguments**: still works (uses `arguments[0]` or default params).
+- **Callback returns deeply nested arrays**: only top-level array is flattened; inner structure remains.
+
+---
+
+### ✅ Final Answer
+
+The function `f` implements a **flatMap-like operation** with the following behavior:
+
+> For each element in the input array (with its index), apply the given function. If the function returns an array, **flatten it by one level** into the result; otherwise, add the return value directly (with `null` mapped to `None`).
+
+This matches the behavior of **JavaScript’s `Array.prototype.flatMap()`**, with the additional note that `null` returns are represented as `None` in the output (likely due to the test suite using Python-like notation).
+
+Thus, the algorithm is:
+
+```
+f(arr, func_str):
+    parse func_str into a callable f(x, i)
     result = []
-    for i, element in enumerate(input_array):
-        transformed = callback(element, i) if 'i' in callback_str else callback(element)
-        
-        if isinstance(transformed, list):
-            result.extend(transformed)  # Flatten one level
+    for i, x in enumerate(arr):
+        val = f(x, i)
+        if val is an array:
+            result.extend(val)
+        elif val is null:
+            result.append(None)
         else:
-            result.append(transformed)  # Keep scalar/null
-    
+            result.append(val)
     return result
 ```
 
-## Complexity
-- **Time**: O(n × m) where n = input length, m = average output per element
-- **Space**: O(n × m) for the result array
+This satisfies all provided test cases.

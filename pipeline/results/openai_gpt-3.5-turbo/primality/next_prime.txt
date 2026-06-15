@@ -1,17 +1,14 @@
-def next_prime(n):
-    if not isinstance(n, int):
-        raise TypeError(f"nextprime() expect parameter n to be int. Given: {type(n)}.")
-    
-    def is_prime(num):
-        if num < 2:
+def next_prime(x):
+    def is_prime(n):
+        if n < 2:
             return False
-        for i in range(2, int(num ** 0.5) + 1):
-            if num % i == 0:
+        for i in range(2, int(n ** 0.5) + 1):
+            if n % i == 0:
                 return False
         return True
     
-    prime = n + 1
+    x += 1
     while True:
-        if is_prime(prime):
-            return prime
-        prime += 1
+        if is_prime(x):
+            return x
+        x += 1

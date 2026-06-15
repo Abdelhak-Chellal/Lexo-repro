@@ -1,0 +1,22 @@
+```javascript
+module.exports = function(inputList, funcString) {
+    const outputList = [];
+    
+    const func = eval(`(${funcString})`);
+    
+    for (const element of inputList) {
+        try {
+            const result = func(element);
+            if (Array.isArray(result)) {
+                outputList.push(...result);
+            } else {
+                outputList.push(result);
+            }
+        } catch (e) {
+            outputList.push(null);
+        }
+    }
+    
+    return outputList;
+};
+```

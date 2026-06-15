@@ -1,0 +1,8 @@
+```javascript
+module.exports = function(x) {
+    if (Array.isArray(x)) {
+        return x;
+    }
+    return [x];
+};
+```

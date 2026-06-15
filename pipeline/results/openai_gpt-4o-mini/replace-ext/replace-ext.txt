@@ -1,22 +1,35 @@
 ```javascript
-module.exports = function(filePath, newExtension) {
-    if (filePath === null) return null;
-    if (typeof filePath !== 'string') return filePath;
-    if (newExtension === null) newExtension = "null";
-
-    const path = require('path');
-    const directory = path.dirname(filePath);
-    const fileName = path.basename(filePath);
-    const baseName = path.parse(fileName).name;
-    const currentExtension = path.extname(fileName);
-
-    let newFileName;
-    if (newExtension === "") {
-        newFileName = baseName; // Remove current extension
-    } else {
-        newFileName = baseName + newExtension; // Add new extension
+module.exports = function f(path, newExtension) {
+    if (path === null) {
+        return null;
+    }
+    if (typeof path === 'number') {
+        return path;
+    }
+    if (path === '') {
+        return '';
     }
 
-    return path.join(directory, newFileName);
+    if (newExtension === null) {
+        newExtension = 'null';
+    } else if (newExtension === '') {
+        newExtension = '';
+    }
+
+    const lastSlashIndex = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
+    const directory = lastSlashIndex >= 0 ? path.slice(0, lastSlashIndex + 1) : '';
+    const filename = lastSlashIndex >= 0 ? path.slice(lastSlashIndex + 1) : path;
+
+    const currentExtensionIndex = filename.lastIndexOf('.');
+    const currentExtension = currentExtensionIndex >= 0 ? filename.slice(currentExtensionIndex) : '';
+
+    if (newExtension) {
+        if (currentExtension) {
+            filename = filename.slice(0, currentExtensionIndex);
+        }
+        filename += newExtension.startsWith('.') ? newExtension : '.' + newExtension;
+    }
+
+    return directory + filename;
 };
 ```

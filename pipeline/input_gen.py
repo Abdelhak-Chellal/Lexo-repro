@@ -4,6 +4,7 @@ import subprocess
 import re
 from openai import OpenAI
 from dotenv import load_dotenv
+from static_analysis import analyze_package, format_metadata_for_prompt
 
 load_dotenv()
 
@@ -29,7 +30,7 @@ def get_source(package_name, tests_dir="/app/tests"):
             return f.read()
     return None
 
-def generate_inputs(source_code, model, use_function_strings=False, lang="js", strict_json=False):
+def generate_inputs(source_code, model, use_function_strings=False, lang="js", strict_json=False, metadata_str=""):
     if use_function_strings:
         function_note = """- For function arguments, you MUST represent them as JSON strings
 - CORRECT:   ["function(x) { return x * 2; }"]
@@ -50,13 +51,17 @@ def generate_inputs(source_code, model, use_function_strings=False, lang="js", s
 
 CRITICAL: Your previous response failed JSON parsing. You MUST follow these rules EXACTLY:
 1. Output ONLY a JSON array of arrays — nothing else
-2. Each inner array contains the function arguments: [[arg1], [arg2], ...]  
+2. Each inner array contains the function arguments: [[arg1], [arg2], ...]
 3. Do NOT write [[1, true], [2, false]] if function takes ONE argument — write [[1], [2]]
 4. Start with [ and end with ] — no text before or after
 5. No markdown backticks, no comments, no explanations
 6. Valid example for f(x): [[1], [0], [-1], ["hello"], [null], [true], [false]]
 7. Valid example for f(x,y): [[1, 2], [0, 0], ["a", "b"], [null, true]]
 """
+
+    metadata_section = ""
+    if metadata_str:
+        metadata_section = f"\n\n{metadata_str}\n"
 
     prompt = f"""Given a component, generate an input test suite that will test thoroughly the component's behavior. These input/output pairs will then be used to regenerate the module. Make sure to include all edge cases and key behaviors.
 
@@ -76,7 +81,7 @@ STRICT RULES for the final JSON:
 - Maximum 30 inputs total
 
 {example}
-
+{metadata_section}
 Code: {source_code}"""
 
     response = client.chat.completions.create(
@@ -277,13 +282,32 @@ def generate_io_pairs(package_name, model, tests_dir="/app/tests", max_retries=3
     if package_name == "primality":
         source = extract_python_function(source, "is_prime")
 
+    # --- Static analysis enrichment ---
+    print(f"  Running static analysis for {package_name}...")
+    try:
+        metadata = analyze_package(package_name, tests_dir)
+        metadata_str = format_metadata_for_prompt(metadata)
+        if metadata_str:
+            print(f"  Static analysis: found {metadata['functionCount']} function(s)")
+        else:
+            print(f"  Static analysis: no metadata extracted")
+    except Exception as e:
+        print(f"  Static analysis failed (continuing without): {e}")
+        metadata_str = ""
+
     last_error = None
     for attempt in range(max_retries + 1):
         try:
             if attempt > 0:
                 print(f"  Retry {attempt} for {package_name}...")
             print(f"  Generating inputs with {model}...")
-            raw = generate_inputs(source, model, use_function_strings=use_fn_strings, lang=lang, strict_json=(attempt > 0))
+            raw = generate_inputs(
+                source, model,
+                use_function_strings=use_fn_strings,
+                lang=lang,
+                strict_json=(attempt > 0),
+                metadata_str=metadata_str,
+            )
             cleaned = clean_json(raw)
             if use_fn_strings:
                 cleaned = serialize_bare_functions(cleaned)
@@ -319,12 +343,21 @@ def generate_io_pairs_primality(model, tests_dir="/app/tests"):
     with open(source_path) as f:
         full_source = f.read()
 
+    # --- Static analysis enrichment ---
+    print(f"  Running static analysis for primality...")
+    try:
+        metadata = analyze_package("primality", tests_dir)
+        metadata_str = format_metadata_for_prompt(metadata)
+    except Exception as e:
+        print(f"  Static analysis failed (continuing without): {e}")
+        metadata_str = ""
+
     all_io_pairs = {}
     for func_name in PRIMALITY_FUNCTIONS:
         print(f"  Generating inputs for {func_name}...")
         func_source = extract_python_function(full_source, func_name)
         try:
-            raw = generate_inputs(func_source, model, lang="py")
+            raw = generate_inputs(func_source, model, lang="py", metadata_str=metadata_str)
             cleaned = clean_json(raw)
             inputs = extract_json_array(cleaned)
 

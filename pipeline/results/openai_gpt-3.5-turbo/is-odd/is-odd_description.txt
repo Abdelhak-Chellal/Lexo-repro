@@ -1,0 +1,12 @@
+Algorithm:
+
+1) Define the function f(num) that takes an input parameter num.
+2) Check if the input num is an integer or not. If it is not an integer, raise an exception "expected an integer."
+3) If num is None, return False.
+4) If num is an integer, check if it is greater than 0.
+5) If num is greater than 0, return True.
+6) If num is less than or equal to 0, return False.
+
+Handling Edge Cases:
+- If num is a non-integer, raise an exception "expected an integer."
+- If num is None, return False.

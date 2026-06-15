@@ -1,14 +1,15 @@
 module.exports = function concatMap(arr, fn) {
-  if (typeof fn !== 'function') {
-    throw new TypeError('fn is not a function');
+  if (arr === null) {
+    throw new TypeError("Cannot read properties of null (reading 'length')");
+  }
+
+  if (!Array.isArray(arr)) {
+    return [];
   }
 
   var result = [];
-  var length = arr.length;
-
-  for (var i = 0; i < length; i++) {
+  for (var i = 0; i < arr.length; i++) {
     var mapped = fn(arr[i], i);
-
     if (Array.isArray(mapped)) {
       for (var j = 0; j < mapped.length; j++) {
         result.push(mapped[j]);
@@ -17,6 +18,5 @@ module.exports = function concatMap(arr, fn) {
       result.push(mapped);
     }
   }
-
   return result;
 };

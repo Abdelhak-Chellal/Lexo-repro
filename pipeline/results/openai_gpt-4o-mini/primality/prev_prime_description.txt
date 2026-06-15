@@ -1,52 +1,76 @@
-Based on the provided test suite, we can infer that the function `f(n)` is designed to return the largest prime number that is less than `n`. If `n` is less than or equal to 2, the function throws an exception indicating that the input must be greater than 2. 
+To design the algorithm based on the given test suite for the function `f(n)`, we will follow the outlined steps systematically.
 
-### Step-by-Step Algorithm Design
+### 1. Understand the Test Suite
+The test cases indicate that the function `f(n)` involves computing the largest prime number less than `n`. The function:
+- Returns a prime number for valid integer inputs greater than 2.
+- Throws an exception for inputs less than or equal to 2 and non-integer values.
 
-1. **Input Validation**: Check if `n` is less than or equal to 2. If so, throw an exception with a message indicating that the parameter must be larger than 2.
+### 2. Analyze the Problem
+The problem requires us to find the largest prime number less than a given integer `n`. The properties we need to ensure are:
+- The input `n` must be an integer greater than 2.
+- For valid inputs, we need to efficiently identify the largest prime less than `n`.
+- We also need to handle edge cases where the input does not satisfy the criteria.
 
-2. **Find the Largest Prime Less Than `n`**:
-   - Initialize a variable `candidate` to `n - 1` (the number just below `n`).
-   - While `candidate` is greater than or equal to 2:
-     - Check if `candidate` is a prime number.
-       - If it is, return `candidate`.
-       - If it is not, decrement `candidate` by 1.
-   - If no prime is found (which theoretically shouldn't happen for valid inputs above 2), return an indication of failure (though this is more of a safeguard).
+### 3. Design the Algorithm
+Here’s a step-by-step approach to implement the function `f(n)`:
 
-3. **Prime Checking Function**:
-   - To check if a number is prime, use the following steps:
-     - If the number is less than 2, return false.
-     - Check divisibility from 2 up to the square root of the number. If divisible by any number in this range, it is not prime.
+1. **Input Validation**:
+   - If `n` is not an integer, raise a `TypeError` indicating that the input must be an integer.
+   - If `n` <= 2, raise a `ValueError` indicating that the parameter must be larger than 2.
 
-### Pseudocode
+2. **Find the Largest Prime Less Than n**:
+   - Start from `n-1` and decrement until you find a prime number.
+   - To check if a number `x` is prime:
+     - If `x <= 1`, return False.
+     - Check divisibility from 2 up to the square root of `x`. If `x` is divisible by any of these, it is not prime.
 
-```pseudocode
-function f(n):
+3. **Return the Found Prime**:
+   - Once a prime is found, return it.
+
+### Algorithm Implementation
+Here’s how the algorithm can be implemented in Python:
+
+```python
+def is_prime(num):
+    if num <= 1:
+        return False
+    for i in range(2, int(num**0.5) + 1):
+        if num % i == 0:
+            return False
+    return True
+
+def f(n):
+    if not isinstance(n, int):
+        raise TypeError(f"expect parameter n to be int. Given: {type(n)}.")
     if n <= 2:
-        throw Exception("prev_prime() expect parameter n to be larger than 2. Given: " + n)
+        raise ValueError(f"expect parameter n to be larger than 2. Given: {n}.")
     
-    candidate = n - 1
-    
-    while candidate >= 2:
+    # Start checking for prime from n-1 downwards
+    for candidate in range(n - 1, 1, -1):
         if is_prime(candidate):
             return candidate
-        candidate = candidate - 1
-    
-    // Optional safeguard; should never hit this point for valid inputs
-    return None // or some indication of failure
 
-function is_prime(num):
-    if num < 2:
-        return false
-    for i from 2 to sqrt(num):
-        if num % i == 0:
-            return false
-    return true
+# Example usage (uncomment to test):
+# print(f(3))  # Output: 2
+# print(f(4))  # Output: 3
+# print(f(5))  # Output: 3
+# print(f(10)) # Output: 7
+# print(f(11)) # Output: 7
+# print(f(15)) # Output: 13
+# print(f(20)) # Output: 19
+# print(f(30)) # Output: 29
+# print(f(100))# Output: 97
+# print(f(2))  # Should raise ValueError
+# print(f(1))  # Should raise ValueError
+# print(f(0))  # Should raise ValueError
+# print(f(-1)) # Should raise ValueError
+# print(f(-10))# Should raise ValueError
+# print(f(5.5))# Should raise TypeError
 ```
 
-### Edge Cases Handling
+### 4. Handle Edge Cases
+The algorithm handles edge cases by:
+- Validating the type of `n` to ensure it is an integer.
+- Raising appropriate exceptions for values of `n` that do not meet the criteria specified in the test cases.
 
-- **Inputs less than or equal to 2**: As specified in the test suite, any input less than or equal to 2 should throw an exception. This is already handled in the input validation step.
-- **Performance Considerations**: For large values of `n`, the algorithm's efficiency can be improved using a more efficient prime-checking method, like the Sieve of Eratosthenes to precompute primes up to `n`. However, for the function's purpose of finding a single prime, a direct check may suffice for the expected input range based on the test cases.
-- **Negative Inputs**: Any negative inputs will also throw the same exception, as they fall under the condition of being less than or equal to 2.
-
-This algorithm effectively captures the requirements indicated by the test suite, ensuring that it handles all specified cases and adheres to the expected behavior.
+By following this structured approach, the function `f(n)` is robust and meets the requirements set by the test suite.

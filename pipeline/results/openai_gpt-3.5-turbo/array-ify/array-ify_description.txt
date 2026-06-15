@@ -1,0 +1,11 @@
+Algorithm:
+1) Define a function f that takes two integers, a and b, as input.
+2) Create an empty list result to store the output.
+3) Check if a is less than b:
+   a) If true, append a to the result list.
+   b) If false, append b to the result list.
+4) Return the result list containing the smaller of the two input integers.
+
+Handling Edge Cases:
+- Consider what the function should return if both inputs are equal.
+- Consider what the function should return if negative integers are provided as inputs.

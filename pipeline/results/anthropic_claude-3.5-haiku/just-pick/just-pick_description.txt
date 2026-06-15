@@ -1,60 +1,67 @@
-Based on the test suite, here's an algorithm design for the function:
+Based on the comprehensive test suite, here's an algorithm to describe the function:
 
-Algorithm: Selective Dictionary Extraction
+Algorithm: Selective Dictionary Key Extraction
 
 Input:
-- source_dict: A dictionary containing key-value pairs
-- keys: A single key or a list of keys to extract
+- source_dict: The original dictionary
+- keys: A list (or multiple arguments) of keys to extract
 
 Output:
 - A new dictionary containing only the specified keys from the source dictionary
 
 Algorithm Steps:
-1. Input Validation
-   - If keys is a single string, convert it to a list
-   - If keys is an empty list, return an empty dictionary
-   - If source_dict is empty, return an empty dictionary
+1. Create an empty result dictionary
 
-2. Key Extraction
-   - Create an empty result dictionary
-   - Iterate through the keys list
+2. Handle different input types for keys:
+   - If keys are passed as multiple arguments, convert them to a list
+   - If keys is an empty list, return an empty dictionary
+
+3. Iterate through the specified keys:
    - For each key:
      a. Check if the key exists in the source dictionary
      b. If key exists, add the key-value pair to the result dictionary
+     c. Handle duplicate keys by keeping only the first occurrence
 
-3. Return the result dictionary
+4. Special Considerations:
+   - Preserve original value types (None, 0, False, empty string)
+   - Handle special/reserved keys like '__proto__', 'constructor'
+   - Support empty keys and numeric keys
+   - Maintain the order of keys as specified in the input list
+
+5. Return the result dictionary
 
 Python Implementation:
 ```python
-def f(source_dict, keys):
-    # Convert single key to list
-    if isinstance(keys, str):
-        keys = [keys]
+def f(source_dict, *keys):
+    # Convert multiple arguments to a list if needed
+    if len(keys) == 1 and isinstance(keys[0], list):
+        keys = keys[0]
     
-    # Handle empty key list or empty source dictionary
-    if not keys or not source_dict:
+    # Return empty dict if no keys specified
+    if not keys:
         return {}
     
-    # Extract specified keys
-    result = {key: source_dict[key] for key in keys if key in source_dict}
+    # Create result dictionary with specified keys
+    result = {}
+    for key in keys:
+        if key in source_dict:
+            # Add key only if not already present
+            if key not in result:
+                result[key] = source_dict[key]
     
     return result
 ```
 
-Key Design Considerations:
-1. Handles single key and list of keys input
-2. Preserves original value types (integers, None, lists, dictionaries)
-3. Ignores keys not present in the source dictionary
-4. Maintains order of keys as specified in the input list
-5. Works with special keys like 'prototype', 'toString', 'constructor'
-6. Handles empty dictionaries and empty key lists
+Time Complexity: O(n), where n is the number of keys to extract
+Space Complexity: O(m), where m is the number of keys in the result dictionary
 
-Time Complexity: O(n), where n is the number of keys
-Space Complexity: O(k), where k is the number of matching keys
+Key Observations from Test Suite:
+1. Handles various input types (None, 0, False, empty string)
+2. Ignores non-existent keys
+3. Preserves original dictionary values
+4. Supports special/reserved keys
+5. Handles duplicate keys in input
+6. Works with empty dictionaries
+7. Supports nested structures and complex data types
 
-The algorithm successfully passes all the provided test cases, covering various scenarios like:
-- Different value types
-- Special object keys
-- Empty inputs
-- Duplicate keys
-- Partial key matching
+The algorithm provides a flexible mechanism for selectively extracting dictionary keys while maintaining the original value characteristics.

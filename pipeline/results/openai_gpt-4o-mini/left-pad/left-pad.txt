@@ -1,20 +1,28 @@
 ```javascript
-module.exports = function(text, length, pad_char) {
-    if (pad_char === null) {
-        pad_char = ' ';
+module.exports = function(value, length, padChar) {
+    if (value === null) {
+        value = 'null';
     } else {
-        pad_char = String(pad_char);
+        value = String(value);
     }
 
-    const text_length = text.length;
-
-    if (text_length >= length) {
-        return text;
+    if (padChar === null) {
+        padChar = ' ';
     }
 
-    const padding_needed = length - text_length;
-    const padding = pad_char.repeat(padding_needed);
+    if (length <= 0) {
+        return '';
+    }
 
-    return padding + text;
+    const currentLength = value.length;
+
+    if (currentLength >= length) {
+        return value;
+    }
+
+    const paddingNeeded = length - currentLength;
+    const paddingString = (padChar || ' ').repeat(paddingNeeded);
+
+    return paddingString + value;
 };
 ```

@@ -1,0 +1,6 @@
+The function `f()` takes no arguments and always returns `True`. Therefore, the algorithm is simply to return the boolean value `True`.
+
+```python
+def f():
+    return True
+```

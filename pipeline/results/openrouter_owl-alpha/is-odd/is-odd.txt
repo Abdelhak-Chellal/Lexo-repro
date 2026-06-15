@@ -1,26 +1,15 @@
 ```javascript
-module.exports = function isOdd(x) {
-  if (x === null || x === undefined) {
-    return false;
-  }
-  
-  if (typeof x === 'boolean') {
-    return x;
-  }
-  
-  if (typeof x !== 'number') {
-    throw new Error('expected a number');
-  }
-  
-  if (!Number.isInteger(x)) {
-    throw new Error('expected an integer');
-  }
-  
-  const MAX_SAFE_INTEGER = 9007199254740991;
-  if (Math.abs(x) > MAX_SAFE_INTEGER) {
-    throw new Error('value exceeds maximum safe integer');
-  }
-  
-  return x % 2 !== 0;
-};
+function f(n) {
+  if (n === null || n === undefined) return false;
+  if (Array.isArray(n)) return false;
+  if (typeof n === 'object') throw new Error('expected a number');
+  if (typeof n === 'string') throw new Error('expected a number');
+  if (typeof n === 'boolean') return n === true;
+  if (typeof n !== 'number') throw new Error('expected a number');
+  if (!Number.isInteger(n)) throw new Error('expected an integer');
+  if (!Number.isSafeInteger(n)) throw new Error('value exceeds maximum safe integer');
+  return n % 2 !== 0 && n !== 0;
+}
+
+module.exports = f;
 ```

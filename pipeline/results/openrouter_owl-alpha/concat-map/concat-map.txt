@@ -1,24 +1,13 @@
-```javascript
-function f(inputArray, callbackStr) {
-  const callback = new Function('x', 'i', callbackStr.replace(/^function\s*\([^)]*\)\s*\{/, '').replace(/\}$/, ''));
-  
-  const result = [];
-  
-  for (let i = 0; i < inputArray.length; i++) {
-    const element = inputArray[i];
-    const transformed = callback(element, i);
-    
-    if (Array.isArray(transformed)) {
-      for (let j = 0; j < transformed.length; j++) {
-        result.push(transformed[j]);
-      }
+module.exports = function(arr, funcStr) {
+  var callback = eval('(' + funcStr + ')');
+  var result = [];
+  for (var i = 0; i < arr.length; i++) {
+    var val = callback(arr[i], i);
+    if (Array.isArray(val)) {
+      result = result.concat(val);
     } else {
-      result.push(transformed);
+      result.push(val);
     }
   }
-  
   return result;
 }
-
-module.exports = f;
-```

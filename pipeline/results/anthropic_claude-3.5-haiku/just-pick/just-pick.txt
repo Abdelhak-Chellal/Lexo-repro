@@ -1,16 +1,20 @@
-module.exports = function(sourceDict, keys) {
-    if (typeof keys === 'string') {
-        keys = [keys];
+```javascript
+module.exports = function(sourceDict, ...keys) {
+    if (keys.length === 1 && Array.isArray(keys[0])) {
+        keys = keys[0];
     }
     
-    if (!keys || !Object.keys(sourceDict).length) {
+    if (keys.length === 0) {
         return {};
     }
     
-    return keys.reduce((result, key) => {
-        if (sourceDict.hasOwnProperty(key)) {
+    const result = {};
+    for (const key of keys) {
+        if (Object.prototype.hasOwnProperty.call(sourceDict, key) && !result.hasOwnProperty(key)) {
             result[key] = sourceDict[key];
         }
-        return result;
-    }, {});
+    }
+    
+    return result;
 };
+```

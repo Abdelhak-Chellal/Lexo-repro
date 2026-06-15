@@ -1,120 +1,115 @@
-Here’s a plausible algorithm that matches the test suite.
+### 1) Understand the Test Suite
 
-## 1) Understand the test suite
+The function `f(n)` returns:
 
-From the I/O pairs:
+- the **smallest prime number greater than or equal to `n`** for integer inputs
+- for values less than or equal to 2, it returns `2`
+- it **rejects non-integer inputs** with a type error message:
+  - `nextprime() expect parameter n to be int. Given: <type>.`
+
+From the examples:
 
 - `f(0) = 2`
 - `f(1) = 2`
-- `f(-1) = 2`
-- `f(-10) = 2`
-
-So all non-positive inputs, and also `1`, map to `2`.
-
-For positive inputs:
-
 - `f(2) = 3`
 - `f(3) = 5`
 - `f(4) = 5`
 - `f(5) = 7`
-- `f(6) = 7`
-- `f(7) = 11`
-- `f(8) = 11`
-- `f(9) = 11`
 - `f(10) = 11`
 - `f(11) = 13`
 - `f(12) = 13`
+- `f(13) = 17`
 
-This suggests:
+This indicates the function is **not returning the next prime strictly greater than `n` only in some cases**; instead, it behaves like a “next prime after `n`” function where:
 
-- The function returns the **smallest prime number greater than or equal to `n`**,
-- with a special case that everything `<= 1` returns `2`.
+- if `n` is itself prime, it returns the **next larger prime**
+- if `n` is not prime, it returns the smallest prime greater than `n`
+- special case: any `n <= 1` returns `2`
 
-This matches all examples:
-- next prime after 2 is 3
-- next prime after 3 is 3, but the test gives 5 for 3, so it is actually **strictly greater than `n`** for positive inputs
-- thus the function seems to return the **next prime strictly greater than `n`**, except for `n <= 1`, where it returns 2.
-
-Check:
-- `2 -> 3`
+So for prime inputs:
 - `3 -> 5`
-- `4 -> 5`
 - `5 -> 7`
-- `6 -> 7`
-- `7 -> 11`
-- `8,9,10 -> 11`
 - `11 -> 13`
+- `13 -> 17`
+
+For non-prime inputs:
+- `4 -> 5`
+- `10 -> 11`
 - `12 -> 13`
 
-Yes, this fits exactly.
+Negative values also map to `2`.
 
 ---
 
-## 2) Analyze the problem
+### 2) Analyze the Problem
 
-### Problem definition
-Given an integer `n`, return:
+We want an algorithm that computes the **next prime strictly greater than the input integer**.
 
-- `2` if `n <= 1`
-- otherwise, the **smallest prime number strictly greater than `n`**
+Constraints implied by the tests:
 
-This is essentially computing the **next prime** after `n`.
-
-### Complexity
-A straightforward primality-based approach is sufficient:
-
-- Check numbers `n+1, n+2, ...` until a prime is found.
-- Each primality test can be done in `O(sqrt(k))`.
-- In practice, this is efficient for small-to-moderate integers.
+- Input must be an `int`
+- If not an `int`, raise:
+  - `nextprime() expect parameter n to be int. Given: <class '...'>.`
+- For integers `n <= 1`, return `2`
+- For integers `n >= 2`, return the smallest prime `p` such that `p > n`
 
 ---
 
-## 3) Design the algorithm
+### 3) Design the Algorithm
 
-### Step-by-step approach
+#### Step-by-step approach
 
-1. If `n <= 1`, return `2`.
-2. Set `candidate = n + 1`.
-3. While `candidate` is not prime:
-   - increment `candidate`
-4. Return `candidate`.
+1. **Validate type**
+   - If `n` is not of type `int`, raise a `TypeError` with the exact message format expected.
 
-### Prime test
-To test whether `x` is prime:
+2. **Handle small numbers**
+   - If `n <= 1`, return `2`
 
-- If `x < 2`, not prime
-- If `x == 2`, prime
-- If `x` is even, not prime
-- Otherwise, test odd divisors from `3` to `sqrt(x)`.
+3. **Search for the next prime**
+   - Start from `candidate = n + 1`
+   - While `candidate` is not prime:
+     - increment `candidate` by 1
+   - Return `candidate`
 
----
-
-## 4) Handle edge cases
-
-### Edge cases covered
-- `n < 0` → return `2`
-- `n = 0` → return `2`
-- `n = 1` → return `2`
-- `n = 2` → return `3`
-- Prime input like `n = 3` → return next prime, `5`
-
-### Additional considerations
-- Large inputs may require a more optimized primality test if performance matters.
-- For the given suite, the simple method is enough.
+4. **Prime check**
+   - To test whether a number is prime:
+     - return `False` for numbers less than 2
+     - check divisibility from `2` up to `sqrt(candidate)`
+     - if any divisor divides evenly, it is not prime
+     - otherwise, it is prime
 
 ---
 
-## Pseudocode
+### 4) Handle Edge Cases
+
+#### Covered by tests
+- `n = 0`, `1`, negative numbers → return `2`
+- `n` being prime → return next prime
+- `n` being composite → return next prime
+- non-integer types (`float`, `str`, `None`) → raise type error
+
+#### Additional edge cases
+- Very large integers: algorithm still works, though primality testing is brute-force and may be slower
+- Boolean values in Python:
+  - `bool` is a subclass of `int`
+  - if strict type checking is desired, use `type(n) is int` instead of `isinstance(n, int)`
+  - the tests do not mention booleans, so a strict `int` type check is safest if matching the given error behavior
+
+---
+
+## Algorithm in Pseudocode
 
 ```python
-def f(n):
+def nextprime(n):
+    if type(n) is not int:
+        raise TypeError(f"nextprime() expect parameter n to be int. Given: {type(n)}.")
+
     if n <= 1:
         return 2
 
     candidate = n + 1
     while not is_prime(candidate):
         candidate += 1
-
     return candidate
 
 
@@ -126,22 +121,30 @@ def is_prime(x):
     if x % 2 == 0:
         return False
 
-    d = 3
-    while d * d <= x:
+    limit = int(sqrt(x))
+    for d in range(3, limit + 1, 2):
         if x % d == 0:
             return False
-        d += 2
-
     return True
 ```
 
 ---
 
-## Summary
+## Complexity
 
-The function computes the **next prime strictly greater than the input**, with all inputs `<= 1` mapping to `2`.
+- Let `k` be the gap to the next prime.
+- Each primality test is `O(sqrt(m))`, where `m` is the candidate number.
+- Total complexity is approximately:
+  - **O(k * sqrt(m))**
 
-If you want, I can also express this as:
-- a concise mathematical definition,
-- a flowchart-style algorithm,
-- or a reverse-engineered specification.
+This is sufficient for the test suite and typical use.
+
+---
+
+## Final Behavior Summary
+
+The function computes:
+
+- the **next prime strictly greater than `n`**
+- returns `2` for all integers `n <= 1`
+- raises a `TypeError` for non-integer inputs with the exact message format shown in the tests

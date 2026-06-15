@@ -1,5 +1,11 @@
 ```javascript
-module.exports = function(arr1, arr2) {
-  return arr1.filter(item => !arr2.includes(item));
+module.exports = function arrDiff(arr1, arr2) {
+  let result = [];
+  arr1.forEach(element => {
+    if (!arr2.includes(element)) {
+      result.push(element);
+    }
+  });
+  return result;
 }
 ```

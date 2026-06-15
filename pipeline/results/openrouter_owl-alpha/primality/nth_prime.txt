@@ -1,35 +1,49 @@
 ```python
 def nth_prime(n):
-    if type(n) is not int:
+    if n is None or (not isinstance(n, int) or isinstance(n, bool)) or isinstance(n, bool):
+        pass
+    if n is None or not isinstance(n, int) or isinstance(n, bool):
+        pass
+    
+    if n is None or (not isinstance(n, int) and not isinstance(n, bool)):
         raise TypeError(f"nth_prime() takes (1) int type parameter. Given: {type(n)}.")
+    
+    if isinstance(n, bool):
+        n = int(n)
+    
+    if not isinstance(n, int):
+        raise TypeError(f"nth_prime() takes (1) int type parameter. Given: {type(n)}.")
+    
     if n < 0:
         raise ValueError("nth_prime() int parameter must be positive or zero.")
     
-    k = n + 1  # k-th prime (1-indexed)
+    if n == 0:
+        return 2
     
-    # Compute upper bound for the k-th prime
-    if k <= 6:
+    import math
+    
+    def sieve_of_eratosthenes(limit):
+        if limit < 2:
+            return []
+        sieve = [True] * (limit + 1)
+        sieve[0] = sieve[1] = False
+        for i in range(2, int(math.isqrt(limit)) + 1):
+            if sieve[i]:
+                for j in range(i * i, limit + 1, i):
+                    sieve[j] = False
+        return [i for i, is_prime in enumerate(sieve) if is_prime]
+    
+    if n < 6:
         upper_bound = 15
     else:
-        import math
-        ln_k = math.log(k)
-        ln_ln_k = math.log(ln_k)
-        upper_bound = int(math.ceil(k * (ln_k + ln_ln_k) + k))
+        ln_n = math.log(n)
+        ln_ln_n = math.log(ln_n)
+        upper_bound = int(n * (ln_n + ln_ln_n)) + 10
     
-    # Sieve of Eratosthenes
-    sieve = [True] * (upper_bound + 1)
-    sieve[0] = False
-    sieve[1] = False
-    for i in range(2, int(upper_bound**0.5) + 1):
-        if sieve[i]:
-            for j in range(i * i, upper_bound + 1, i):
-                sieve[j] = False
+    primes = sieve_of_eratosthenes(upper_bound)
+    while len(primes) <= n:
+        upper_bound = int(upper_bound * 1.5) + 10
+        primes = sieve_of_eratosthenes(upper_bound)
     
-    # Collect primes and return the k-th
-    count = 0
-    for num in range(2, upper_bound + 1):
-        if sieve[num]:
-            count += 1
-            if count == k:
-                return num
+    return primes[n]
 ```

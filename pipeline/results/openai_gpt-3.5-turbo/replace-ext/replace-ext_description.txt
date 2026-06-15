@@ -1,0 +1,12 @@
+Based on the test suite, the function takes a file path and a new file extension as input and returns the updated file path with the new extension. If the input file path is empty or None, the function should return the same. If the new extension is empty, the function should return the file name without an extension.
+
+Algorithm:
+1) If the file path is empty or None, return the same.
+2) If the new extension is empty, extract the file name from the path and return it.
+3) Split the file path into the directory path and the file name.
+4) If the file name contains a dot (indicating an existing extension), replace the existing extension with the new extension.
+5) If the file name does not contain a dot, append the new extension to the file name.
+6) Join the directory path and the updated file name to form the new file path.
+7) Return the new file path.
+
+This algorithm covers the requirements specified in the test suite, handling edge cases such as empty file paths and extensions.

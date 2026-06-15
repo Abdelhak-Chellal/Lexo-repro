@@ -1,5 +1,13 @@
 ```javascript
-module.exports = function(...args) {
-    return true;
-}
+module.exports = function(arg1 = null, arg2 = null) {
+    function isValidInput(arg) {
+        return arg === null || typeof arg === 'boolean' || typeof arg === 'number' || typeof arg === 'string' || (Array.isArray(arg) && arg.length === 0) || (typeof arg === 'object' && arg !== null && Object.keys(arg).length === 0);
+    }
+
+    if (arg2 !== null) {
+        return isValidInput(arg1) && isValidInput(arg2);
+    }
+
+    return isValidInput(arg1);
+};
 ```

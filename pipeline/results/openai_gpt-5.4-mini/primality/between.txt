@@ -1,9 +1,8 @@
-def between(a, b):
-    if a > b:
+def between(m, n):
+    if not isinstance(m, int):
+        raise TypeError(f"between() expect parameter m to be int. Given: {type(m)}.")
+    if not isinstance(n, int):
+        raise TypeError(f"between() expect parameter n to be int. Given: {type(n)}.")
+    if m > n:
         return []
-    start = max(a, 2)
-    result = []
-    for x in range(start, b + 1):
-        if is_prime(x):
-            result.append(x)
-    return result
+    return [x for x in range(max(m, 2), n + 1) if is_prime(x)]

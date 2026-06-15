@@ -1,164 +1,109 @@
-The function is computing the **n-th prime number**, using **0-based indexing**:
+### 1) Understand the Test Suite
 
-- `f(0) = 2` → 1st prime
-- `f(1) = 3` → 2nd prime
+From the examples:
+
+- `f(0) = 2`
+- `f(1) = 3`
 - `f(2) = 5`
-- `f(3) = 7`
-- etc.
+- `f(5) = 13`
+- `f(10) = 31`
+- `f(25) = 101`
 
-So:
+These outputs are exactly the **(n+1)-th prime number**:
+- 0 → 2nd? Actually the sequence is 2, 3, 5, 7, 11, 13, ...
+- `f(0)=2` means the function is using **0-based indexing** into primes.
+- So `f(n)` returns the **nth prime starting from 0**.
 
-- `f(n)` returns the `(n+1)`-th prime number
-- `f(10) = 31` because the 11th prime is 31
-- `f(20) = 73`
+That matches:
+- `f(0) = 2` (1st prime)
+- `f(1) = 3`
+- `f(2) = 5`
+- `f(5) = 13` (the 6th prime)
+- `f(10) = 31`
+- `f(25) = 101`
 
-## Observed input rules
+### 2) Analyze the Problem
 
-### Valid inputs
-- Must be an `int`
-- Must be `>= 0`
-- Booleans are accepted as integers:
-  - `True` behaves like `1`
-  - `False` behaves like `0`
+The function appears to be `nth_prime(n)`:
+- Input: one integer `n >= 0`
+- Output: the prime number at index `n` in zero-based prime ordering
 
-### Invalid inputs
-- Negative integers raise:
-  - `nth_prime() int parameter must be positive or zero.`
-- Non-integers raise:
-  - `nth_prime() takes (1) int type parameter. Given: <class '...'>.`
+Type/validation behavior from tests:
+- Negative integers raise:  
+  `nth_prime() int parameter must be positive or zero.`
+- Non-`int` types raise:  
+  `nth_prime() takes (1) int type parameter. Given: <class '...'>.`
+- Important: `True` is accepted and returns `3`
 
----
+That means the implementation likely treats `bool` as an acceptable integer-like type, because in Python `bool` is a subclass of `int`.
 
-# Algorithm design
+### 3) Design the Algorithm
 
-## Problem definition
-Given a non-negative integer `n`, return the `(n+1)`-th prime number.
+A straightforward algorithm is:
 
-Because indexing starts at 0:
-- `n = 0` → first prime = 2
-- `n = 1` → second prime = 3
+1. Validate the input type:
+   - Accept only integer-like values.
+   - In Python terms, `isinstance(n, int)` is enough to accept `True`/`False`.
+   - Reject strings, floats, lists, `None`, etc. with the exact type error message format.
 
----
+2. Validate non-negativity:
+   - If `n < 0`, raise the specified value error.
 
-## Step-by-step algorithm
+3. Find the nth prime:
+   - Generate prime numbers in increasing order.
+   - Count primes until reaching index `n`.
+   - Return that prime.
 
-### 1. Validate type
-Check whether the input is an integer-like value accepted by the function.
+### Efficient Prime Search
 
-- If the input is not of type `int` or `bool`, raise a type error:
-  - `"nth_prime() takes (1) int type parameter. Given: <class '...'>."`
+For small values, trial division works well:
 
-Note:
-- In Python, `bool` is a subclass of `int`, so `True` and `False` should be allowed.
+- Maintain a list of found primes.
+- Test each candidate number starting from 2.
+- A candidate is prime if it is not divisible by any previously found prime up to `sqrt(candidate)`.
 
-### 2. Validate value
-If the input integer is negative, raise:
-- `"nth_prime() int parameter must be positive or zero."`
+Pseudo-logic:
 
-### 3. Find the n-th prime
-Use a loop to generate primes in increasing order until the `(n+1)`-th prime is found.
-
-A simple way:
-- Start from `2`
-- For each candidate number:
-  - test whether it is prime
-  - if prime, increment a prime counter
-  - when the counter reaches `n + 1`, return that candidate
-
-### 4. Prime test
-To test whether a candidate is prime:
-- `2` is prime
-- numbers less than `2` are not prime
-- otherwise, try dividing by integers from `2` up to `sqrt(candidate)`
-- if any divisor divides evenly, it is not prime
-
----
-
-# Pseudocode
-
-```python
-def nth_prime(n):
-    # Type check
-    if not isinstance(n, int):
-        raise TypeError(f"nth_prime() takes (1) int type parameter. Given: {type(n)}.")
-
-    # Value check
+```text
+function nth_prime(n):
+    if type is not int-like:
+        raise TypeError
     if n < 0:
-        raise ValueError("nth_prime() int parameter must be positive or zero.")
+        raise ValueError
 
-    def is_prime(x):
-        if x < 2:
-            return False
-        if x == 2:
-            return True
-        if x % 2 == 0:
-            return False
-        d = 3
-        while d * d <= x:
-            if x % d == 0:
-                return False
-            d += 2
-        return True
+    primes = []
+    candidate = 2
 
-    count = -1
-    candidate = 1
-    while count < n:
+    while len(primes) <= n:
+        is_prime = true
+        for p in primes:
+            if p * p > candidate:
+                break
+            if candidate % p == 0:
+                is_prime = false
+                break
+        if is_prime:
+            primes.append(candidate)
         candidate += 1
-        if is_prime(candidate):
-            count += 1
 
-    return candidate
+    return primes[n]
 ```
 
----
+### 4) Handle Edge Cases
 
-# Why this matches the test suite
+- `n = 0` → return `2`
+- `n = 1` → return `3`
+- `True` should be treated as valid input and returns `3` because `True == 1`
+- Negative values → raise the required error
+- Non-integers → raise the required type error
 
-- `f(0)` returns `2`
-- `f(1)` returns `3`
-- `f(2)` returns `5`
-- `f(20)` returns `73`
-- negative values throw the required error
-- floats/strings/None throw the required type error
-- `True` and `False` work as `1` and `0`
+### Final Described Function
 
----
+This function computes the **nth prime number using zero-based indexing**, with input validation:
+- accepts integers (including `True`)
+- rejects non-integers
+- rejects negative integers
 
-# Edge cases to handle
-
-1. **`n = 0`**
-   - Must return `2`
-
-2. **`n = 1`**
-   - Must return `3`
-
-3. **Boolean inputs**
-   - `False` should behave like `0`
-   - `True` should behave like `1`
-
-4. **Non-integer numeric types**
-   - `1.0` and `1.5` should be rejected if strict integer typing is required by the tests
-   - The test suite explicitly rejects `1.5`
-
-5. **Large inputs**
-   - The simple prime-search loop works, but can be slow for large `n`
-   - For better performance, a sieve-based approach could be used if needed
-
----
-
-# Complexity
-
-For the straightforward implementation:
-
-- Let `p` be the `(n+1)`-th prime
-- Prime generation checks candidates up to `p`
-- Each primality test takes up to `O(sqrt(p))`
-
-So total complexity is roughly:
-
-- **Time:** `O(p * sqrt(p))` in the simple version
-- **Space:** `O(1)`
-
-If you want, I can also provide:
-1. a more optimized version using the **Sieve of Eratosthenes**, or  
-2. a version written exactly like a production Python function matching the error messages.
+If you'd like, I can also provide:
+1. a concrete Python implementation, or  
+2. a more optimized algorithm using a prime upper bound + sieve.

@@ -1,9 +1,10 @@
 ```python
 def next_prime(n):
-    if n <= 1:
+    if n <= 0:
         return 2
-    current = n
-    while not is_prime(current):
-        current += 1
-    return current
+    i = n
+    while True:
+        if is_prime(i):
+            return i
+        i += 1
 ```

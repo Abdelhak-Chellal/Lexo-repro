@@ -1,0 +1,12 @@
+```javascript
+module.exports = function(obj, predicateStr) {
+  const predicate = new Function('key', 'value', predicateStr.slice(predicateStr.indexOf('return') + 6, -1));
+  const result = {};
+  for (const key of Object.keys(obj)) {
+    if (predicate(key, obj[key])) {
+      result[key] = obj[key];
+    }
+  }
+  return result;
+};
+```

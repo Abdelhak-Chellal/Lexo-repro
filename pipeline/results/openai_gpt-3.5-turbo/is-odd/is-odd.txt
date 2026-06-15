@@ -1,0 +1,12 @@
+module.exports = function(num) {
+    if (!Number.isInteger(num)) {
+        throw new Error("expected an integer");
+    }
+    if (num === null) {
+        return false;
+    }
+    if (num > 0) {
+        return true;
+    }
+    return false;
+};

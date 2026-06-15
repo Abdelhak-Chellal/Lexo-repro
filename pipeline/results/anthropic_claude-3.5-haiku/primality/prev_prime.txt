@@ -1,14 +1,9 @@
-```python
 def prev_prime(n):
-    # Input validation
-    if not isinstance(n, int):
-        raise TypeError(f"prev_prime() expects parameter n to be int. Given: {type(n)}")
+    if is_prime(n):
+        return n
     
-    if n <= 2:
-        raise ValueError(f"prev_prime() expects parameter n to be larger than 2. Given: {n}")
+    for num in range(n-1, 1, -1):
+        if is_prime(num):
+            return num
     
-    # Iterate downwards to find largest prime
-    for candidate in range(n, 1, -1):
-        if is_prime(candidate):
-            return candidate
-```
+    return 2

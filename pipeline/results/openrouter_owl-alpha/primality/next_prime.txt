@@ -1,8 +1,9 @@
 ```python
-def next_prime(x):
-    if x < 2:
-        return 2
-    candidate = x
+def next_prime(n):
+    if type(n) is not int:
+        raise TypeError(f"nextprime() expect parameter n to be int. Given: {type(n)}.")
+    
+    candidate = n + 1
     while True:
         if is_prime(candidate):
             return candidate

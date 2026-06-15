@@ -1,84 +1,114 @@
 ### 1) Understand the Test Suite
 
-From the I/O pairs, the function returns a boolean for an integer input.
+The function appears to be `is_prime(n)`.
 
-Observed outputs:
+From the examples:
 
-- `True` for: `2, 3, 5, 17, 19, 97`
-- `False` for: `0, 1, -1, -10, 4, 9, 15, 21, 25`
+- `f(2) = True`
+- `f(3) = True`
+- `f(4) = False`
+- `f(1) = False`
+- `f(0) = False`
+- `f(-1) = False`
+- `f(25) = False`
+- `f(97) = True`
+- `f(99) = False`
+- `f(True) = False`
+- `f(9223372036854775783) = True`
 
-These `True` values are all **prime numbers**, and the `False` values are:
-- non-positive numbers
-- 1
-- composite numbers
+Type behavior:
 
-So the function appears to test whether the input is a **prime number**.
+- `f(2.5)` throws: `is_prime() takes (1) int type parameter. Given: <class 'float'>.`
+- `f('3')` throws similar message for `str`
+- `f(None)` throws similar message for `NoneType`
+- `f([3])` throws similar message for `list`
+
+So the function:
+- accepts exactly one argument
+- requires the argument to be an `int`
+- rejects non-ints with a `TypeError`-style message
+- returns `False` for integers less than 2
+- returns `True` iff the integer is prime
 
 ---
 
 ### 2) Analyze the Problem
 
-#### Problem Definition
-Given an integer `n`, determine whether it is prime.
+We need an algorithm to determine whether an integer is prime.
 
-A prime number is an integer greater than 1 that has no divisors other than 1 and itself.
+A prime number is an integer greater than 1 with no positive divisors other than 1 and itself.
 
-#### Implicit constraints
-- Negative numbers, 0, and 1 must return `False`
-- Small primes like 2 and 3 must return `True`
-- Composite numbers, including perfect squares like 9 and 25, must return `False`
+Important inference:
+- `True` is treated as invalid/false, not as `1`, even though in Python `bool` is a subclass of `int`. So the implementation should explicitly exclude `bool`.
+
+Complexity:
+- A straightforward primality check by testing divisors up to `sqrt(n)` is appropriate.
+- Time complexity: `O(sqrt(n))`
+- Space complexity: `O(1)`
 
 ---
 
 ### 3) Design the Algorithm
 
-A straightforward and efficient primality test:
+#### Step-by-step approach
 
-#### Steps
-1. If `n <= 1`, return `False`
-2. If `n <= 3`, return `True`  
-   - This handles `2` and `3`
-3. If `n` is divisible by `2` or `3`, return `False`
-4. Check possible divisors from `5` up to `sqrt(n)` using steps of 6:
-   - Test `i` and `i + 2` for divisibility
-   - Increment `i` by 6 each loop
-5. If no divisor is found, return `True`
+1. **Validate type**
+   - If input is not a plain integer type, raise:
+     `TypeError("is_prime() takes (1) int type parameter. Given: <class '...'>.")`
+   - Also reject `bool`.
 
-#### Why this works
-- Any composite number has a factor less than or equal to its square root.
-- Checking only numbers of the form `6k ± 1` skips obvious non-prime candidates and improves efficiency.
+2. **Handle small integers**
+   - If `n < 2`, return `False`
+   - If `n == 2` or `n == 3`, return `True`
 
-#### Complexity
-- Time: `O(sqrt(n))`
-- Space: `O(1)`
+3. **Eliminate obvious composites**
+   - If `n % 2 == 0`, return `False`
+   - If `n % 3 == 0`, return `False`
+
+4. **Check possible divisors efficiently**
+   - Only test numbers of the form `6k ± 1`
+   - Start at `i = 5`
+   - While `i * i <= n`:
+     - if `n % i == 0`, return `False`
+     - if `n % (i + 2) == 0`, return `False`
+     - increment `i` by `6`
+
+5. **If no divisor found**
+   - return `True`
 
 ---
 
 ### 4) Handle Edge Cases
 
-#### Covered edge cases
-- `n < 2` → `False`
-- `n = 2, 3` → `True`
-- Even numbers greater than 2 → `False`
-- Multiples of 3 greater than 3 → `False`
-- Perfect squares like `9`, `25` → `False`
-- Large primes like `97` → `True`
+#### Non-integer types
+Must raise the exact type error behavior shown in tests:
+- float
+- string
+- None
+- list
 
-#### Additional considerations
-- If the function may receive non-integer input, it should either:
-  - reject it, or
-  - convert only if appropriate
-But based on the test suite, inputs are integers only.
+#### Boolean values
+- `True` should return `False`, not be treated as `1`
+- `False` should also return `False`
+
+#### Small numbers
+- `0`, `1`, and negatives all return `False`
+
+#### Large numbers
+- The `sqrt(n)` method is efficient enough for large integers like `9223372036854775783`
 
 ---
 
-### Final Algorithm Description
+### Pseudocode
 
-```text
-function f(n):
-    if n <= 1:
+```python
+def is_prime(n):
+    if type(n) is not int:
+        raise TypeError(f"is_prime() takes (1) int type parameter. Given: {type(n)}.")
+
+    if n < 2:
         return False
-    if n <= 3:
+    if n == 2 or n == 3:
         return True
     if n % 2 == 0 or n % 3 == 0:
         return False
@@ -92,4 +122,17 @@ function f(n):
     return True
 ```
 
-This algorithm matches all provided test cases.
+---
+
+### Summary
+
+The function is a **prime number checker** with:
+- strict integer-only input validation
+- `bool` excluded from valid integers
+- `False` for all integers `< 2`
+- efficient primality testing using trial division up to `sqrt(n)` with `6k ± 1` optimization
+
+If you'd like, I can also provide:
+1. a formal specification,
+2. a Python implementation matching the tests exactly, or
+3. a proof of correctness for the algorithm.

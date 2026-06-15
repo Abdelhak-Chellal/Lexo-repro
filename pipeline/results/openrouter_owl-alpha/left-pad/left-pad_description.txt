@@ -3,76 +3,100 @@
 ## 1. Understanding the Test Suite
 
 The function `f` takes up to three arguments:
-- **arg1**: The value to be padded (string, number, boolean, None, etc.)
-- **arg2**: The total desired width (integer)
-- **arg3** (optional): The padding character (defaults to space `' '`)
+- **First argument**: The value to be padded (string, number, boolean, or None)
+- **Second argument**: The total desired width (integer)
+- **Third argument** (optional): The padding character (defaults to space `' '`)
 
-The function **left-pads** the string representation of `arg1` with the padding character so that the total length equals `arg2`. If the string is already equal to or longer than `arg2`, it returns the string unchanged.
+The function **left-pads** the first argument with the padding character so that the resulting string has a length equal to the second argument. If the string is already equal to or longer than the specified width, it is returned unchanged.
 
-## 2. Key Observations
+## 2. Problem Analysis
 
-| Observation | Evidence |
-|---|---|
-| Default pad char is space | `f('hello', 10)` → `'     hello'` |
-| Non-string inputs are converted | `f(123, 10)` → `'       123'`, `f(None, 10)` → `'      null'`, `f(True, 10)` → `'      true'` |
-| If width ≤ string length, return as-is | `f('hello', 3)` → `'hello'`, `f('hello', 0)` → `'hello'`, `f('hello', -1)` → `'hello'` |
-| Multi-char pad strings are truncated to fit | `f('hello', 6, '!!')` → `'!!hello'` (only 1 char of `'!!'` used) |
-| `None`, `False`, and `''` as pad char → treated as space | `f('hello', 10, None)` → `'     hello'`, `f('hello', 10, False)` → `'     hello'`, `f('hello', 10, '')` → `'     hello'` |
-| Pad char `'0'` is valid | `f('hello', 10, '0')` → `'00000hello'` |
+This is a **left-justification / left-padding** function (similar to Python's `str.rjust()` or `str.ljust()` depending on perspective — here it's right-aligning within a given width, i.e., left-padding).
+
+Key observations:
+- The first argument is **coerced to a string** (numbers become their string representation, booleans become lowercase `'true'`/`'false'`, `None` becomes `'null'`)
+- The padding character defaults to a space `' '`
+- If the padding character is `None`, it defaults to space
+- If the padding character is an empty string `''`, it defaults to space
+- If the width is ≤ the length of the string, the string is returned as-is
+- If the width is ≤ 0, the string is returned as-is
+- The padding character can be a **multi-character string** (e.g., `'ab'`), which is repeated and then truncated to fit exactly
 
 ## 3. Algorithm
 
 ```
 FUNCTION f(value, width, pad_char=' '):
 
-    // Step 1: Convert value to its string representation
+    // Step 1: Coerce value to string
     IF value IS None:
-        str_value = "null"
-    ELSE IF value IS True:
-        str_value = "true"
-    ELSE IF value IS False:
-        str_value = "false"
+        s = 'null'
+    ELSE IF value IS a boolean:
+        s = lowercase string of value ('true' or 'false')
     ELSE:
-        str_value = STRING(value)
+        s = string representation of value
 
-    // Step 2: Determine the effective padding character
-    IF pad_char IS None OR pad_char IS False OR pad_char IS '' OR pad_char IS ' ':
-        effective_pad = ' '
-    ELSE IF pad_char IS 0:
-        effective_pad = '0'
-    ELSE:
-        effective_pad = FIRST CHARACTER of STRING(pad_char)
+    // Step 2: Resolve padding character
+    IF pad_char IS None OR pad_char IS empty string '':
+        pad_char = ' '
 
-    // Step 3: Calculate padding needed
-    padding_needed = width - LENGTH(str_value)
+    // Step 3: Handle edge cases
+    IF width <= length of s:
+        RETURN s
 
-    // Step 4: If no padding needed, return as-is
-    IF padding_needed <= 0:
-        RETURN str_value
+    // Step 4: Calculate padding needed
+    padding_needed = width - length of s
 
     // Step 5: Build the padding string
-    pad_string = REPEAT(effective_pad, padding_needed)
+    // Repeat pad_char enough times, then truncate to exact padding_needed length
+    full_repeats = CEILING(padding_needed / length of pad_char)
+    padding = (pad_char repeated full_repeats times) truncated to padding_needed characters
 
-    // Step 6: Return padded result
-    RETURN pad_string + str_value
+    // Step 6: Return result
+    RETURN padding + s
 ```
 
 ## 4. Edge Cases Handled
 
 | Edge Case | Behavior |
 |---|---|
-| `width` ≤ 0 | Return string unchanged |
-| `width` < string length | Return string unchanged |
-| `value` is `None` | Convert to `"null"` |
-| `value` is boolean | Convert to `"true"`/`"false"` |
-| `pad_char` is `None`/`False`/`''` | Treat as space |
-| `pad_char` is multi-character | Use only the first character |
-| `pad_char` is `0` (integer) | Use `'0'` as pad character |
-| `pad_char` is `' '` (space) | Use space (same as default) |
-| `value` is numeric | Convert to string representation |
-| Missing `pad_char` argument | Default to space |
+| `width <= len(s)` | Return `s` unchanged |
+| `width <= 0` | Return `s` unchanged |
+| Empty string input | Return padding characters only |
+| `pad_char = None` | Default to space |
+| `pad_char = ''` | Default to space |
+| `pad_char` is multi-char string | Repeat and truncate to exact fit |
+| Non-string first arg (int, bool, None) | Coerce to string first |
+| `pad_char` is a number (e.g., `0`) | Coerce to string `'0'` |
 
-## 5. Complexity
+## Pseudocode Implementation
 
-- **Time Complexity**: O(n) where n = `width` (for building the padding string)
-- **Space Complexity**: O(n) for the output string
+```python
+def f(value, width, pad_char=' '):
+    # Coerce value to string
+    if value is None:
+        s = 'null'
+    elif isinstance(value, bool):
+        s = str(value).lower()
+    else:
+        s = str(value)
+    
+    # Resolve pad_char
+    if pad_char is None or pad_char == '':
+        pad_char = ' '
+    
+    # Coerce pad_char to string
+    pad_char = str(pad_char)
+    
+    # If width is not larger than string length, return as-is
+    if width <= len(s):
+        return s
+    
+    # Build padding
+    padding_needed = width - len(s)
+    full_pad = pad_char * ((padding_needed // len(pad_char)) + 1)
+    padding = full_pad[:padding_needed]
+    
+    return padding + s
+```
+
+This algorithm correctly handles all provided test cases, including multi-character padding strings, type coercion, and boundary conditions.

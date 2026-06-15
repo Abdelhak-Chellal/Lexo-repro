@@ -1,0 +1,17 @@
+```javascript
+module.exports = function(filePath, newExtension) {
+    if (!filePath) {
+        return filePath;
+    }
+    if (!newExtension) {
+        return filePath.split('/').pop().split('.')[0];
+    }
+    const [directoryPath, fileName] = filePath.split('/').reduce((acc, curr, index, arr) => index === arr.length - 1 ? [acc.join('/'), curr] : [acc.concat(curr), '']);
+    if (fileName.includes('.')) {
+        const fileNameWithoutExt = fileName.split('.').slice(0, -1).join('.');
+        return `${directoryPath}/${fileNameWithoutExt}${newExtension}`;
+    } else {
+        return `${directoryPath}/${fileName}${newExtension}`;
+    }
+}
+```

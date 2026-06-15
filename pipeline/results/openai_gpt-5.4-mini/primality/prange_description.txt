@@ -1,6 +1,6 @@
 ### 1) Understand the Test Suite
 
-The function `f(n)` returns a list of the first `n` prime numbers in ascending order.
+The function `f(n)` returns a **list of prime numbers**.
 
 From the examples:
 
@@ -8,95 +8,95 @@ From the examples:
 - `f(1) = [2]`
 - `f(2) = [2, 3]`
 - `f(3) = [2, 3, 5]`
+- `f(5) = [2, 3, 5, 7, 11]`
 - `f(10) = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]`
+- `f(100)` returns the first 100 primes
 
-So the function is essentially:  
-**generate the first `n` primes.**
+So the function returns the **first `n` prime numbers**, but with a special case:
 
-It also has strict input validation:
+- `n = 0` returns an empty list.
 
-- Negative integers raise:  
-  `prange() int parameter must be positive or zero.`
-- Non-integers raise:  
-  `prange() takes (1) int type parameter. Given: <type>.`
-- Booleans are accepted as integer-like values:
-  - `True -> 1`
-  - `False -> 0`
+It also performs strict input validation:
+
+- Negative integers are rejected with:
+  - `prange() int parameter must be positive or zero.`
+- Non-integer types are rejected with:
+  - `prange() takes (1) int type parameter. Given: <class '...'>.`
+- `True` is accepted and treated as `1`:
+  - `f(True) = [2]`
 
 ---
 
 ### 2) Analyze the Problem
 
-We need an algorithm that:
+The problem is:
 
-1. Accepts only an integer-like parameter.
-2. Rejects negative integers.
-3. Treats `True` and `False` as valid inputs, since in Python `bool` is a subclass of `int`.
-4. Returns the first `n` primes in order.
+> Given a non-negative integer `n`, return the first `n` prime numbers.
 
-The main computational task is prime generation.
+Observations:
 
-A straightforward and suitable approach is:
-
-- Keep a list of discovered primes.
-- Test each candidate number for primality using only previously found primes up to `sqrt(candidate)`.
-- Stop when we have collected `n` primes.
-
-This is simple, efficient enough for moderate `n`, and matches the test behavior.
+- Output size is `n` for `n > 0`, and `[]` for `n = 0`.
+- Need primes in increasing order.
+- Must validate type:
+  - accept `int` and `bool` (since `bool` is an `int` subclass in Python and the tests allow it)
+  - reject strings, floats, lists, etc.
+- Must validate value:
+  - if integer is negative, raise the specified error.
 
 ---
 
 ### 3) Design the Algorithm
 
-#### Input validation
-1. If input is not an `int`, raise:
-   - `prange() takes (1) int type parameter. Given: <type>.`
-2. If input is negative, raise:
-   - `prange() int parameter must be positive or zero.`
+A suitable approach is to generate primes incrementally until we have collected `n` of them.
 
-Since `bool` is a subclass of `int`, `True` and `False` pass the type check naturally.
+#### Algorithm steps
 
-#### Prime generation
-1. If `n == 0`, return `[]`.
-2. Initialize:
-   - `primes = []`
-   - `candidate = 2`
-3. While `len(primes) < n`:
-   - Assume `candidate` is prime.
-   - For each prime `p` in `primes`:
-     - If `p * p > candidate`, stop checking.
-     - If `candidate % p == 0`, mark as not prime and break.
-   - If still prime, append `candidate` to `primes`.
-   - Increment `candidate`.
-4. Return `primes`.
+1. **Validate input type**
+   - If `n` is not an instance of `int`:
+     - raise `TypeError("prange() takes (1) int type parameter. Given: <class '...'>.")`
+   - Since `bool` is an `int` subclass, it passes this check, matching the tests.
+
+2. **Validate value**
+   - If `n < 0`:
+     - raise `ValueError("prange() int parameter must be positive or zero.")`
+
+3. **Handle zero**
+   - If `n == 0`, return `[]`
+
+4. **Generate primes**
+   - Start with an empty list `primes`
+   - Candidate numbers begin at `2`
+   - For each candidate:
+     - test whether it is prime by checking divisibility only by previously found primes up to `sqrt(candidate)`
+     - if prime, append to `primes`
+   - Stop when `len(primes) == n`
+
+5. **Return the list**
+
+#### Prime test
+To test whether `candidate` is prime:
+
+- For each prime `p` in `primes`:
+  - if `p * p > candidate`, stop checking
+  - if `candidate % p == 0`, it is not prime
+- If no divisor found, it is prime
+
+This is efficient enough for `n = 100` and beyond.
 
 ---
 
 ### 4) Handle Edge Cases
 
-#### `n = 0`
-Return empty list.
+#### Covered edge cases
+- `n = 0` → `[]`
+- `n = 1` → `[2]`
+- negative integers → raise error
+- non-integer types → raise type error
+- `True` → treated as `1`
 
-#### `n = 1`
-Return `[2]`.
-
-#### Negative values
-Reject with the specified error.
-
-#### Non-integer values
-Reject with the specified error.
-
-#### Booleans
-Because Python treats `bool` as `int`, the function should accept them:
-- `False` behaves like `0`
-- `True` behaves like `1`
-
-#### Large `n`
-The algorithm remains correct, though performance can be improved with:
-- skipping even numbers after 2
-- using a sieve if generating many primes at once
-
-But the test suite suggests a simple incremental approach is sufficient.
+#### Additional considerations
+- `False` would be treated as `0`, so `f(False)` would likely return `[]` under the same rules.
+- Large `n` values still work, though runtime grows as more primes are needed.
 
 ---
 
@@ -108,6 +108,8 @@ def f(n):
         raise TypeError(f"prange() takes (1) int type parameter. Given: {type(n)}.")
     if n < 0:
         raise ValueError("prange() int parameter must be positive or zero.")
+    if n == 0:
+        return []
 
     primes = []
     candidate = 2
@@ -129,21 +131,6 @@ def f(n):
 
 ---
 
-### Complexity
+### Final Description
 
-Let `n` be the number of primes requested.
-
-- Time: roughly `O(n * sqrt(k))` per candidate, where `k` is the size of the current candidate; in practice this is much faster than naive divisibility checks.
-- Space: `O(n)` for storing the primes.
-
----
-
-### Final Summary
-
-The function `f(n)` returns the first `n` prime numbers, with strict validation:
-
-- non-integers → type error
-- negatives → range error
-- `True`/`False` accepted as `1`/`0`
-
-The best fit is an incremental prime generator using previously found primes for divisibility checks.
+The function `f(n)` is a **prime range generator**: it returns the first `n` prime numbers. It validates that the input is an integer-like type accepted by Python’s `isinstance(n, int)` check (including `bool`), rejects negative values, and generates primes sequentially using trial division by previously found primes.

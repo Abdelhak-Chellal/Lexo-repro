@@ -1,29 +1,46 @@
 module.exports = function isOdd(value) {
-  const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER;
+  const MAX_SAFE_INTEGER = 9007199254740991;
 
-  if (value === null || value === undefined) return false;
-  if (Array.isArray(value) && value.length === 0) return false;
-
-  if (typeof value === 'boolean') {
-    value = value ? 1 : 0;
-  } else if (typeof value === 'string') {
-    if (!/^[+-]?\d+$/.test(value.trim())) {
-      throw new TypeError('expected a number');
-    }
-    value = Number(value);
-  }
-
-  if (typeof value !== 'number' || Number.isNaN(value) || !Number.isFinite(value)) {
+  function throwNumber() {
     throw new TypeError('expected a number');
   }
 
-  if (!Number.isInteger(value)) {
+  function throwInteger() {
     throw new TypeError('expected an integer');
   }
 
-  if (Math.abs(value) > MAX_SAFE_INTEGER) {
-    throw new RangeError('value exceeds maximum safe integer');
+  function throwSafe() {
+    throw new TypeError('value exceeds maximum safe integer');
   }
 
-  return value % 2 !== 0;
+  function toNumber(input) {
+    if (input === null || input === false || input === '') return 0;
+    if (input === true) return 1;
+
+    if (Array.isArray(input)) {
+      if (input.length === 0) return 0;
+      if (input.length === 1) return toNumber(input[0]);
+      throwNumber();
+    }
+
+    const type = typeof input;
+
+    if (type === 'number') return input;
+    if (type === 'string') {
+      if (input.trim() === '') return 0;
+      const num = Number(input);
+      if (Number.isNaN(num)) throwNumber();
+      return num;
+    }
+
+    throwNumber();
+  }
+
+  const num = toNumber(value);
+
+  if (!Number.isFinite(num)) throwNumber();
+  if (!Number.isInteger(num)) throwInteger();
+  if (Math.abs(num) > MAX_SAFE_INTEGER) throwSafe();
+
+  return Math.abs(num % 2) === 1;
 };

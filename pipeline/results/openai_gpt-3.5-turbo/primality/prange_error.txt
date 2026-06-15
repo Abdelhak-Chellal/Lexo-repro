@@ -1,12 +1,11 @@
-Exception: 'int' object is not iterable
+Exception: Error code: 400 - {'error': {'message': "This endpoint's maximum context length is 16385 tokens. However, you requested about 33338 tokens (31338 of text input, 2000 in the output). Please reduce the length of either one, or use the context-compression plugin to compress your prompt automatically.", 'code': 400, 'metadata': {'provider_name': None}}, 'user_id': 'user_2uuOrT6AZTW4ISN2Ls0UQ3Ffomu'}
 
 Raw model response:
-def is_prime(n):
+def nth_prime(n):
     if n < 2:
-        return False
-    if n == 2:
-        return True
-    for i in range(2, int(n ** 0.5) + 1):
-        if n % i == 0:
-            return False
-    return True
+        return 2
+    a, b = 2, 3
+    for i in range(2, n):
+        next_prime = a + b + 1
+        a, b = b, next_prime
+    return b

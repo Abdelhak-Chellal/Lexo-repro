@@ -1,0 +1,38 @@
+## Algorithm for Function `f`
+
+The function `f` determines whether an input is an odd integer, with special handling for `None`, non‑integer numbers, and non‑numeric values.
+
+### Steps
+
+1. **Check for `None`**  
+   - If the input is `None`, return `False`.
+
+2. **Check for numeric type**  
+   - If the input is **not** an instance of `int` (including Boolean, since `bool` is a subclass of `int`) or `float`, raise a `TypeError` with the message `"expected a number"`.
+
+3. **Handle non‑integer numbers**  
+   - If the input is an instance of `float`, raise a `ValueError` with the message `"expected an integer"`.
+
+4. **Process integer (including Boolean) inputs**  
+   - The input is now an integer (`int` or `bool`).  
+   - Compute the remainder modulo 2:  
+     - If `x % 2 != 0`, return `True` (the integer is odd).  
+     - Otherwise, return `False` (the integer is even).
+
+### Pseudocode
+```
+function f(x):
+    if x is None:
+        return False
+    if not isinstance(x, (int, float)):
+        raise TypeError("expected a number")
+    if isinstance(x, float):
+        raise ValueError("expected an integer")
+    // x is an integer (including bool)
+    return (x % 2) != 0
+```
+
+### Notes
+- Boolean inputs (`True`/`False`) are treated as integers (`True` → 1, `False` → 0) and follow the odd/even rule.
+- Large integers (e.g., `9007199254740991`) are handled correctly because Python integers have arbitrary precision.
+- Negative integers are handled; odd negative numbers return `True`, even negative numbers return `False`.

@@ -1,12 +1,12 @@
-Algorithm:
+Based on the test suite provided, it appears that the function f(x) takes an integer input x and returns the smallest prime number that is greater than x. 
 
-1) Define a function named nextprime() that takes an integer parameter n.
-2) Check if the input parameter n is an integer. If not, raise a TypeError with a message indicating that the parameter should be an integer.
-3) Implement a loop that starts from n + 1 and iterates until a prime number greater than n is found.
-4) Within the loop, check if the current number is a prime number by iterating from 2 to the square root of the number and checking for any divisors.
-5) If the current number is a prime number, return it.
-6) If no prime number greater than n is found, keep incrementing the number until a prime number is found.
-7) Use the nextprime() function in the main function f() to find the next prime number after the input parameter.
-8) Handle edge cases where the input parameter is not an integer, and raise a TypeError accordingly.
+To design the algorithm for this function, we can follow these steps:
+1) Start with the input x.
+2) Check if x is a prime number. If it is, increment x by 1.
+3) Create a helper function isPrime(n) to determine if a given number n is a prime number.
+4) Implement a loop that continuously increments x by 1 and checks if each number is prime using the isPrime() function.
+5) Once a prime number greater than x is found, return that number as the output of the function.
 
-This algorithm describes a function that calculates the next prime number after a given integer input. It ensures that the input is an integer and returns the next prime number greater than the input.
+The isPrime(n) function can be implemented using a loop that checks if n is divisible by any number between 2 and the square root of n. If n is divisible by any number in this range, it is not a prime number.
+
+This algorithm should be able to handle the given test cases provided in the test suite and accurately determine the smallest prime number greater than the input x.
