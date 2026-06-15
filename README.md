@@ -1,7 +1,7 @@
 # LEXO Reproduction — Figure 3
 
 Reproduction of Figure 3 from:
-**"Lexo: Eliminating Stealthy Supply-Chain Attacks via LLM-Assisted Program Regeneration"**
+**"Lexo: Eliminating Stealthy Supply-Chain Attacks via LLM-Assisted Program Aggregation"**
 (Lamprou et al., 2025 — https://arxiv.org/pdf/2510.14522)
 
 ## How to Run
@@ -13,16 +13,24 @@ docker build --network host -t lexo-repro .
 # 2. Set your OpenRouter API key
 echo "OPENROUTER_API_KEY=your_key_here" > .env
 
-# 3. Run the experiment
+# 3. Run the baseline experiment
 docker run --network host --env-file .env \
   -v $(pwd)/pipeline:/app/pipeline \
   -v $(pwd)/tests:/app/tests \
   -v $(pwd)/results:/app/results \
   lexo-repro python3 pipeline/main.py
+
+# 4. Run the enriched experiment (with static analysis)
+docker run --network host --env-file .env \
+  -v $(pwd)/pipeline:/app/pipeline \
+  -v $(pwd)/tests:/app/tests \
+  -v $(pwd)/results:/app/results \
+  lexo-repro python3 pipeline/main_enriched.py
 ```
 
-Results are saved to `results/results.json` and figures to `results/figure3_*.png`.
-The experiment resumes automatically if interrupted.
+Baseline results → `results/results.json` and `results/figure3_*.png`
+Enriched results → `results/results_enriched.json` and `results/figure3_enriched_*.png`
+Both experiments resume automatically if interrupted.
 
 ## Understanding the Metrics
 
@@ -40,6 +48,9 @@ Developer tests are the real goal. I/O pairs are a proxy used during regeneratio
 | `regenerate.py` | Takes I/O pairs, asks LLM for algorithm description, then generates new clean code |
 | `verify.py` | Checks regenerated code against I/O pairs and original developer tests |
 | `main.py` | Runs all packages × models, saves results, generates figures |
+| `extract_signatures.js` | Statically analyses JS source files via AST, extracts function signatures and JSDoc |
+| `static_analysis.py` | Unified wrapper: calls JS extractor or Python `ast` module, formats metadata for prompt injection |
+| `main_enriched.py` | Same as `main.py` but with static analysis metadata injected into the input generation prompt |
 
 ### Pipeline in Detail
 
@@ -67,7 +78,7 @@ For each (package, model) pair, the workflow is:
 3. **Verification** (`verify.py`)
    - **I/O pair check:** Write regenerated code to temp file `{source}_lexo_tmp{ext}`, load via require/importlib, run each I/O pair, compare `JSON.stringify(output)` or `==` equality
    - Count mismatches; return `(passed, total)` tuple
-   - **Developer tests check:** 
+   - **Developer tests check:**
      - Back up original source file
      - Overwrite with regenerated code
      - Run test command from config: `npx mocha test.js` (JS) or `python3 -m pytest tests/` (Python)
@@ -91,15 +102,15 @@ For each (package, model) pair, the workflow is:
 
 All accessed via [OpenRouter](https://openrouter.ai).
 
-| Model | OpenRouter ID | Paper equivalent | Avg Dev Tests |
-|-------|--------------|-----------------|---------------|
-| GPT-5.4 mini | openai/gpt-5.4-mini | GPT-5 mini (paper) | 80.1% |
-| Owl Alpha | openrouter/owl-alpha | — (added) | 52.0% |
-| DeepSeek V4 Flash | deepseek/deepseek-v4-flash | — (added) | 49.5% |
-| GPT-4o mini | openai/gpt-4o-mini | GPT-4o (substituted, cost) | 41.3% |
-| Claude 3.5 Haiku | anthropic/claude-3.5-haiku | — (added) | 38.7% |
-| GPT-3.5 Turbo | openai/gpt-3.5-turbo | GPT-3.5 (paper) | 32.2% |
-| Mistral 7B | mistralai/mistral-7b-instruct-v0.1 | Mistral 7B (paper) | 11.9% |
+| Model | OpenRouter ID | Paper equivalent | Avg Dev Tests (baseline) | Avg Dev Tests (enriched) |
+|-------|--------------|-----------------|--------------------------|--------------------------|
+| GPT-5.4 mini | openai/gpt-5.4-mini | GPT-5 mini (paper) | 86.0% | 99.5% |
+| Claude 3.5 Haiku | anthropic/claude-3.5-haiku | — (added) | 70.6% | 85.6% |
+| Owl Alpha | openrouter/owl-alpha | — (added) | 77.3% | 70.2% |
+| GPT-4o mini | openai/gpt-4o-mini | GPT-4o (substituted, cost) | 66.2% | 62.6% |
+| DeepSeek V4 Flash | deepseek/deepseek-v4-flash | — (added) | 66.7% | 88.8% |
+| GPT-3.5 Turbo | openai/gpt-3.5-turbo | GPT-3.5 (paper) | 60.3% | 50.4% |
+| Mistral 7B | mistralai/mistral-7b-instruct-v0.1 | Mistral 7B (paper) | 0.0% | 0.0% |
 
 Note: `openai/gpt-5-mini` returned empty responses via OpenRouter — substituted with `openai/gpt-5.4-mini`.
 
@@ -147,3 +158,84 @@ Paper: up to 3 retries with coverage guidance. Ours: up to 3 retries on JSON par
 
 ### Multi-language
 Paper: JS, Python, Ruby, C++. This reproduction: JS and Python only.
+
+---
+
+## Extension: Static Analysis Enrichment
+
+### Motivation
+
+During the baseline experiment, we observed that some packages were trivially regenerated in a way that passed all tests without implementing the actual logic. For example, `has-proto` was regenerated as:
+
+```js
+module.exports = function () {
+  return true;
+};
+```
+
+This passes all developer tests because the LLM-generated I/O pairs only contained positive cases — the LLM overfit the examples rather than inferring the function's real behaviour. The root cause: the input generation prompt only receives raw source code, with no structured information about what the function is supposed to do.
+
+### What We Added
+
+Two new files in `pipeline/`:
+
+**`extract_signatures.js`** — Parses JS source files using the [acorn](https://github.com/acornjs/acorn) AST parser and extracts:
+- Function name and exported identifier
+- Parameter list with names, default values, and inferred types
+- JSDoc annotations: `@param`, `@returns`, `@throws`, `@example`
+- Line range and async/generator flags
+
+**`static_analysis.py`** — Unified Python wrapper that:
+- Calls `extract_signatures.js` via subprocess for JS packages
+- Uses Python's built-in `ast` module for Python packages
+- Formats the extracted metadata into a structured prompt snippet via `format_metadata_for_prompt()`
+
+The formatted snippet is injected into the `generate_inputs()` prompt in `input_gen.py`, giving the LLM explicit context about parameter types and function semantics before it generates test inputs.
+
+### Example
+
+For `just-pick`, the static analyser extracts the following JSDoc comment and injects it into the prompt:
+Function Metadata (from static analysis)
+pick(obj, select)
+
+description: var obj = {a: 3, b: 5, c: 9}; pick(obj, ['a', 'c']); // {a: 3, c: 9}
+
+pick(obj, 'a', 'c'); // {a: 3, c: 9}
+params:
+
+obj
+select
+
+
+
+
+For `primality` (Python), all 7 functions are extracted with type annotations and docstrings:
+is_prime(p)
+
+description: True if p is prime. Raises TypeError if p is not an integer.
+params:
+
+p: type: int
+
+
+
+
+### Results
+
+Running `main_enriched.py` produces `results/results_enriched.json`. Key findings across the 5 models that were functional (excluding Mistral 7B which failed due to API unavailability):
+
+| Model | Baseline avg dev% | Enriched avg dev% | Δ |
+|-------|-------------------|-------------------|---|
+| GPT-5.4 mini | 86.0% | 99.5% | **+13.6%** |
+| Claude 3.5 Haiku | 70.6% | 85.6% | **+15.0%** |
+| DeepSeek V4 Flash | 66.7% | 88.8% | **+22.2%** |
+| GPT-4o mini | 66.2% | 62.6% | -3.6% |
+| Owl Alpha | 77.3% | 70.2% | -7.1% |
+| GPT-3.5 Turbo | 60.3% | 50.4% | -9.9% |
+
+Static analysis enrichment consistently improves stronger models. The most notable gains:
+- `is-odd`: GPT-5.4 mini 33% → 100%
+- `just-filter-object`: GPT-5.4 mini 0% → 100%
+- `primality`: Claude 3.5 Haiku 22% → 78%, GPT-3.5 Turbo 44% → 78%
+
+Weaker or less instruction-following models (GPT-3.5, Owl Alpha) show mixed results, likely because additional prompt context increases the chance of malformed JSON output in models that already struggle with output formatting.
