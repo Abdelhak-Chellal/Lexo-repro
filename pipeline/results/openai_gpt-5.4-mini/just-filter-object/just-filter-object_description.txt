@@ -1,97 +1,112 @@
-### 1) Understand the Test Suite
+The function is essentially **`filter` for object properties**: it returns a new object containing only the key-value pairs for which a predicate function returns a truthy value.
 
-The function `f(obj, predicate)` behaves like **filtering the properties of an object** using a callback predicate.
+## 1) What the tests imply
 
-For each `(key, value)` pair in the input object:
+### Inputs
+- A dictionary/object `obj`
+- A predicate given as a function-like string, e.g.:
+  - `function(key, value) { return value < 6; }`
 
-- Call `predicate(key, value)`
-- If the predicate result is truthy, keep that property in the output
-- Otherwise, omit it
+### Output
+- A new object with only the entries that satisfy the predicate
+- Preserves original key-value pairs for matching items
+- Returns `{}` if nothing matches
 
-The output is a **new object** containing only the selected entries.
+### Error behavior
+- If the object is `null` / `None`:
+  - throw `Cannot convert undefined or null to object`
+- If the predicate is missing / `None`:
+  - throw `predicate is not a function`
+- If the predicate references an undefined variable:
+  - let the runtime error propagate, e.g. `obj is not defined`
 
----
+## 2) Problem definition
 
-### 2) Analyze the Problem
+Given an object and a predicate function, iterate over each own key-value pair and include it in the result only if the predicate returns a truthy value.
 
-This is essentially an **object filter** operation, similar to `Array.prototype.filter`, but for object key-value pairs.
+This matches the behavior of JavaScript-like object filtering:
+- predicate receives `(key, value)`
+- if predicate is omitted or invalid, throw
+- if object is `null`/`undefined`, throw
 
-#### Observations from the tests:
-- The predicate receives:
-  - `key` as a string
-  - `value` as the associated property value
-- Truthy/falsy behavior follows JavaScript rules:
-  - `return value;` keeps only truthy values
-  - `return !!value;` converts to boolean explicitly
-- The predicate may use:
-  - comparisons on `value`
-  - comparisons on `key`
-  - string methods/properties like `key.length`
-  - type checks like `typeof value === 'string'`
-- If input object is `None`/null, the function throws:
-  - `"Cannot convert undefined or null to object"`
-- If predicate is not callable, throw:
-  - `"predicate is not a function"`
-- If predicate throws, the error propagates
+## 3) Algorithm
 
----
+### Step-by-step
+1. Validate that `obj` is not `null`/`None`.
+   - If it is, throw `Cannot convert undefined or null to object`
+2. Validate that `predicate` is a function.
+   - If not, throw `predicate is not a function`
+3. Create an empty result object.
+4. For each key in `obj`:
+   - Read `value = obj[key]`
+   - Call `predicate(key, value)`
+   - If the result is truthy, copy `key: value` into the result
+5. Return the result object
 
-### 3) Design the Algorithm
+## 4) Truthiness rules from tests
 
-#### Algorithm steps:
-1. Validate input object:
-   - If `obj` is `null` or `undefined`, throw `"Cannot convert undefined or null to object"`
-2. Validate predicate:
-   - If `predicate` is not a function, throw `"predicate is not a function"`
-3. Create an empty result object
-4. Iterate over all enumerable own properties of `obj`
-5. For each property:
-   - Let `key` be the property name
-   - Let `value` be `obj[key]`
-   - Evaluate `predicate(key, value)`
-   - If the result is truthy, copy the pair into the result object
-6. Return the result object
+The predicate return value is treated with normal truthiness:
+- `true`, nonzero numbers, non-empty strings, objects → keep
+- `false`, `0`, `''`, `None/null` → drop
 
-#### Pseudocode:
-```javascript
-function f(obj, predicate) {
-  if (obj === null || obj === undefined) {
-    throw new TypeError("Cannot convert undefined or null to object");
-  }
-  if (typeof predicate !== "function") {
-    throw new TypeError("predicate is not a function");
-  }
+Examples:
+- `return value;` keeps `3`, `5` but drops `0`, `false`, `''`, `None`
+- `return !!value;` keeps only truthy values
+- `return value == null;` keeps only `None/null`
 
-  const result = {};
-  for (const key of Object.keys(obj)) {
-    const value = obj[key];
-    if (predicate(key, value)) {
-      result[key] = value;
-    }
-  }
-  return result;
-}
+## 5) Edge cases
+
+### Empty object
+- Input `{}` returns `{}` regardless of predicate, as long as no error is thrown
+
+### Predicate with one parameter
+- `function(key) { return true; }` still works
+- Extra arguments can be ignored by the predicate
+
+### String/object-specific checks
+The predicate may use:
+- `key.length`
+- `key[0]`
+- `key.indexOf(...)`
+- `value.length`
+- numeric comparisons
+- strict equality/inequality
+
+So the algorithm must pass:
+- `key` as the property name string
+- `value` as the property value
+
+## 6) Complexity
+
+If the object has `n` properties:
+- **Time:** `O(n)`
+- **Space:** `O(k)` for the output object, where `k` is the number of kept entries
+
+## 7) Pseudocode
+
+```text
+function f(obj, predicate):
+    if obj is null or undefined:
+        throw "Cannot convert undefined or null to object"
+
+    if predicate is not a function:
+        throw "predicate is not a function"
+
+    result = {}
+
+    for each key in obj:
+        value = obj[key]
+        if predicate(key, value) is truthy:
+            result[key] = value
+
+    return result
 ```
 
----
+## 8) Summary
 
-### 4) Handle Edge Cases
+This function is a **property-filtering routine**:
+- input: object + predicate
+- output: new object containing only entries where predicate(key, value) is truthy
+- errors match JavaScript-like runtime behavior for invalid inputs
 
-#### Covered / implied edge cases:
-- **Empty object** → returns empty object
-- **Predicate returns non-boolean** → use truthiness rules
-- **Falsy values** like `0`, `''`, `null`, `false` are excluded when predicate returns them directly
-- **Keys with empty string** are valid
-- **Nested objects** are treated as values and can be filtered by type
-- **Exceptions inside predicate** should not be swallowed
-
-#### Additional edge considerations:
-- The function should preserve property values exactly
-- Order of properties in the result should follow iteration order of the input object
-- Only enumerable own properties are considered
-
----
-
-### Final Algorithm Description
-
-`f` filters an object’s key-value pairs by applying a predicate to each entry. It returns a new object containing only entries for which the predicate returns a truthy value. It validates that the input object is non-null and the predicate is callable, and propagates any exceptions raised by the predicate.
+If you'd like, I can also provide this as actual code in Python, JavaScript, or a more formal specification.

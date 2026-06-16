@@ -1,104 +1,177 @@
-# Algorithm: Replace File Extension Function
+Based on the provided test suite, here is the algorithm that describes the function `f`:
 
-## Problem Analysis
+---
 
-The function `f(filename, new_ext)` replaces the file extension of a given filename/path with a new extension. It must handle a wide variety of edge cases including paths, hidden files, multiple dots, trailing dots, special entries (`.`, `..`, `./`, `../`), and non-string inputs.
-
-## Input/Output Specification
-
-- **Inputs**: `filename` (can be `str`, `None`, `int`, `bool`, `list`, `dict`), `new_ext` (a `str` representing the new extension, e.g., `'.js'` or `''`)
-- **Output**: The filename with its extension replaced by `new_ext`, or the original value for non-string inputs.
-
-## Algorithm Design
-
-### Step-by-Step Procedure
-
-```
-FUNCTION f(filename, new_ext):
-
-    1. IF filename is None:
-           RETURN None
-
-    2. IF filename is NOT a string (e.g., int, bool, list, dict):
-           RETURN filename (unchanged)
-
-    3. IF filename is an empty string (""):
-           RETURN ""
-
-    4. SPLIT the filename into:
-           - directory_part: everything up to and including the last '/' or '\\'
-           - basename: everything after the last '/' or '\\'
-         (If no separator found, directory_part = "", basename = filename)
-
-    5. DETERMINE the "last meaningful dot" in the basename:
-           - A "meaningful dot" is a dot that is NOT the first character of the basename.
-           - Find the LAST occurrence of '.' in the basename that is:
-               a) NOT at position 0 (to skip hidden file leading dot)
-               b) NOT at the last position (i.e., basename does NOT end with '.')
-               c) If basename ends with '.', strip all trailing dots first, then re-evaluate.
-
-           Specifically:
-           a) Strip any trailing dots from the basename → stripped_basename
-           b) Find the last '.' in stripped_basename
-           c) If that '.' exists AND is not at position 0:
-                  name_part = stripped_basename[0 : last_dot_position]
-                  (discard everything from last_dot onward)
-              Else:
-                  name_part = stripped_basename
-
-    6. IF new_ext is empty (""):
-           RETURN directory_part + name_part
-       ELSE:
-           RETURN directory_part + name_part + new_ext
+### **Function Signature**
+```python
+def f(path: str, new_ext: str = 'undefined', *args) -> str
 ```
 
-### Detailed Sub-Algorithm for Step 5 (Finding the Extension Boundary)
+---
 
+### **Algorithm Description**
+
+#### **1. Input Validation and Type Handling**
+- **If `path` is `None`**, return `None`.
+- **If `path` is not a string** (e.g., boolean, list, dict, etc.), return `path` unchanged.
+- **If `new_ext` is not provided**, default it to the string `'undefined'`.
+
+> *Rationale*:  
+> - `f(None, '.txt') → None`  
+> - `f(True, '.txt') → True`  
+> - `f(['path/to/file.txt'], '.txt') → ['path/to/file.txt']`  
+> - `f({'path': 'to/file.txt'}, '.txt') → {'path': 'to/file.txt'}`  
+> - `f('/path/to/file.txt') → '/path/to/fileundefined'`
+
+---
+
+#### **2. Handle Empty Path**
+- **If `path` is an empty string `''`**, return `''` immediately.
+
+> *Rationale*: `f('', '.txt') = ''`
+
+---
+
+#### **3. Extract Filename and Extension**
+- **Find the last occurrence of `'.'` in `path`**.
+  - **If no `'.'` exists**, treat the entire `path` as the filename with no extension.
+  - **If `'.'` exists**, split into:
+    - `base`: everything before the last `'.'`
+    - `ext`: everything from the last `'.'` onward (including the dot)
+
+> *Note*: This correctly handles:
+> - `/path/to/file.txt` → base=`/path/to/file`, ext=`.txt`
+> - `/path/to/file.tar.gz` → base=`/path/to/file.tar`, ext=`.gz`
+> - `/path/to/.hidden` → base=`/path/to/`, ext=`.hidden` → but wait! Test shows:  
+>   `f('/path/to/.hidden', '.md') = '/path/to/.hidden.md'`  
+>   So `.hidden` is **not** treated as an extension — it's part of the filename.
+
+> ❗ **Critical Insight**:  
+> The function **only considers a dot as an extension separator if it is not at the beginning of the filename component** (i.e., not a hidden file dot).  
+> However, looking closely:
+> - `/path/to/.hidden` → output is `/path/to/.hidden.md` → so `.hidden` is **not** stripped.
+> - But `/path/to/file.txt` → becomes `/path/to/file.md` → so `.txt` **is** stripped.
+
+> Therefore, the rule is:
+> - **Only strip the extension if the dot is not the first character of the filename part** (i.e., not a leading dot in the basename).
+
+Let’s define:
+- Let `filename_part` = the part after the last `/` (or the whole string if no `/`).
+- If `filename_part` starts with `.`, then **do not treat any dot as an extension** → keep entire path as base.
+- Otherwise, split at the **last dot** in the full path to get base and extension.
+
+But wait: `/path/to/file.name.txt` → becomes `/path/to/file.name.md` → so only the **last** extension is replaced.
+
+So refined logic:
+
+> **Extension detection rule**:
+> - Find the **last dot** in the entire path.
+> - If that dot is **not the first character of the filename component** (i.e., not a hidden file), then it marks the extension.
+> - Otherwise, there is **no extension** to replace.
+
+Implementation:
+```python
+# Get the filename (last component after '/')
+filename = path.rsplit('/', 1)[-1] if '/' in path else path
+
+# Find last dot in full path
+last_dot_index = path.rfind('.')
+
+# Determine if this dot is a valid extension separator
+if last_dot_index == -1:
+    # No dot at all → no extension
+    base = path
+elif filename.startswith('.'):
+    # Hidden file → no extension to replace
+    base = path
+else:
+    # Valid extension → split at last dot
+    base = path[:last_dot_index]
 ```
-FUNCTION find_name_part(basename):
-    // Handle trailing dots: strip them
-    stripped = basename.rstrip('.')
 
-    // Find last dot in stripped version
-    last_dot = stripped.rfind('.')
+> *Test validation*:
+> - `/path/to/.hidden` → filename = `.hidden` → starts with `.` → no extension → base = full path → append `.md` → `/path/to/.hidden.md` ✅  
+> - `/path/to/file.txt` → filename = `file.txt` → doesn’t start with `.` → last dot at index of `.txt` → base = `/path/to/file` → append `.md` → `/path/to/file.md` ✅  
+> - `/path/to/file.tar.gz` → filename = `file.tar.gz` → doesn’t start with `.` → last dot before `.gz` → base = `/path/to/file.tar` → append `.zip` → `/path/to/file.tar.zip` ✅
 
-    // If dot exists and is not the first character (hidden file)
-    IF last_dot > 0:
-        RETURN stripped[0 : last_dot]
-    ELSE:
-        RETURN stripped
+---
+
+#### **4. Construct New Path**
+- **If `new_ext` is empty string `''`**, return `base` (i.e., remove extension).
+- **Otherwise**, return `base + new_ext`.
+
+> *Note*: `new_ext` is appended **as-is**, including any trailing slashes or backslashes.
+> - `f('/path/to/file.txt', '.md/') → '/path/to/file.md/'` ✅  
+> - `f('/path/to/file.txt', '.md\\') → '/path/to/file.md\\'` ✅
+
+Also:
+- Case sensitivity is preserved:  
+  `f('/FILE.TXT', '.md') → '/FILE.md'` ✅  
+  `f('/path/to/file.txt', '.MD') → '/path/to/file.MD'` ✅
+
+- Unicode supported:  
+  `f('/path/to/文件.txt', '.md') → '/path/to/文件.md'` ✅
+
+- Multiple dots in new_ext allowed:  
+  `f('/path/to/file.txt', '.md.ext') → '/path/to/file.md.ext'` ✅
+
+- No dot in new_ext:  
+  `f('/path/to/file.txt', 'md') → '/path/to/filemd'` ✅
+
+---
+
+#### **5. Extra Arguments**
+- **Ignore any additional arguments beyond the first two**.
+> `f('/path/to/file.txt', '.md', 'extra') → '/path/to/file.md'` ✅
+
+---
+
+### **Final Algorithm Steps**
+
+```python
+def f(path, new_ext='undefined', *args):
+    # Step 1: Handle non-string or None
+    if path is None:
+        return None
+    if not isinstance(path, str):
+        return path
+    
+    # Step 2: Handle empty string
+    if path == '':
+        return ''
+    
+    # Step 3: Determine base (path without extension)
+    # Extract filename component
+    if '/' in path:
+        filename = path.rsplit('/', 1)[1]
+    else:
+        filename = path
+    
+    last_dot = path.rfind('.')
+    
+    # Check if the last dot is a valid extension separator
+    if last_dot == -1 or filename.startswith('.'):
+        # No extension to replace
+        base = path
+    else:
+        base = path[:last_dot]
+    
+    # Step 4: Append new extension
+    return base + new_ext
 ```
 
-## Walkthrough of Key Test Cases
+---
 
-| Input | Basename | Stripped | Last Dot | Name Part | Output |
-|---|---|---|---|---|---|
-| `'file.txt'` | `file.txt` | `file.txt` | 4 | `file` | `file.js` |
-| `'noext'` | `noext` | `noext` | -1 | `noext` | `noext.js` |
-| `'.hidden'` | `.hidden` | `.hidden` | 0 | `.hidden` | `.hidden.bak` |
-| `'file.tar.gz'` | `file.tar.gz` | `file.tar.gz` | 8 | `file.tar` | `file.tar.zip` |
-| `'file.TXT'` | `file.TXT` | `file.TXT` | 4 | `file` | `file.js` |
-| `'file.'` | `file.` | `file` | -1 | `file` | `file.js` |
-| `'...file'` | `...file` | `...file` | 2 | `..` | `...js` |
-| `'.'` | `.` | `` | -1 | `` | `..js` |
-| `'..'` | `..` | `` | -1 | `` | `...js` |
-| `'./'` | `` | `` | -1 | `` | `./..js` |
-| `'../'` | `` | `` | -1 | `` | `...js` |
-| `'a.b.c.d'` | `a.b.c.d` | `a.b.c.d` | 5 | `a.b.c` | `a.b.c.x` |
+### **Edge Cases Handled**
+- `None` input → returns `None`
+- Non-string inputs (bool, list, dict) → returned unchanged
+- Empty string → returns empty string
+- Hidden files (leading dot in filename) → extension not stripped
+- Multiple extensions (e.g., `.tar.gz`) → only last extension replaced
+- Case sensitivity preserved
+- Unicode paths supported
+- Trailing characters in `new_ext` (like `/` or `\`) preserved
+- Extra arguments ignored
+- Default `new_ext = 'undefined'` when omitted
 
-## Edge Cases Handled
-
-1. **Non-string inputs**: `None`, `int`, `bool`, `list`, `dict` → returned as-is
-2. **Empty string**: returns `""`
-3. **Empty new extension**: strips the old extension, returns name only
-4. **Hidden files** (leading dot): dot at position 0 is NOT treated as extension separator
-5. **Trailing dots**: stripped before finding the extension boundary
-6. **Multiple dots**: only the last meaningful dot is used
-7. **Path separators**: both `/` and `\\` are handled; directory portion is preserved
-8. **Special entries** (`.`, `..`, `./`, `../`): trailing dots stripped, then new extension appended
-9. **Case sensitivity**: extension replacement is case-insensitive in behavior (simply replaces from last dot)
-
-## Complexity
-
-- **Time**: O(n) where n is the length of the filename string (single pass for `rfind` and `rstrip`)
-- **Space**: O(n) for the output string
+This algorithm fully satisfies all provided test cases.

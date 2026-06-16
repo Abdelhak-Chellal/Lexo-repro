@@ -1,17 +1,13 @@
-```javascript
-module.exports = function(filePath, newExtension) {
-    if (!filePath) {
-        return filePath;
+module.exports = function(file_path, extension) {
+    if (file_path === null) {
+        return null;
     }
-    if (!newExtension) {
-        return filePath.split('/').pop().split('.')[0];
+    if (extension === null) {
+        extension = 'null';
     }
-    const [directoryPath, fileName] = filePath.split('/').reduce((acc, curr, index, arr) => index === arr.length - 1 ? [acc.join('/'), curr] : [acc.concat(curr), '']);
-    if (fileName.includes('.')) {
-        const fileNameWithoutExt = fileName.split('.').slice(0, -1).join('.');
-        return `${directoryPath}/${fileNameWithoutExt}${newExtension}`;
-    } else {
-        return `${directoryPath}/${fileName}${newExtension}`;
-    }
-}
-```
+    
+    let split_path = file_path.split('/');
+    let file_name = split_path[split_path.length - 1];
+    
+    return split_path.slice(0, split_path.length - 1).join('/') + '/' + file_name + extension;
+};

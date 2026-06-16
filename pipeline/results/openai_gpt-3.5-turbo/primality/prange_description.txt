@@ -1,0 +1,10 @@
+The algorithm is generating a list of prime numbers up to a given input number. The function f(n) returns a list of all prime numbers less than or equal to n.
+
+The algorithm can be designed using the Sieve of Eratosthenes method to efficiently generate prime numbers. The steps of the algorithm would involve:
+1) Create a list of numbers from 2 to n.
+2) Initialize a boolean list of size n+1 to mark numbers as prime or not prime.
+3) Start with the first number 2, mark it as prime, and iterate over its multiples up to n, marking them as not prime.
+4) Move to the next unmarked number in the list and repeat the process until all numbers less than or equal to n are processed.
+5) Finally, return a list of all numbers marked as prime.
+
+This algorithm efficiently generates prime numbers up to a given input and matches the expected output for the provided test cases.

@@ -1,11 +1,12 @@
-```javascript
-module.exports = function(dictionary, filter_func) {
+module.exports = function f(obj, funcStr) {
+    const func = new Function('key', 'value', 'return ' + funcStr);
     const result = {};
-    for (const [key, value] of Object.entries(dictionary)) {
-        if (eval(filter_func)) {
-            result[key] = value;
+
+    for (const key in obj) {
+        if (func(key, obj[key])) {
+            result[key] = obj[key];
         }
     }
+
     return result;
 };
-```

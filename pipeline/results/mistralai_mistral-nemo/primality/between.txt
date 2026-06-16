@@ -1,0 +1,20 @@
+```python
+def between(x, y):
+    if x < 2:
+        if x == 1:
+            return []
+        elif x == 0:
+            return [2, 3, 5, 7]
+    elif x >= y:
+        return []
+
+    if x == y:
+        return [x] if is_prime(x) else []
+
+    primes = []
+    for i in range(x, y):
+        if is_prime(i):
+            primes.append(i)
+
+    return primes
+```

@@ -1,0 +1,15 @@
+module.exports = function(json_str, ...keys) {
+  const obj = JSON.parse(json_str);
+
+  if (!keys.length) return {};
+
+  keys = Array.isArray(keys[0]) ? keys[0] : keys;
+
+  for (const key of keys) {
+    if (key == null) throw new Error('Cannot read properties of null (reading \'length\')');
+    if (typeof key !== 'string') throw new TypeError('Argument must be a string');
+    if (!(key in obj)) throw new Error(`Cannot use 'in' operator to search for '${key}' in ${json_str}`);
+  }
+
+  return obj;
+};

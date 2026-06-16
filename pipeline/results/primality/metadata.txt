@@ -1,0 +1,39 @@
+## Function Metadata (from static analysis)
+
+### `nth_prime(nth)`
+- **description**: Returns the nth prime, starting from n = 0, returning 2. Arguments: {nth} integer -- The {nth} position of the prime Raises: TypeError -- Wrong type for {nth} parameter, must be integer. ValueError -- Wrong value for {nth} integer, must be positive or zero. Returns: integer -- The {nth} prime.
+- **params**:
+  - `nth`: type: `int`
+
+### `prange(n)`
+- **description**: Returns a list in the form of [2, 3, ..., nth prime]. Arguments: {n} integer -- The length of the list. Raises: TypeError -- Wrong type for {n} parameter, must be integer. ValueError -- Wrong value for {n} integer, must be positive or zero. Returns: List[integer] -- A list of continuous {n} primes, starting from 2.
+- **params**:
+  - `n`: type: `int`
+
+### `is_prime(p)`
+- **description**: True if p is prime. Arguments: {p} integer -- Integer number. Raises: TypeError -- Wrong type for {p} parameter, must be integer. Returns: True -- If {p} is prime. False -- If {p} is not prime.
+- **params**:
+  - `p`: type: `int`
+
+### `between(m, n)`
+- **description**: Returns list of primes within given range[m,n] Arguments: {m} integer -- The starting index of Range {n} integer -- The Ending index of Range Raises: TypeError -- Wrong type for {m],{n} parameters, must be integer. ValueError -- Wrong value for {m},{n} integers, must be positive or zero. Returns: List[integer] --list of primes within given range[m,n].
+- **params**:
+  - `m`: type: `int`
+  - `n`: type: `int`
+
+### `next_prime(n)`
+- **description**: Returns the next prime number greater than n. Arguments: {n} integer -- Integer number Raises: TypeError -- Wrong type for {n} parameter, must be integer. Returns: integer -- The next prime number greater than n.
+- **params**:
+  - `n`: type: `int`
+
+### `prev_prime(n)`
+- **description**: Returns the previous prime number smaller than n. please notice: n must be larger than 2. Arguments: {n} integer -- Integer number Raises: TypeError -- Wrong type for {n} parameter, must be integer. ValueError -- Wrong value for {n} parameter, must be larger than 2. Returns: integer -- The previous prime number smaller than n.
+- **params**:
+  - `n`: type: `int`
+
+### `rand_prime(m, n, strategy = RandomStrategy.RANDOM_LIB)`
+- **description**: Arguments: {m} integer -- The Starting index of Range {n} integer -- The Ending index of Range Returns: integer -- A random prime number between m and n.
+- **params**:
+  - `m`: type: `int`
+  - `n`: type: `int`
+  - `strategy`: type: `RandomStrategy` | default: `RandomStrategy.RANDOM_LIB`

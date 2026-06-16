@@ -1,5 +1,3 @@
-```javascript
-module.exports = function has_proto() {
+module.exports = function() {
   return true;
-}
-```
+};

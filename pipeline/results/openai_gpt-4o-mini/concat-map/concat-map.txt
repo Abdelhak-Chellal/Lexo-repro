@@ -1,22 +1,21 @@
 ```javascript
-module.exports = function(inputList, funcString) {
+module.exports = function(inputArray, funcString) {
+    const func = eval(funcString); // Assuming safe and valid input
     const outputList = [];
-    
-    const func = eval(`(${funcString})`);
-    
-    for (const element of inputList) {
+
+    for (let i = 0; i < inputArray.length; i++) {
         try {
-            const result = func(element);
+            const result = func(inputArray[i], i);
             if (Array.isArray(result)) {
                 outputList.push(...result);
             } else {
                 outputList.push(result);
             }
         } catch (e) {
-            outputList.push(null);
+            throw e; // Rethrow the exception for unhandled errors
         }
     }
-    
+
     return outputList;
 };
 ```

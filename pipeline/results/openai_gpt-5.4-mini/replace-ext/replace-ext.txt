@@ -1,21 +1,16 @@
 module.exports = function replaceExt(path, ext) {
-  if (typeof path !== 'string' || path === '') {
-    return path;
+  if (typeof path !== 'string') return path;
+  if (typeof ext !== 'string') ext = String(ext);
+
+  const slashIndex = path.lastIndexOf('/');
+  const dir = slashIndex === -1 ? '' : path.slice(0, slashIndex + 1);
+  const base = slashIndex === -1 ? path : path.slice(slashIndex + 1);
+
+  const dotIndex = base.lastIndexOf('.');
+
+  if (dotIndex <= 0) {
+    return path + ext;
   }
 
-  const extStr = String(ext);
-  const lastSlash = path.lastIndexOf('/');
-  const dir = lastSlash === -1 ? '' : path.slice(0, lastSlash + 1);
-  const base = lastSlash === -1 ? path : path.slice(lastSlash + 1);
-
-  const lastDot = base.lastIndexOf('.');
-  let newBase;
-
-  if (lastDot <= 0) {
-    newBase = base + extStr;
-  } else {
-    newBase = base.slice(0, lastDot) + extStr;
-  }
-
-  return dir + newBase;
+  return dir + base.slice(0, dotIndex) + ext;
 };

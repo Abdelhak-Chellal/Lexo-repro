@@ -1,160 +1,126 @@
-### 1) Understand the test suite
+### What the function does
 
-The function `f` takes:
+`f` takes a **list** as its first argument and then any number of additional arguments.  
+It returns a **new list containing the elements from the first list that are not present in any of the later arguments**.
 
-- a **list-like first argument** (the main array)
-- one or more **extra arguments** that act like “things to remove”
-
-From the examples, `f` returns a new list containing items from the first list **with some values removed**.
-
-Important observations:
-
-- Removal is based on **strict equality**, not type-coercing equality:
-  - `1` is **not** equal to `'1'`
-  - `0` is **not** equal to `False`
-  - `None` and `''` are distinct
-- If a removal value is not present, nothing happens.
-- If the second argument is:
-  - `[]`, `None`, or a non-list scalar like `5`, then it is treated as a single value or ignored depending on whether it can meaningfully represent removals; the tests suggest it does **not** remove anything unless it matches elements by strict equality.
-- Multiple removal arguments are combined: remove all values appearing in any of them.
-- Duplicate values in the removal lists do not matter beyond the first match.
-- The operation removes **all occurrences** of a matching value from the input list.
+In other words, it performs a **filter/remove-by-membership** operation using all extra arguments as removal values.
 
 ---
 
-### 2) Analyze the problem
+## 1) Understand the test suite
 
-This is essentially a **filtering / set-difference** problem on a list, but with these nuances:
+From the examples:
 
-- The input list may contain duplicates.
-- Removal targets may be:
-  - lists
-  - `None`
-  - scalars
-  - nested objects like lists/dicts
-- Equality should be **deep/value equality** as used by normal language equality for those structures, but not coercive:
-  - `[1]` matches `[1]`
-  - `{'a': 1}` matches `{'a': 1}`
-  - `[1]` does not match `[[1]]`
-- Removal is performed against **all provided removal arguments**, flattening the effect of each argument into a single removal set.
-
-So the algorithm should:
-
-1. Interpret each extra argument as one or more values to remove.
-2. Compare each element of the first list against all removal values.
-3. Keep only elements that do not match any removal value.
-
----
-
-### 3) Design the algorithm
-
-A straightforward algorithm:
-
-#### Step A: Collect removal values
-- Initialize an empty collection `R`.
-- For each extra argument:
-  - If the argument is a list/iterable of removal candidates, add each candidate to `R`.
-  - If it is `None`, ignore it.
-  - If it is a scalar or non-list object, treat it as a single removal candidate only if the test behavior indicates it should be considered; the suite suggests non-list non-matching values simply cause no removals unless they exactly match an element.
-
-Given the examples, the safe interpretation is:
-
-- If an extra argument is a list, use its elements as removal values.
-- If an extra argument is not a list, treat it as a single value to compare against list elements.
-- If it is `None`, it does not remove anything.
-
-#### Step B: Filter the input list
-- Create result list `out = []`.
-- For each element `x` in the first list:
-  - If `x` equals any value in `R`, skip it.
-  - Otherwise, append `x` to `out`.
-
-#### Step C: Return result
-- Return `out`.
+- `f([1, 2, 3], [2]) -> [1, 3]`  
+  Removes `2`.
+- `f([1, 2, 3], [2, 3]) -> [1]`  
+  Removes both `2` and `3`.
+- `f([1, 2, 3], [2], [3]) -> [1]`  
+  Multiple extra arguments are combined.
+- `f([1, 2, 3], []) -> [1, 2, 3]`  
+  Empty list removes nothing.
+- `f([1, 2, 3], None) -> [1, 2, 3]`  
+  Non-list / non-set-like removal values are ignored.
+- `f([1, 2, 3], 5) -> [1, 2, 3]`  
+  Scalar removal arg is ignored.
+- `f([1, 2, 3]) -> [1, 2, 3]`  
+  With no removal args, return original list unchanged.
+- `f([1, 2, 2, 3], [2]) -> [1, 3]`  
+  Removes all occurrences of matching values.
+- Type-sensitive equality is used:
+  - `1` and `'1'` are different
+  - `True` and `1` are different in these tests
+  - `None` and `False` are removable only if explicitly present
+- Nested lists are treated as atomic elements:
+  - `f([1, [2], 3], [[2]]) -> [1, [2], 3]`
+  - because `[2]` in the list is not equal to `[[2]]`
 
 ---
 
-### 4) Handle edge cases
+## 2) Analyze the problem
 
-#### Duplicate removals
-Example:
-- `f([1, 2, 2, 3], [2, 2]) = [1, 3]`
+### Problem definition
+Given:
+- a source list `arr`
+- zero or more additional arguments
 
-So duplicates in removal arguments should not affect correctness.
+Return a list containing those elements of `arr` that are **not equal to any element found inside any additional argument that is a list/iterable of values**.
 
-#### Mixed types
-Example:
-- `f([1, '1', True, False], [True, '1']) = [1, False]`
-
-So comparisons must be exact, not coerced.
-
-#### Nested structures
-Examples:
-- `f([[1], 2, 3], [[1]]) = [[1], 2, 3]`
-- `f([{'a': 1}, 2], [{'a': 1}]) = [{'a': 1}, 2]`
-
-This indicates that nested lists/dicts are compared by structural equality, but only exact matching structures are removed.
-
-#### Empty / null removal inputs
-- `f([1, 2, 3], []) = [1, 2, 3]`
-- `f([1, 2, 3], None) = [1, 2, 3]`
-
-So empty or absent removal means no change.
-
-#### Multiple removal arguments
-Examples:
-- `f([1, 2, 3], [2], [3]) = [1]`
-- `f([1, 2, 3], [2], None) = [1, 3]`
-- `f([1, 2, 3], [2], [2, 3]) = [1]`
-
-So all extra arguments are merged logically.
+### Important behavior inferred
+- Only **list-like additional arguments** are used for removal.
+- If an additional argument is not a list (e.g. `None`, `5`), ignore it.
+- Removal is based on **equality**, not identity.
+- Remove **all matching occurrences** from the source list.
+- Preserve original order.
 
 ---
 
-### Algorithm in pseudocode
+## 3) Design the algorithm
 
-```text
-function f(arr, *removals):
-    remove_values = empty list
+### Step-by-step approach
 
-    for each r in removals:
-        if r is None:
-            continue
-        if r is a list:
-            append all elements of r to remove_values
-        else:
-            append r to remove_values
+1. **If there are no extra arguments**, return a copy of the input list.
+2. **Collect all removable values** from each extra argument that is a list.
+   - Ignore `None`, scalars, and non-list values.
+3. **Scan the source list** from left to right.
+4. For each item in the source list:
+   - if it equals any removable value, skip it
+   - otherwise, keep it
+5. Return the filtered list.
+
+---
+
+## 4) Edge cases
+
+### Covered/important edge cases
+- Empty source list: return `[]`
+- No removal arguments: return source unchanged
+- `None` or scalar removal arguments: ignore them
+- Duplicate removals: harmless
+- Duplicate source values: remove all matching ones
+- Mixed types: use equality as-is, so `1 != '1'`
+- Nested lists: only remove if the exact nested structure matches
+
+---
+
+## Pseudocode
+
+```python
+def f(arr, *args):
+    if not args:
+        return list(arr)
+
+    removals = []
+    for arg in args:
+        if isinstance(arg, list):
+            removals.extend(arg)
 
     result = []
     for x in arr:
-        if x is equal to any value in remove_values:
-            continue
-        result.append(x)
+        if x not in removals:
+            result.append(x)
 
     return result
 ```
 
 ---
 
-### Complexity
+## Complexity
 
 Let:
-- `n = len(arr)`
-- `m = total number of removal candidates`
+- `n` = length of source list
+- `m` = total number of removable elements across all valid extra list arguments
 
-Using a simple scan, time complexity is:
+### Time
+- `O(n * m)` in the straightforward implementation using `in` on a list
 
-- **O(n × m)**
-
-Space complexity:
-
-- **O(m)** for storing removal values
-- **O(n)** for the result
-
-If optimized with a hashable set, complexity could improve, but because inputs may include unhashable values like lists/dicts, a linear comparison approach is the most general and safest.
+### Space
+- `O(m)` for stored removals, plus `O(n)` for output
 
 ---
 
-### Final inferred behavior
+## Final interpretation
 
-`f` removes from the first list every element that appears in any of the subsequent arguments, using strict structural equality, preserving order of the remaining elements.
+The function is essentially:
+
+> **Remove from the first list every element that appears in any later list argument; ignore non-list extra arguments; preserve order; compare by equality.**

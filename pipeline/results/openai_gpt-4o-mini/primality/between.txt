@@ -1,12 +1,13 @@
 ```python
-def between(a, b):
-    if a > b:
+def between(start, end):
+    if start >= end:
         return []
-    if a < 2:
-        a = 2
+    
     result = []
-    for number in range(a, b + 1):
-        if is_prime(number):
-            result.append(number)
+    
+    for num in range(start, end):
+        if is_prime(num):
+            result.append(num)
+    
     return result
 ```

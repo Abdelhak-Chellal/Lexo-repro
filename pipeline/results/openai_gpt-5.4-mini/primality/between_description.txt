@@ -1,118 +1,116 @@
-## 1) Understand the Test Suite
+### 1) Understand the test suite
 
-From the examples, the function `f(m, n)` returns a list of numbers.
+The function `f(m, n)` returns a **list of prime numbers in the inclusive interval** from `m` to `n`.
 
-Observed behavior:
+From the examples:
 
-- `f(0, 0) = []`
+- `f(0, 0) = []` → no primes at 0
 - `f(0, 2) = [2]`
 - `f(1, 10) = [2, 3, 5, 7]`
 - `f(2, 2) = [2]`
-- `f(2, 3) = [2, 3]`
-- `f(3, 3) = [3]`
-- `f(4, 10) = [5, 7]`
-- `f(10, 1) = []`
-- `f(-5, 5) = [2, 3, 5]`
-- `f(-10, -1) = []`
+- `f(3, 10) = [3, 5, 7]`
+- `f(4, 20) = [5, 7, 11, 13, 17, 19]`
+- `f(-5, 5) = [2, 3, 5]` → negative lower bounds are treated as starting from 2, since primes are positive integers > 1
+- `f(10, 1) = []` → if the interval is reversed, return empty list
 
-This strongly suggests:
-
-- The function returns all **prime numbers** in the inclusive range `[m, n]`.
-- If the range is empty or contains no primes, return `[]`.
-- Negative bounds are allowed, but primes are only positive integers greater than 1.
-- The result is sorted in ascending order.
-
-Type behavior:
-
-- `m` must be an `int`, otherwise:
-  - `"between() expect parameter m to be int. Given: <class '...'>."`
-- `n` must be an `int`, otherwise:
-  - `"between() expect parameter n to be int. Given: <class '...'>."`
+Input validation:
+- `m` and `n` must be integers
+- If either is not an int, raise an error like:
+  - `between() expect parameter m to be int. Given: <class 'str'>.`
+  - similarly for `n`
 
 ---
 
-## 2) Analyze the Problem
+### 2) Analyze the problem
 
-### Problem definition
-Given two integers `m` and `n`, return a list of all prime numbers `p` such that:
+This is the classic problem of finding **all primes in a range** `[m, n]`.
 
-- `m <= p <= n`
-- `p` is prime
-- Results are in increasing order
+Important observations:
+- Primes are integers greater than 1.
+- If `m > n`, result is empty.
+- If `n < 2`, result is empty.
+- If `m < 2`, the effective lower bound is `2`.
+- Need strict type checking: only `int` accepted.
 
-### Constraints implied by tests
-- Inputs must be strictly of type `int`
-- Range can be:
-  - normal (`m <= n`)
-  - reversed (`m > n`) → return `[]`
-  - negative → ignore values below 2
-- Need inclusive bounds
+Complexity goal:
+- A straightforward approach is testing each number for primality.
+- A more efficient approach is using the **Sieve of Eratosthenes** on the interval up to `n`, then filtering from `m` to `n`.
 
 ---
 
-## 3) Design the Algorithm
+### 3) Design the algorithm
 
-### Step-by-step approach
-1. Validate input types:
-   - if `m` is not `int`, raise:
-     `"between() expect parameter m to be int. Given: <class 'TYPE'>."`
-   - if `n` is not `int`, raise:
-     `"between() expect parameter n to be int. Given: <class 'TYPE'>."`
+#### Step-by-step approach
 
-2. Handle empty range:
-   - if `m > n`, return `[]`
+1. **Validate input types**
+   - If `m` is not an `int`, raise:
+     - `between() expect parameter m to be int. Given: <type>.`
+   - If `n` is not an `int`, raise:
+     - `between() expect parameter n to be int. Given: <type>.`
 
-3. Determine the lower bound for primes:
-   - primes start at `2`
-   - so use `start = max(m, 2)`
+2. **Handle empty-range cases**
+   - If `m > n`, return `[]`
+   - If `n < 2`, return `[]`
 
-4. Generate primes in `[start, n]`
-   - For each number `x` in this interval:
-     - check if `x` is prime
-     - if yes, append to result
+3. **Normalize the lower bound**
+   - Set `start = max(m, 2)`
 
-### Primality check
-To test if `x` is prime:
-- return `False` if `x < 2`
-- return `True` if `x == 2`
-- return `False` if `x` is even
-- otherwise test odd divisors from `3` up to `sqrt(x)`
+4. **Find primes up to `n`**
+   - Build a boolean array `is_prime[0..n]`
+   - Initialize all as `True`, then mark `0` and `1` as `False`
+   - For each `p` from `2` to `sqrt(n)`:
+     - If `is_prime[p]` is `True`, mark multiples from `p*p` to `n` as `False`
 
-### Complexity
-If using direct primality testing for each number:
-- Time: roughly `O((n - m) * sqrt(n))`
-- Space: `O(k)` for output, where `k` is the number of primes found
-
-If efficiency matters for larger ranges, a sieve-based approach could be used, but the tests do not require it.
+5. **Collect results**
+   - Return all numbers `x` in `[start, n]` where `is_prime[x]` is `True`
 
 ---
 
-## 4) Handle Edge Cases
+### 4) Handle edge cases
 
-### Edge cases covered by tests
-- `m > n` → return `[]`
-- negative ranges → only primes ≥ 2 are returned
-- same start and end:
-  - prime → singleton list
-  - non-prime → `[]`
-- non-integer `m` or `n` → raise exact type error
-
-### Additional edge cases
-- `m = 1, n = 1` → `[]`
-- `m = 2, n = 2` → `[2]`
-- `m = 0, n = 1` → `[]`
-- very large ranges: algorithm still works, though sieve may be faster if needed
+- `m == n`
+  - Return `[m]` if `m` is prime, else `[]`
+- `m < 0`
+  - Treat as starting from `2`
+- `n < 2`
+  - No primes exist, return `[]`
+- `m > n`
+  - Return `[]`
+- Non-integer inputs (`str`, `float`, `None`)
+  - Raise the specified type error
 
 ---
 
-## Final Algorithm Summary
+### Pseudocode
 
-**Function `f(m, n)` returns all prime numbers in the inclusive interval `[m, n]`.**
+```python
+def f(m, n):
+    if not isinstance(m, int):
+        raise TypeError(f"between() expect parameter m to be int. Given: {type(m)}.")
+    if not isinstance(n, int):
+        raise TypeError(f"between() expect parameter n to be int. Given: {type(n)}.")
 
-1. Verify `m` and `n` are integers; otherwise raise the specified type errors.
-2. If `m > n`, return `[]`.
-3. Iterate from `max(m, 2)` to `n`.
-4. For each number, check primality.
-5. Collect and return all primes in ascending order.
+    if m > n or n < 2:
+        return []
 
-If you want, I can also provide this as pseudocode or actual Python code.
+    start = max(m, 2)
+
+    is_prime = [True] * (n + 1)
+    is_prime[0] = False
+    if n >= 1:
+        is_prime[1] = False
+
+    limit = int(n ** 0.5)
+    for p in range(2, limit + 1):
+        if is_prime[p]:
+            for multiple in range(p * p, n + 1, p):
+                is_prime[multiple] = False
+
+    return [x for x in range(start, n + 1) if is_prime[x]]
+```
+
+---
+
+### Final algorithm summary
+
+The function validates that both inputs are integers, then returns all prime numbers in the inclusive range `[m, n]`. It uses the Sieve of Eratosthenes for efficient prime generation, handles negative or too-small bounds by starting from 2, returns an empty list for invalid intervals, and raises type errors for non-integer inputs.

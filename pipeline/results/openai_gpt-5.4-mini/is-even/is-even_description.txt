@@ -1,153 +1,133 @@
-### What the test suite indicates
+### 1) Understand the Test Suite
 
-The function `f` is **not actually testing whether a number is odd** in the usual sense.
-
+The function behaves like a **parity checker**, but it is **not** checking “oddness” in the usual sense.  
 From the examples:
 
-- `f(0) = True`
-- `f(2) = True`
-- `f(10) = True`
-- `f(1) = False`
-- `f(3) = False`
+- `0 -> True`
+- `2 -> True`
+- `-2 -> True`
+- `10 -> True`
+- `1 -> False`
+- `3 -> False`
+- `1001 -> False`
 
-So the function returns **True for even integers**, including `0` and negative evens, and **False for odd integers**.
+So the function returns **True for even numbers**, and **False for odd numbers**.
 
-So the behavior is effectively:
+It also accepts several input forms:
+- numbers like `2`, `-10`, `0`
+- numeric strings like `'0'`, `'-2'`, `'2.0'`, `' 4 '`
 
-> **Return whether the input represents an even integer.**
-
----
-
-## 1) Understand the test suite
-
-### Accepted inputs
-The function accepts:
-- integers
-- numeric strings representing integers, e.g. `"0"`, `"1"`, `"-2"`
-
-### Rejected inputs
 It rejects:
-- non-integers such as `0.5`, `2.2`, `"3.5"`
-- non-numeric types such as `None`, `True`, `False`, `{}`, `[]`
-- missing argument
+- non-numeric inputs
+- booleans
+- empty strings
+- arrays, objects, `None`
+- non-integer numeric values like `1.5`, `'2.5'`
 
-### Error messages
-- If the input is not a number-like value:  
-  **`is-odd expects a number.`**
-- If the input is numeric but not an integer:  
-  **`is-odd expects an integer.`**
-
----
-
-## 2) Analyze the problem
-
-We need a function that:
-1. Validates the input type
-2. Converts numeric strings to numbers when possible
-3. Ensures the value is an integer
-4. Returns `True` iff the integer is even
-
-Important detail:
-- Booleans must be rejected even though in many languages they are subclasses of integers.
-- Very large integers are supported.
-- Negative even numbers should still return `True`.
+And it throws specific errors:
+- **`is-odd expects a number`** for invalid non-number-like inputs
+- **`is-odd expects an integer`** for numeric values that are not integers
 
 ---
 
-## 3) Design the algorithm
+### 2) Analyze the Problem
 
-### Step-by-step approach
+Despite the function name in the error message being `is-odd`, the behavior indicates:
 
-1. **Check presence of argument**
-   - If no argument is provided, throw:
-     - `is-odd expects a number.`
+> Return `True` if the input is an integer and even, otherwise `False` if it is an integer and odd.
 
-2. **Check if input is a valid number-like value**
-   - Accept:
-     - integers
-     - strings that can be parsed as integers
-   - Reject:
-     - `None`
-     - booleans
-     - objects, arrays, etc.
-   - If invalid, throw:
-     - `is-odd expects a number.`
+If the input can be interpreted as a numeric value:
+- if it is not an integer, throw `is-odd expects an integer`
+- if it is an integer, return whether it is even
 
-3. **Parse numeric strings**
-   - If the input is a string:
-     - try converting it to a number
-     - if it is not a valid numeric string, reject as not a number
-   - Strings like `"2"` and `"-2"` are valid
-   - Strings like `"3.5"` are numeric but not integer, so they should trigger:
-     - `is-odd expects an integer.`
+If the input cannot be interpreted as a number at all:
+- throw `is-odd expects a number`
 
-4. **Check integer-ness**
-   - If the parsed/actual value is not an integer, throw:
-     - `is-odd expects an integer.`
+Important details inferred from tests:
+- `True` and `False` are **not** treated as numbers
+- String parsing should allow whitespace around numeric text
+- String `'2.0'` should be accepted as integer-valued
+- String `'2.5'` should be rejected as non-integer
+- Very large integers within safe integer range should work
 
-5. **Determine evenness**
-   - Return `True` if `value % 2 == 0`
+---
+
+### 3) Design the Algorithm
+
+#### High-level algorithm
+
+1. **Validate type / parse input**
+   - If input is a boolean, `null`, array, object, empty string, or any non-numeric value:
+     - throw `is-odd expects a number`
+   - If input is a string:
+     - trim whitespace
+     - attempt to parse as a number
+     - if parsing fails, throw `is-odd expects a number`
+
+2. **Check if the parsed value is finite**
+   - If not finite, throw `is-odd expects a number`
+
+3. **Check integer-ness**
+   - If the value is numeric but not an integer:
+     - throw `is-odd expects an integer`
+   - Accept values like `2.0` because they are integer-valued
+
+4. **Determine parity**
+   - If integer modulo 2 is `0`, return `True`
    - Otherwise return `False`
 
 ---
 
-## 4) Edge cases to handle
+### 4) Edge Cases
+
+Handle these carefully:
 
 - `0` → even → `True`
 - negative even numbers like `-2` → `True`
 - negative odd numbers like `-3` → `False`
-- huge integers → still works using modulo
-- strings with whitespace may be accepted or rejected depending on parsing rules; tests do not specify
-- booleans must not be treated as numbers
-- floats that are mathematically whole numbers like `2.0` are not tested, but based on the suite’s intent, they should likely be accepted only if the function treats them as integers after checking `value == floor(value)`; however the safest interpretation from the suite is:
-  - if the input is not an integer representation, throw `is-odd expects an integer.`
+- numeric strings with spaces like `' 4 '` → `True`
+- `'2.0'` → should be treated as integer `2`
+- `'2.5'` / `1.5` → throw `is-odd expects an integer`
+- `True` / `False` → throw `is-odd expects a number`
+- `None` / `[]` / `{}` / `''` → throw `is-odd expects a number`
+- very large integers within safe range → parity should still work
 
 ---
 
-## Final algorithm description
+## Pseudocode
 
 ```text
 function f(x):
-    if x is missing or x is None or x is a boolean or x is not a number/string:
-        throw "is-odd expects a number."
-
-    if x is a string:
-        if x cannot be parsed as a number:
-            throw "is-odd expects a number."
-        convert x to numeric value
-
-    if x is not an integer:
-        throw "is-odd expects an integer."
-
-    return (x mod 2 == 0)
-```
-
----
-
-## Concise pseudocode
-
-```pseudo
-function f(x):
-    if argument missing:
-        error("is-odd expects a number.")
-
-    if x is boolean or x is null or x is object/array:
-        error("is-odd expects a number.")
+    if x is boolean or x is null or x is array or x is object:
+        throw "is-odd expects a number"
 
     if x is string:
-        if x does not represent a valid number:
-            error("is-odd expects a number.")
-        x = parseNumber(x)
+        s = trim(x)
+        if s is empty:
+            throw "is-odd expects a number"
+        n = parse s as number
+        if parsing fails:
+            throw "is-odd expects a number"
+    else if x is number:
+        n = x
+    else:
+        throw "is-odd expects a number"
 
-    if x is not an integer:
-        error("is-odd expects an integer.")
+    if n is not finite:
+        throw "is-odd expects a number"
 
-    return x % 2 == 0
+    if n is not an integer:
+        throw "is-odd expects an integer"
+
+    return (n mod 2 == 0)
 ```
 
 ---
 
-If you want, I can also provide this as:
-- a Python implementation,
-- JavaScript implementation,
-- or a more formal specification.
+## Summary
+
+The function is best described as:
+
+> **“Parse the input as a number, ensure it is an integer, and return True if it is even; otherwise False. Throw type-specific errors for invalid or non-integer inputs.”**
+
+If you want, I can also provide this as actual code in JavaScript, Python, or pseudocode closer to a specific runtime.

@@ -1,94 +1,128 @@
-# Analyzing the Test Suite
+# Algorithm Design: `nth_prime(n)`
 
-## Step 1: Understanding the Test Suite
+## 1. Understanding the Test Suite
 
-Let me examine the I/O pairs:
+The function `f(n)` returns the **n-th prime number** (0-indexed), where:
+- `f(0) = 2` (the 0th prime is 2)
+- `f(1) = 3` (the 1st prime is 3)
+- `f(2) = 5` (the 2nd prime is 5)
+- ...and so on.
 
-| Input | Output |
-|-------|--------|
-| 0 | 2 |
-| 1 | 3 |
-| 2 | 5 |
-| 5 | 13 |
-| 10 | 31 |
-| 50 | 233 |
-| -1 | throws error (must be positive or zero) |
-| 3.5 | throws error (must be int type) |
-| '3' | throws error (must be int type) |
-| True | 3 |
-| False | 2 |
-| None | throws error (must be int type) |
+### Input Validation Requirements:
+| Input | Behavior |
+|-------|----------|
+| Negative integer (`-1`, `-5`) | Throw error: "int parameter must be positive or zero" |
+| Float (`1.5`) | Throw error: "takes (1) int type parameter. Given: <class 'float'>" |
+| String (`'3'`) | Throw error: "takes (1) int type parameter. Given: <class 'str'>" |
+| Boolean (`True`, `False`) | Accepted — `True` → `f(1) = 3`, `False` → `f(0) = 2` |
 
-## Step 2: Analyzing the Problem
+> **Key insight on booleans**: In Python, `bool` is a subclass of `int`, so `True == 1` and `False == 0`. The function accepts booleans but rejects other non-int types.
 
-The output values (2, 3, 5, 13, 31, 233) are **prime numbers**. Let me verify the indexing:
+---
 
-- **0th prime** = 2 ✓
-- **1st prime** = 3 ✓
-- **2nd prime** = 5 ✓
-- **5th prime** = 13 ✓
-- **10th prime** = 31 ✓
-- **50th prime** = 233 ✓
+## 2. Problem Analysis
 
-The function `f(n)` returns the **nth prime number** (0-indexed).
+**Core Problem**: Given a non-negative integer `n`, return the `n`-th prime number (0-indexed).
 
-Note: `True` maps to `1` (→ 3, the 1st prime) and `False` maps to `0` (→ 2, the 0th prime), confirming boolean coercion to int.
+**Complexity Considerations**:
+- For `n = 100`, the answer is `547`, so we need an efficient prime-finding method.
+- The **Prime Number Theorem** tells us the n-th prime is approximately `n * ln(n)`. For `n=100`, this gives ~460, and the actual value is 547. We can use this to set an upper bound for a sieve.
 
-## Step 3: Algorithm Design
+---
+
+## 3. Algorithm Design
+
+### Step-by-Step Approach
 
 ```
-ALGORITHM: nth_prime(n)
+FUNCTION nth_prime(n):
 
-INPUT:  n — a non-negative integer (bool is accepted as int subclass)
-OUTPUT: the nth prime number (0-indexed)
+    // --- INPUT VALIDATION ---
+    1. If type(n) is NOT int (excluding bool subclass):
+           → Actually, check: if type(n) is bool, it's acceptable.
+           → If type(n) is not int and not bool: raise TypeError
+           → Simpler: check isinstance(n, bool) first, then isinstance(n, int)
+           → If not isinstance(n, int): raise TypeError with message about type
+    
+    2. If n < 0:
+           → Raise ValueError: "int parameter must be positive or zero"
 
-1. VALIDATE input:
-   a. If n is None or not an int (excluding bool), 
-      raise TypeError: "nth_prime() takes (1) int type parameter."
-   b. If n < 0, 
-      raise ValueError: "int parameter must be positive or zero."
+    // --- FIND THE n-TH PRIME (0-indexed) ---
+    3. We need to find the (n+1)-th prime in 1-indexed terms, 
+       or equivalently, collect primes until we have n+1 of them.
 
-2. SPECIAL CASES:
-   a. If n == 0, return 2.
+    4. Use the Sieve of Eratosthenes with an upper bound:
+       - For n >= 6: upper_bound = n * (ln(n) + ln(ln(n))) + 10  (safe overestimate)
+       - For n < 6: upper_bound = 15 (covers primes up to 13)
 
-3. FIND THE nth PRIME (Sieve of Eratosthenes with dynamic upper bound):
-   a. Estimate an upper bound for the nth prime using the prime number theorem:
-      - upper_bound ≈ n * (ln(n) + n * ln(ln(n)) for n ≥ 6
-      - For small n, use a fixed small bound (e.g., 15)
-   b. Create a boolean sieve array of size upper_bound + 1, initialized to True.
-   c. Set sieve[0] = sieve[1] = False.
-   d. For i from 2 to √upper_bound:
-      - If sieve[i] is True, mark all multiples of i (from i² to upper_bound) as False.
-   e. Collect all indices where sieve[i] is True into a list of primes.
-   f. If the list has fewer than n+1 primes, increase the upper bound and repeat.
-   g. Return primes[n].
+    5. Apply Sieve of Eratosthenes up to upper_bound:
+       a. Create boolean array `is_prime[0..upper_bound]`, initialize all to True
+       b. Set is_prime[0] = is_prime[1] = False
+       c. For i from 2 to sqrt(upper_bound):
+            If is_prime[i] is True:
+                Mark all multiples of i (from i*i to upper_bound) as False
+       d. Collect all indices where is_prime[index] is True into a list `primes`
 
-4. RETURN the nth prime.
+    6. If len(primes) <= n:
+       → Increase upper_bound and repeat (safety fallback)
+
+    7. Return primes[n]  (0-indexed access)
 ```
 
-## Step 4: Edge Cases Handled
+### Sieve of Eratosthenes Detail
+
+```
+SIEVE(limit):
+    is_prime = [True] * (limit + 1)
+    is_prime[0] = False
+    is_prime[1] = False
+    
+    FOR i FROM 2 TO floor(sqrt(limit)):
+        IF is_prime[i]:
+            FOR j FROM i*i TO limit STEP i:
+                is_prime[j] = False
+    
+    RETURN [i FOR i IN RANGE(limit + 1) IF is_prime[i]]
+```
+
+---
+
+## 4. Edge Cases
 
 | Edge Case | Handling |
 |-----------|----------|
 | `n = 0` | Returns 2 (first prime) |
 | `n = 1` | Returns 3 |
-| Negative `n` | Raises ValueError |
-| Float input | Raises TypeError |
-| String input | Raises TypeError |
-| `None` input | Raises TypeError |
-| `True` / `False` | Coerced to `1`/`0` via int subclass |
-| Very large `n` (e.g., 50) | Dynamic upper bound via prime number theorem ensures correctness |
-| Sieve too small | Retry with increased bound |
+| Very large `n` | Upper bound formula ensures sieve is large enough; fallback expansion if not |
+| `n = True` (bool) | Treated as `n = 1`, returns 3 |
+| `n = False` (bool) | Treated as `n = 0`, returns 2 |
+| Negative input | ValueError raised |
+| Non-int type (float, string) | TypeError raised with descriptive message |
 
-## Verification
+---
 
-```
-nth_prime(0) → 2   ✓
-nth_prime(1) → 3   ✓
-nth_prime(2) → 5   ✓
-nth_prime(5) → 13  ✓
-nth_prime(10) → 31 ✓
-nth_prime(50) → 233 ✓
-```
+## Verification Against Test Cases
 
-The algorithm correctly computes the **nth prime number (0-indexed)** with proper input validation.
+| Input | Expected | Algorithm Output |
+|-------|----------|-----------------|
+| `f(0)` | 2 | `primes[0] = 2` ✅ |
+| `f(1)` | 3 | `primes[1] = 3` ✅ |
+| `f(2)` | 5 | `primes[2] = 5` ✅ |
+| `f(3)` | 7 | `primes[3] = 7` ✅ |
+| `f(4)` | 11 | `primes[4] = 11` ✅ |
+| `f(5)` | 13 | `primes[5] = 13` ✅ |
+| `f(10)` | 31 | `primes[10] = 31` ✅ |
+| `f(25)` | 101 | `primes[25] = 101` ✅ |
+| `f(100)` | 547 | `primes[100] = 547` ✅ |
+| `f(-1)` | Error | ValueError ✅ |
+| `f(-5)` | Error | ValueError ✅ |
+| `f(1.5)` | Error | TypeError ✅ |
+| `f('3')` | Error | TypeError ✅ |
+| `f(True)` | 3 | `primes[1] = 3` ✅ |
+| `f(False)` | 2 | `primes[0] = 2` ✅ |
+
+---
+
+## Summary
+
+The function **`nth_prime(n)`** returns the **n-th prime number (0-indexed)** using the **Sieve of Eratosthenes** with a mathematically derived upper bound based on the Prime Number Theorem. It performs strict type validation (accepting `int` and `bool`, rejecting all other types) and range validation (rejecting negative values).

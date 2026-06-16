@@ -1,103 +1,117 @@
-### 1) What the test suite shows
+### 1) Understand the Test Suite
 
-The function `f(obj, ...keys)` returns a **new object containing only selected properties** from `obj`.
+The function `f` takes:
 
-It behaves like a **property picker**:
+- a **source object/array** `obj`
+- a list of **keys/indices to keep**
 
-- Keeps only keys that exist in the source object
-- Preserves the order of the requested keys
-- Ignores duplicate requested keys
-- Ignores invalid keys such as:
-  - keys not in the object
-  - `None`/`null` elements inside an array
-  - non-string keys like `1`
-- Accepts keys either as:
-  - a single array/list of keys
-  - multiple separate key arguments
+and returns a new object containing only the selected entries from `obj`.
 
-### 2) Problem definition
+From the tests:
 
-Given:
-
-- a source object `obj`
-- a set of key selectors passed either as:
-  - one array argument, or
-  - multiple key arguments
-
-Return a new object containing only those entries from `obj` whose keys were requested, in the same order as requested, with duplicates removed.
-
-If `obj` is `null`, the function attempts to check membership and throws an error.
-If the selector list is `null`, it throws when trying to read `.length`.
-
-So the function does **not** safely handle null inputs; it follows the observed runtime behavior.
+- It works with **plain objects**
+- It also works with **arrays**, treating indices as string keys:
+  - `[1,2,3]` + `['0','2']` → `{'0':1,'2':3}`
+- It preserves the **order of the requested keys**
+- Duplicate requested keys are ignored in the output because object keys are unique
+- Missing keys are skipped
+- Non-string keys in the key list are ignored (`1`, `True`, `None`)
+- If the key list is provided as separate arguments, it behaves the same as if they were in an array
+- Nested values are copied as-is, not deep-cloned
+- `null` source causes a membership check error
+- `null` key-list causes a length-access error
 
 ---
 
-### 3) Algorithm design
+### 2) Analyze the Problem
 
-#### Step-by-step behavior
+This is essentially a **selective shallow projection** / **pick** function:
 
-1. **Parse the key arguments**
-   - If the function receives exactly one selector argument and that argument is an array, use it as the key list.
-   - Otherwise, treat all arguments after `obj` as the key list.
+- Input:
+  - `obj`: object or array
+  - `keys`: either an array of keys or variadic key arguments
+- Output:
+  - a new object containing only properties from `obj` whose keys are requested and exist in `obj`
 
-2. **Initialize an empty result object**
-   - `result = {}`
+Important observations:
 
-3. **Iterate through the requested keys in order**
-   - For each key `k`:
-     - Skip it if it is `null`/`None`
-     - Skip it if it is not a valid property key type (as implied by tests, numeric `1` is ignored)
-     - Skip it if `k` is already added to `result` (prevents duplicates)
-     - Skip it if `k` is not a property in `obj`
-     - Otherwise, copy:
-       - `result[k] = obj[k]`
-
-4. **Return `result`**
+- For arrays, numeric indices are accessed as string keys
+- The function does **not** recurse
+- It does **not** include invalid key types
+- It respects the order of the requested keys, not the order of the original object
+- It does not throw for missing keys, only for invalid input such as `null` in the source or key-list position
 
 ---
 
-### 4) Pseudocode
+### 3) Design the Algorithm
+
+#### High-level idea
+Normalize the key input into a single array of keys, then iterate over it and copy matching properties from the source into a new result object.
+
+#### Step-by-step
+1. **Normalize keys**
+   - If the second argument is already an array, use it directly.
+   - Otherwise, treat all arguments after the first as the key list.
+
+2. **Create an empty result object**
+
+3. **For each key in the key list**
+   - Ignore it unless it is a string
+   - Check whether the key exists in the source object/array
+   - If yes, copy `source[key]` into the result under the same key
+
+4. **Return the result**
+
+#### Why this matches the tests
+- Preserves order of requested keys by iterating over them in order
+- Skips keys not found in source
+- Works for arrays because array indices are accessible as string keys
+- Duplicate keys overwrite with the same value, leaving the same final property once
+- Ignores non-string keys
+
+---
+
+### 4) Handle Edge Cases
+
+#### Covered by tests
+- Empty key list → `{}`  
+- Empty source object → `{}`
+- Missing keys → skipped
+- Duplicate keys → only one result property
+- Array source → indices treated as strings
+- Nested objects → returned by reference, no recursion
+
+#### Additional likely edge cases
+- If `obj` is `null` or `undefined`, membership checking should fail as shown
+- If the key list is `null`/`undefined`, accessing its length should fail as shown
+- If keys are symbols or other non-string types, they should be ignored
+- If source has inherited properties, behavior depends on whether membership is checked with `in` or direct property access; the test suite strongly suggests an `in`-style check or equivalent
+
+---
+
+### Suggested Algorithm in Pseudocode
 
 ```text
-function f(obj, ...selectors):
-    if selectors has exactly one element and that element is an array:
-        keys = selectors[0]
+function f(obj, ...args):
+    if args.length == 1 and args[0] is an array:
+        keys = args[0]
     else:
-        keys = selectors
+        keys = args
 
-    result = {}
+    result = empty object
 
-    for k in keys:
-        if k is null:
+    for key in keys:
+        if type of key is not string:
             continue
-        if type of k is not string:
-            continue
-        if k already in result:
-            continue
-        if k in obj:
-            result[k] = obj[k]
+        if key exists in obj:
+            result[key] = obj[key]
 
     return result
 ```
 
 ---
 
-### 5) Important edge cases
-
-- `f({}, ['a']) -> {}`
-- `f(obj, []) -> {}`
-- `f(obj, ['a', 'a']) -> {'a': ...}` because duplicates are removed
-- `f(obj, ['c', 'a'])` preserves order: `{'c': ..., 'a': ...}`
-- `f(obj, ['a', None, 'c'])` skips `None`
-- `f(obj, [1, 'a'])` skips non-string key `1`
-- `f(obj, ['a', 'toString'])` includes only own/in-object properties, not inherited ones
-- `f(obj, None)` throws because selector list is not valid
-- `f(None, ['a'])` throws because membership check is attempted on null
-
----
-
-### 6) Complexity
+### Complexity
 
 Let:
 
@@ -106,10 +120,10 @@ Let:
 Then:
 
 - **Time:** `O(n)`
-- **Space:** `O(n)` in the worst case for the result object
+- **Space:** `O(k)` for the output, where `k` is the number of copied entries
 
 ---
 
-### 7) Final functional description
+### Final Description
 
-This function is a **key-picker / object subsetting utility** that returns a new object containing the requested properties of an input object, preserving request order and removing duplicates, while ignoring missing or invalid keys.
+The function is a **shallow pick/projection utility** that returns a new object containing only the string-keyed properties from the input object/array whose names are listed in the key arguments, preserving the requested order and ignoring missing or invalid keys.

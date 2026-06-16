@@ -1,8 +1,9 @@
 ```javascript
-module.exports = function(x) {
-    if (Array.isArray(x)) {
-        return x;
+module.exports = function(input) {
+    if (Array.isArray(input)) {
+        return input;
+    } else {
+        return [input];
     }
-    return [x];
 };
 ```

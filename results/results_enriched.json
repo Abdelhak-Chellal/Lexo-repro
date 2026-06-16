@@ -409,110 +409,6 @@
   },
   {
     "package": "is-number",
-    "model": "mistralai/mistral-7b-instruct-v0.1",
-    "status": "error",
-    "error": "Error code: 404 - {'error': {'message': 'No endpoints found for mistralai/mistral-7b-instruct-v0.1.', 'code': 404}, 'user_id': 'user_2uuOrT6AZTW4ISN2Ls0UQ3Ffomu'}",
-    "io_pct": 0,
-    "dev_pct": 0
-  },
-  {
-    "package": "arr-diff",
-    "model": "mistralai/mistral-7b-instruct-v0.1",
-    "status": "error",
-    "error": "Error code: 404 - {'error': {'message': 'No endpoints found for mistralai/mistral-7b-instruct-v0.1.', 'code': 404}, 'user_id': 'user_2uuOrT6AZTW4ISN2Ls0UQ3Ffomu'}",
-    "io_pct": 0,
-    "dev_pct": 0
-  },
-  {
-    "package": "is-odd",
-    "model": "mistralai/mistral-7b-instruct-v0.1",
-    "status": "error",
-    "error": "Error code: 404 - {'error': {'message': 'No endpoints found for mistralai/mistral-7b-instruct-v0.1.', 'code': 404}, 'user_id': 'user_2uuOrT6AZTW4ISN2Ls0UQ3Ffomu'}",
-    "io_pct": 0,
-    "dev_pct": 0
-  },
-  {
-    "package": "is-even",
-    "model": "mistralai/mistral-7b-instruct-v0.1",
-    "status": "error",
-    "error": "Error code: 404 - {'error': {'message': 'No endpoints found for mistralai/mistral-7b-instruct-v0.1.', 'code': 404}, 'user_id': 'user_2uuOrT6AZTW4ISN2Ls0UQ3Ffomu'}",
-    "io_pct": 0,
-    "dev_pct": 0
-  },
-  {
-    "package": "is-object",
-    "model": "mistralai/mistral-7b-instruct-v0.1",
-    "status": "error",
-    "error": "Error code: 404 - {'error': {'message': 'No endpoints found for mistralai/mistral-7b-instruct-v0.1.', 'code': 404}, 'user_id': 'user_2uuOrT6AZTW4ISN2Ls0UQ3Ffomu'}",
-    "io_pct": 0,
-    "dev_pct": 0
-  },
-  {
-    "package": "left-pad",
-    "model": "mistralai/mistral-7b-instruct-v0.1",
-    "status": "error",
-    "error": "Error code: 404 - {'error': {'message': 'No endpoints found for mistralai/mistral-7b-instruct-v0.1.', 'code': 404}, 'user_id': 'user_2uuOrT6AZTW4ISN2Ls0UQ3Ffomu'}",
-    "io_pct": 0,
-    "dev_pct": 0
-  },
-  {
-    "package": "concat-map",
-    "model": "mistralai/mistral-7b-instruct-v0.1",
-    "status": "error",
-    "error": "Error code: 404 - {'error': {'message': 'No endpoints found for mistralai/mistral-7b-instruct-v0.1.', 'code': 404}, 'user_id': 'user_2uuOrT6AZTW4ISN2Ls0UQ3Ffomu'}",
-    "io_pct": 0,
-    "dev_pct": 0
-  },
-  {
-    "package": "replace-ext",
-    "model": "mistralai/mistral-7b-instruct-v0.1",
-    "status": "error",
-    "error": "Error code: 404 - {'error': {'message': 'No endpoints found for mistralai/mistral-7b-instruct-v0.1.', 'code': 404}, 'user_id': 'user_2uuOrT6AZTW4ISN2Ls0UQ3Ffomu'}",
-    "io_pct": 0,
-    "dev_pct": 0
-  },
-  {
-    "package": "array-ify",
-    "model": "mistralai/mistral-7b-instruct-v0.1",
-    "status": "error",
-    "error": "Error code: 404 - {'error': {'message': 'No endpoints found for mistralai/mistral-7b-instruct-v0.1.', 'code': 404}, 'user_id': 'user_2uuOrT6AZTW4ISN2Ls0UQ3Ffomu'}",
-    "io_pct": 0,
-    "dev_pct": 0
-  },
-  {
-    "package": "just-pick",
-    "model": "mistralai/mistral-7b-instruct-v0.1",
-    "status": "error",
-    "error": "Error code: 404 - {'error': {'message': 'No endpoints found for mistralai/mistral-7b-instruct-v0.1.', 'code': 404}, 'user_id': 'user_2uuOrT6AZTW4ISN2Ls0UQ3Ffomu'}",
-    "io_pct": 0,
-    "dev_pct": 0
-  },
-  {
-    "package": "just-filter-object",
-    "model": "mistralai/mistral-7b-instruct-v0.1",
-    "status": "error",
-    "error": "Error code: 404 - {'error': {'message': 'No endpoints found for mistralai/mistral-7b-instruct-v0.1.', 'code': 404}, 'user_id': 'user_2uuOrT6AZTW4ISN2Ls0UQ3Ffomu'}",
-    "io_pct": 0,
-    "dev_pct": 0
-  },
-  {
-    "package": "has-proto",
-    "model": "mistralai/mistral-7b-instruct-v0.1",
-    "status": "error",
-    "error": "Error code: 404 - {'error': {'message': 'No endpoints found for mistralai/mistral-7b-instruct-v0.1.', 'code': 404}, 'user_id': 'user_2uuOrT6AZTW4ISN2Ls0UQ3Ffomu'}",
-    "io_pct": 0,
-    "dev_pct": 0
-  },
-  {
-    "package": "primality",
-    "model": "mistralai/mistral-7b-instruct-v0.1",
-    "status": "error",
-    "error": "Python error: Traceback (most recent call last):\n  File \"/tmp/lexo_verify_runner.py\", line 8, in <module>\n    fn = mod.is_prime\n         ^^^^^^^^^^^^\nAttributeError: module 'tmp_mod' has no attribute 'is_prime'\n",
-    "io_pct": 0,
-    "dev_pct": 0
-  },
-  {
-    "package": "is-number",
     "model": "anthropic/claude-3.5-haiku",
     "status": "error",
     "error": "Could not find valid JSON array in response",
@@ -891,5 +787,121 @@
     "error": "Python error: Traceback (most recent call last):\n  File \"/tmp/lexo_verify_runner.py\", line 8, in <module>\n    fn = mod.is_prime\n         ^^^^^^^^^^^^\nAttributeError: module 'tmp_mod' has no attribute 'is_prime'\n",
     "io_pct": 0,
     "dev_pct": 0
+  },
+  {
+    "package": "is-number",
+    "model": "mistralai/mistral-nemo",
+    "io_passed": 15,
+    "io_total": 17,
+    "io_pct": 88.2,
+    "dev_passed": 76,
+    "dev_total": 111,
+    "dev_pct": 68.5,
+    "status": "ok"
+  },
+  {
+    "package": "arr-diff",
+    "model": "mistralai/mistral-nemo",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "is-odd",
+    "model": "mistralai/mistral-nemo",
+    "io_passed": 15,
+    "io_total": 18,
+    "io_pct": 83.3,
+    "dev_passed": 1,
+    "dev_total": 3,
+    "dev_pct": 33.3,
+    "status": "ok"
+  },
+  {
+    "package": "is-even",
+    "model": "mistralai/mistral-nemo",
+    "io_passed": 12,
+    "io_total": 13,
+    "io_pct": 92.3,
+    "dev_passed": 1,
+    "dev_total": 4,
+    "dev_pct": 25.0,
+    "status": "ok"
+  },
+  {
+    "package": "is-object",
+    "model": "mistralai/mistral-nemo",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "left-pad",
+    "model": "mistralai/mistral-nemo",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "concat-map",
+    "model": "mistralai/mistral-nemo",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "replace-ext",
+    "model": "mistralai/mistral-nemo",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "array-ify",
+    "model": "mistralai/mistral-nemo",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "just-pick",
+    "model": "mistralai/mistral-nemo",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "just-filter-object",
+    "model": "mistralai/mistral-nemo",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "has-proto",
+    "model": "mistralai/mistral-nemo",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "primality",
+    "model": "mistralai/mistral-nemo",
+    "io_passed": 149,
+    "io_total": 407,
+    "io_pct": 36.6,
+    "dev_passed": 0,
+    "dev_total": 0,
+    "dev_pct": 0,
+    "status": "ok"
   }
 ]

@@ -206,12 +206,17 @@ function extractSignatures(filePath) {
       });
     }
 
+    // Extract function body slice (first 15 lines, skipping the signature line)
+    const bodyLines = src.split("\n").slice(fnNode.loc.start.line, fnNode.loc.end.line);
+    const bodySlice = bodyLines.slice(0, 15).join("\n").trim();
+
     functions.push({
       name,
       exportedAs: exportedAs || name,
       signature:  buildSignature(name, params),
       params,
       jsDoc:      jsDoc || null,
+      bodySlice,
       loc:        { start: fnNode.loc.start.line, end: fnNode.loc.end.line },
       isAsync:    fnNode.async     || false,
       isGenerator: fnNode.generator || false,

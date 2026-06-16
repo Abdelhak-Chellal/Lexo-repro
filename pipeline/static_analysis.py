@@ -272,9 +272,22 @@ def analyze_package(package_name, tests_dir="/app/tests"):
         return {"error": f"Source not found: {source_path}", "functions": []}
 
     if package_name in PYTHON_PACKAGES:
-        return analyze_python(source_path)
+        result = analyze_python(source_path)
     else:
-        return analyze_js(source_path)
+        result = analyze_js(source_path)
+
+    # Save metadata once per package (skip if already exists)
+    snippet = format_metadata_for_prompt(result)
+    if snippet:
+        meta_dir = os.path.join(SCRIPT_DIR, "results", package_name)
+        os.makedirs(meta_dir, exist_ok=True)
+        meta_path = os.path.join(meta_dir, "metadata.txt")
+        if not os.path.exists(meta_path):
+            with open(meta_path, "w") as f:
+                f.write(snippet)
+            print(f"  [saved] {meta_path}")
+
+    return result
 
 
 def format_metadata_for_prompt(metadata):
@@ -333,6 +346,8 @@ def format_metadata_for_prompt(metadata):
             lines.append("- **examples**:")
             for ex in doc["examples"]:
                 lines.append(f"  ```\n  {ex.strip()}\n  ```")
+
+
 
     return "\n".join(lines)
 

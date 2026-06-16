@@ -1,0 +1,7 @@
+## Function Metadata (from static analysis)
+
+### `pick(obj, select)`
+- **description**: var obj = {a: 3, b: 5, c: 9}; pick(obj, ['a', 'c']); // {a: 3, c: 9} pick(obj, 'a', 'c'); // {a: 3, c: 9} pick(obj, ['a', 'b', 'd']); // {a: 3, b: 5} pick(obj, ['a', 'a']); // {a: 3}
+- **params**:
+  - `obj`
+  - `select`

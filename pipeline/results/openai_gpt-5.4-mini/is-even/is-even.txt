@@ -1,28 +1,36 @@
 module.exports = function (value) {
-  if (arguments.length === 0 || value === undefined || value === null || typeof value === 'boolean') {
-    throw new TypeError('is-odd expects a number.');
+  function throwNumberError() {
+    throw new TypeError('is-odd expects a number');
   }
 
-  var type = typeof value;
-  var numericValue;
+  function throwIntegerError() {
+    throw new TypeError('is-odd expects an integer');
+  }
 
-  if (type === 'number') {
-    numericValue = value;
-  } else if (type === 'string') {
-    if (value.trim() === '') {
-      throw new TypeError('is-odd expects a number.');
-    }
-    numericValue = Number(value);
-    if (Number.isNaN(numericValue)) {
-      throw new TypeError('is-odd expects a number.');
-    }
+  let num;
+
+  if (typeof value === 'boolean' || value === null || value === undefined) {
+    throwNumberError();
+  }
+
+  if (typeof value === 'number') {
+    num = value;
+  } else if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (trimmed === '') throwNumberError();
+    num = Number(trimmed);
+    if (Number.isNaN(num)) throwNumberError();
   } else {
-    throw new TypeError('is-odd expects a number.');
+    throwNumberError();
   }
 
-  if (!Number.isInteger(numericValue)) {
-    throw new TypeError('is-odd expects an integer.');
+  if (!Number.isFinite(num)) {
+    throwNumberError();
   }
 
-  return numericValue % 2 === 0;
+  if (!Number.isInteger(num)) {
+    throwIntegerError();
+  }
+
+  return num % 2 === 0;
 };

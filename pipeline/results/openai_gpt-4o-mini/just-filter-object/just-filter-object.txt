@@ -1,14 +1,15 @@
 ```javascript
-module.exports = function(inputObject, funcString) {
-    const func = eval(`(function(key, value) ${funcString})`);
-    const outputObject = {};
-    
-    for (const [key, value] of Object.entries(inputObject)) {
-        if (func(key, value)) {
-            outputObject[key] = value;
+module.exports = function(inputDict, functionStr) {
+    const conditionFunction = new Function('key', 'value', `return ${functionStr}`); // Create a callable function from the string
+
+    const result = {};
+    for (const key in inputDict) {
+        const value = inputDict[key];
+        if (conditionFunction(key, value)) {
+            result[key] = value;
         }
     }
     
-    return outputObject;
-};
+    return result;
+}
 ```

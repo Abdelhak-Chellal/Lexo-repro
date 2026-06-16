@@ -3,6 +3,16 @@ def between(m, n):
         raise TypeError(f"between() expect parameter m to be int. Given: {type(m)}.")
     if not isinstance(n, int):
         raise TypeError(f"between() expect parameter n to be int. Given: {type(n)}.")
-    if m > n:
+    if m > n or n < 2:
         return []
-    return [x for x in range(max(m, 2), n + 1) if is_prime(x)]
+    start = max(m, 2)
+    is_prime_arr = [True] * (n + 1)
+    is_prime_arr[0] = False
+    if n >= 1:
+        is_prime_arr[1] = False
+    limit = int(n ** 0.5)
+    for p in range(2, limit + 1):
+        if is_prime_arr[p]:
+            for k in range(p * p, n + 1, p):
+                is_prime_arr[k] = False
+    return [x for x in range(start, n + 1) if is_prime_arr[x]]

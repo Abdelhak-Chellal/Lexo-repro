@@ -1,103 +1,154 @@
-Based on the provided I/O pairs, let's analyze the function `f`.
+To design an algorithm that describes the function `f` based on the given test suite, we follow the outlined steps:
 
-**1. Understand the Test Suite:**
+---
 
-*   **Input:** An integer `n`.
-*   **Output:** A boolean value (`True` or `False`).
+### **1) Understand the Test Suite**
 
-Let's list the values and their results:
-*   `f(0) -> False`
-*   `f(1) -> False`
-*   `f(2) -> True`
-*   `f(3) -> True`
-*   `f(4) -> False`
-*   `f(5) -> True`
-*   `f(6) -> False`
-*   `f(7) -> True`
-*   `f(8) -> False`
-*   `f(9) -> False`
-*   `f(10) -> False`
-*   `f(11) -> True`
-*   `f(12) -> False`
-*   `f(13) -> True`
+We are given a set of input-output pairs:
 
-**2. Analyze the Problem:**
+| Input | Output |
+|-------|--------|
+| 2     | True   |
+| 3     | True   |
+| 1     | False  |
+| 0     | False  |
+| -1    | False  |
+| 4     | False  |
+| 5     | True   |
+| 6     | False  |
+| 7     | True   |
+| 9     | False  |
+| 10    | False  |
+| 11    | True   |
+| 15    | False  |
+| 17    | True   |
+| 25    | False  |
 
-Let's look for a pattern among the `True` results:
-*   `True` results: 2, 3, 5, 7, 11, 13.
+We observe:
+- The function returns `True` for some positive integers and `False` for others.
+- It returns `False` for non-positive integers (0, -1).
+- Not all primes are included (e.g., 2, 3, 5, 7, 11, 17 are `True`, but 13 is missing from tests — though not tested, so we can't assume).
+- Composite numbers like 4, 6, 9, 10, 15, 25 return `False`.
+
+Let’s list the inputs that return `True`:  
+→ **2, 3, 5, 7, 11, 17**
 
 These are all **prime numbers**.
-Let's look for a pattern among the `False` results:
-*   `False` results: 0, 1, 4, 6, 8, 9, 10, 12.
 
-These are all **non-prime numbers**. Specifically:
-*   0 and 1 are not prime.
-*   4, 6, 8, 9, 10, 12 are composite numbers.
+Now check if all primes in the test set return `True`:
+- 2 → prime → True ✅  
+- 3 → prime → True ✅  
+- 5 → prime → True ✅  
+- 7 → prime → True ✅  
+- 11 → prime → True ✅  
+- 17 → prime → True ✅  
 
-This strongly suggests that the function `f(n)` is a **primality test**. It returns `True` if `n` is a prime number, and `False` otherwise.
+Now check composites:
+- 4 = 2×2 → False ✅  
+- 6 = 2×3 → False ✅  
+- 9 = 3×3 → False ✅  
+- 10 = 2×5 → False ✅  
+- 15 = 3×5 → False ✅  
+- 25 = 5×5 → False ✅  
 
-**3. Design the Algorithm:**
+Also:
+- 1 → not prime → False ✅  
+- 0 → not prime → False ✅  
+- -1 → negative → not prime → False ✅  
 
-Based on the analysis, the algorithm should determine if the input integer `n` is a prime number.
+So the pattern is clear:  
+> **f(n) returns `True` if and only if `n` is a prime number.**
 
-**Algorithm for `is_prime(n)`:**
+---
 
-1.  **Handle Edge Cases for Non-Primes:**
-    *   If `n` is less than 2 (i.e., `n <= 1`), return `False`. (This covers `f(0) -> False` and `f(1) -> False`).
-2.  **Handle Small Primes and Even Numbers:**
-    *   If `n` is 2, return `True`. (2 is the only even prime number).
-    *   If `n` is divisible by 2 (i.e., `n % 2 == 0`) and `n` is not 2, return `False`. (This covers `f(4) -> False`, `f(6) -> False`, `f(8) -> False`, `f(10) -> False`, `f(12) -> False`).
-3.  **Check for Odd Divisors:**
-    *   If `n` is greater than 2 and not divisible by 2, iterate through odd numbers from 3 up to the square root of `n` (inclusive).
-    *   For each odd number `i`:
-        *   If `n` is divisible by `i` (i.e., `n % i == 0`), return `False`.
-4.  **Prime Confirmation:**
-    *   If no divisor was found in the previous steps, return `True`.
+### **2) Analyze the Problem**
 
-**Python Implementation of the Algorithm:**
+- **Problem**: Determine whether a given integer `n` is a prime number.
+- **Input**: An integer `n` (can be negative, zero, or positive).
+- **Output**: Boolean — `True` if `n` is prime, `False` otherwise.
+- **Constraints**: Based on test cases, we assume standard definition of prime numbers:
+  - A prime number is a natural number greater than 1 that has no positive divisors other than 1 and itself.
+  - Therefore, numbers ≤ 1 are not prime.
+
+---
+
+### **3) Design the Algorithm**
+
+We design a function `f(n)` that checks if `n` is prime.
+
+#### **Algorithm Steps**:
+
+1. **Handle edge cases**:
+   - If `n <= 1`, return `False` (since primes are > 1).
+2. **Check for small primes**:
+   - If `n == 2` or `n == 3`, return `True`.
+3. **Eliminate even numbers and multiples of 3**:
+   - If `n % 2 == 0` or `n % 3 == 0`, return `False`.
+4. **Check divisibility up to √n**:
+   - Use a loop from `i = 5` to `√n`, incrementing by 6 (to check `i` and `i+2`, since all primes > 3 are of form 6k±1).
+   - For each `i`, check if `n % i == 0` or `n % (i+2) == 0`. If yes, return `False`.
+5. If no divisors found, return `True`.
+
+This is an optimized trial division method.
+
+---
+
+### **4) Handle Edge Cases**
+
+- **Negative numbers**: Not prime → return `False`.
+- **0 and 1**: Not prime → return `False`.
+- **2**: Smallest prime → return `True`.
+- **Even numbers > 2**: Not prime → return `False`.
+- **Large primes**: Handled by loop up to √n.
+
+---
+
+### **Final Algorithm (Pseudocode)**
 
 ```python
-import math
-
-def is_prime(n):
-    if n <= 1: # Handles f(0)=False, f(1)=False
+def f(n):
+    if n <= 1:
         return False
-    if n == 2: # Handles f(2)=True
+    if n <= 3:
         return True
-    if n % 2 == 0: # Handles f(4)=False, f(6)=False, etc.
+    if n % 2 == 0 or n % 3 == 0:
         return False
-    
-    # Check for odd divisors from 3 up to sqrt(n)
-    for i in range(3, int(math.sqrt(n)) + 1, 2):
-        if n % i == 0:
+    i = 5
+    while i * i <= n:
+        if n % i == 0 or n % (i + 2) == 0:
             return False
-            
-    return True # If no divisors found, it's prime
-
-# Testing with the provided I/O pairs
-print(f"f(2) = {is_prime(2)}")   # Expected: True
-print(f"f(3) = {is_prime(3)}")   # Expected: True
-print(f"f(1) = {is_prime(1)}")   # Expected: False
-print(f"f(0) = {is_prime(0)}")   # Expected: False
-print(f"f(-1) = {is_prime(-1)}") # Expected: False
-print(f"f(4) = {is_prime(4)}")   # Expected: False
-print(f"f(5) = {is_prime(5)}")   # Expected: True
-print(f"f(6) = {is_prime(6)}")   # Expected: False
-print(f"f(7) = {is_prime(7)}")   # Expected: True
-print(f"f(8) = {is_prime(8)}")   # Expected: False
-print(f"f(9) = {is_prime(9)}")   # Expected: False
-print(f"f(10) = {is_prime(10)}") # Expected: False
-print(f"f(11) = {is_prime(11)}") # Expected: True
-print(f"f(12) = {is_prime(12)}") # Expected: False
-print(f"f(13) = {is_prime(13)}") # Expected: True
+        i += 6
+    return True
 ```
 
-**4. Handle Edge Cases:**
+---
 
-*   **Negative Numbers:** The test case `f(-1) = False` is handled by the `n <= 1` condition.
-*   **Zero and One:** The test cases `f(0) = False` and `f(1) = False` are also handled by the `n <= 1` condition.
-*   **Small Primes:** `f(2) = True` and `f(3) = True` are explicitly handled.
-*   **Even Composite Numbers:** Handled by the `n % 2 == 0` check.
-*   **Odd Composite Numbers:** Handled by the loop checking odd divisors (e.g., `f(9) = False`).
+### ✅ Verification Against Test Cases
 
-This algorithm accurately reflects the behavior described in the test suite.
+| n  | Expected | Algorithm Output |
+|----|----------|------------------|
+| 2  | True     | True ✅           |
+| 3  | True     | True ✅           |
+| 1  | False    | False ✅          |
+| 0  | False    | False ✅          |
+| -1 | False    | False ✅          |
+| 4  | False    | False ✅          |
+| 5  | True     | True ✅           |
+| 6  | False    | False ✅          |
+| 7  | True     | True ✅           |
+| 9  | False    | False ✅          |
+| 10 | False    | False ✅          |
+| 11 | True     | True ✅           |
+| 15 | False    | False ✅          |
+| 17 | True     | True ✅           |
+| 25 | False    | False ✅          |
+
+All match.
+
+---
+
+### ✅ Conclusion
+
+The function `f(n)` **checks whether `n` is a prime number**.
+
+**Algorithm**: Optimized trial division primality test.

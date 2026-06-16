@@ -1,0 +1,13 @@
+## Function Metadata (from static analysis)
+
+### `exports(val)`
+- **params**:
+  - `val`
+- **body**:
+  ```js
+'use strict';
+module.exports = function(val) {
+// --- function body ---
+return Array.isArray(val) ? val : [val];
+};
+  ```

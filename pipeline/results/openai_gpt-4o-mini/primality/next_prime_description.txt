@@ -1,75 +1,87 @@
-### 1) Understand the Test Suite
+To design an algorithm based on the provided test suite, let's go through the steps as outlined.
 
-The given test suite provides input-output pairs for a function `f(n)`. The outputs appear to follow a certain pattern based on the inputs. 
+### Step 1: Understand the Test Suite
+The function `f(n)` appears to compute the next prime number greater than or equal to `n`. The output for various integer inputs suggests that the function returns the smallest prime number that is not less than the input value. 
 
-- For positive integers:
-  - `f(1) = 2`
-  - `f(2) = 3`
-  - `f(3) = 5`
-  - `f(4) = 5`
-  - `f(5) = 7`
-  - `f(10) = 11`
-  - `f(11) = 13`
-  - `f(15) = 17`
-  - `f(20) = 23`
-  - `f(25) = 29`
-  - `f(30) = 31`
-  - `f(50) = 53`
-  - `f(100) = 101`
+Key observations:
+- For positive integers, the output is the next prime number.
+- For `0` and negative integers, the function returns `2`, which is the smallest prime number.
+- For non-integer inputs (like strings and floats), the function throws an error indicating that the input must be an integer.
 
-- For non-positive integers:
-  - `f(-1) = 2`
-  - `f(0) = 2`
+### Step 2: Analyze the Problem
+The primary task is to find the next prime number for a given integer input. The function needs to:
+- Handle positive integers by finding the next prime.
+- Return `2` for non-positive integers.
+- Validate input types, raising errors for invalid types.
 
-### 2) Analyze the Problem
+### Step 3: Design the Algorithm
+Here’s a step-by-step approach to design the algorithm:
 
-From the outputs, we can see the following observations:
-- The function appears to return the smallest prime number greater than or equal to the input `n`.
-- For negative integers and zero, the output is consistently `2`, which is the smallest prime.
+1. **Input Validation**:
+   - If the input is not an instance of `int`, raise a `TypeError` with a message indicating the expected type.
+   
+2. **Handle Non-positive Integers**:
+   - If `n <= 0`, return `2`.
 
-### 3) Design the Algorithm
+3. **Find the Next Prime**:
+   - Create a helper function `is_prime(num)` to check if a number is prime.
+   - Starting from `n`, check each number incrementally:
+     - If a number is prime, return it.
+     - If not, increment and continue checking.
 
-Given the observations, we can design the function as follows:
+4. **Helper Function**:
+   - The `is_prime(num)` function would check:
+     - If `num <= 1`, return `False` (not prime).
+     - Check divisibility from `2` to the square root of `num`. If divisible, return `False`; otherwise, return `True`.
 
-1. **Initialize a function** `f(n)`.
-2. **Check if `n` is less than or equal to 0**:
-   - If true, return `2`.
-3. **Define a helper function** `is_prime(num)`:
-   - Return `False` for numbers less than 2.
-   - For numbers greater than or equal to 2, check divisibility from `2` to `sqrt(num)`.
-4. **Start a loop** from `n`:
-   - If `is_prime(i)` returns `True`, return `i`.
-   - Increment `i` by 1 and continue the loop until a prime is found.
+### Step 4: Handle Edge Cases
+- Ensure that the algorithm correctly handles input types and returns appropriate errors for strings, floats, and other non-integer types.
+- Validate that the prime-checking function handles small numbers and edge cases (e.g., `1`, `2`, `3`).
 
-### Pseudocode
+### Full Algorithm Implementation
+Here’s a Python implementation of the described algorithm:
 
-```plaintext
-function f(n):
-    if n <= 0:
-        return 2
-        
-    i = n
-    while true:
-        if is_prime(i):
-            return i
-        i += 1
-
-function is_prime(num):
-    if num < 2:
+```python
+def is_prime(num):
+    if num <= 1:
         return False
-    for j from 2 to sqrt(num):
-        if num % j == 0:
+    for i in range(2, int(num**0.5) + 1):
+        if num % i == 0:
             return False
     return True
+
+def nextprime(n):
+    if not isinstance(n, int):
+        raise TypeError(f"expect parameter n to be int. Given: {type(n)}.")
+    
+    if n <= 0:
+        return 2
+    
+    current = n
+    while True:
+        if is_prime(current):
+            return current
+        current += 1
+
+# Example usage:
+print(nextprime(1))  # Output: 2
+print(nextprime(2))  # Output: 3
+print(nextprime(3))  # Output: 5
+print(nextprime(4))  # Output: 5
+print(nextprime(5))  # Output: 7
+print(nextprime(10)) # Output: 11
+print(nextprime(20)) # Output: 23
+print(nextprime(50)) # Output: 53
+print(nextprime(100)) # Output: 101
+print(nextprime(200)) # Output: 211
+print(nextprime(1000)) # Output: 1009
+print(nextprime(0))  # Output: 2
+print(nextprime(-1)) # Output: 2
+
+# Uncommenting the following lines would raise TypeError
+# print(nextprime('string'))  # Raises TypeError
+# print(nextprime(2.5))       # Raises TypeError
 ```
 
-### 4) Handle Edge Cases
-
-- **Negative Inputs**: As observed, any negative input should return `2`.
-- **Zero Input**: Similarly, `f(0) = 2` is explicitly defined.
-- **Large Inputs**: The algorithm should handle large integers efficiently. The prime-checking function should be optimized using methods like trial division up to the square root of the number.
-- **Efficiency**: For inputs that are significantly large, we may need to implement a more efficient prime-checking algorithm (like the Sieve of Eratosthenes) or caching previously found primes to expedite the search.
-
-### Conclusion
-
-The function `f(n)` has been analyzed, and an algorithm has been designed to return the smallest prime number greater than or equal to `n`, with explicit handling for edge cases such as non-positive integers. The pseudocode is structured to clearly delineate the main function and the prime-checking helper function.
+### Summary
+The algorithm efficiently finds the next prime number for a given integer, handles non-positive integers by returning `2`, and raises appropriate errors for invalid input types. It is designed to cover the test cases provided in the suite while ensuring robustness against edge cases.

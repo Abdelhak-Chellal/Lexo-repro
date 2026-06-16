@@ -1,0 +1,6 @@
+```python
+def prange(n: int) -> int:
+    if not isinstance(n, int):
+        raise TypeError("prange() takes (1) int type parameter. Given: <class 'list'>.")
+    return n
+```

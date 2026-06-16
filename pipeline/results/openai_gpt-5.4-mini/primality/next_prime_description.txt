@@ -1,11 +1,6 @@
-### 1) Understand the Test Suite
+The function is computing the **next prime number greater than or equal to `n`**, with strict input validation.
 
-The function `f(n)` returns:
-
-- the **smallest prime number greater than or equal to `n`** for integer inputs
-- for values less than or equal to 2, it returns `2`
-- it **rejects non-integer inputs** with a type error message:
-  - `nextprime() expect parameter n to be int. Given: <type>.`
+## 1) What the test suite implies
 
 From the examples:
 
@@ -14,97 +9,88 @@ From the examples:
 - `f(2) = 3`
 - `f(3) = 5`
 - `f(4) = 5`
-- `f(5) = 7`
-- `f(10) = 11`
-- `f(11) = 13`
-- `f(12) = 13`
-- `f(13) = 17`
+- `f(14) = 17`
+- `f(17) = 19`
+- `f(18) = 19`
+- `f(29) = 31`
+- `f(30) = 31`
+- `f(-1) = 2`
+- `f(-10) = 2`
 
-This indicates the function is **not returning the next prime strictly greater than `n` only in some cases**; instead, it behaves like a “next prime after `n`” function where:
+So:
 
-- if `n` is itself prime, it returns the **next larger prime**
-- if `n` is not prime, it returns the smallest prime greater than `n`
-- special case: any `n <= 1` returns `2`
+- For any integer `n <= 1`, the result is `2`.
+- For any integer `n >= 2`, the result is the smallest prime **strictly greater than `n`** for prime inputs like `2`, `3`, `17`, `29`, and the smallest prime greater than or equal-ish to the next prime after `n` for composites.
+  - Since `f(2) = 3`, this is **not** “next prime at or above `n`”
+  - It is **next prime strictly greater than `n`**
 
-So for prime inputs:
-- `3 -> 5`
-- `5 -> 7`
-- `11 -> 13`
-- `13 -> 17`
+Also, invalid non-integer inputs raise:
 
-For non-prime inputs:
-- `4 -> 5`
-- `10 -> 11`
-- `12 -> 13`
+- `f(1.5)` → type error
+- `f('5')` → type error
+- `f(None)` → type error
 
-Negative values also map to `2`.
-
----
-
-### 2) Analyze the Problem
-
-We want an algorithm that computes the **next prime strictly greater than the input integer**.
-
-Constraints implied by the tests:
-
-- Input must be an `int`
-- If not an `int`, raise:
-  - `nextprime() expect parameter n to be int. Given: <class '...'>.`
-- For integers `n <= 1`, return `2`
-- For integers `n >= 2`, return the smallest prime `p` such that `p > n`
+So the function expects an **integer only**, and otherwise throws:
+`nextprime() expect parameter n to be int. Given: <class '...'>.`
 
 ---
 
-### 3) Design the Algorithm
+## 2) Problem definition
 
-#### Step-by-step approach
+Given an integer `n`, return the **smallest prime number greater than `n`**.
 
-1. **Validate type**
-   - If `n` is not of type `int`, raise a `TypeError` with the exact message format expected.
+Behavior:
+- If `n` is not an integer, raise a `TypeError` with the specified message format.
+- If `n < 2`, return `2`.
+- Otherwise, search upward from `n + 1` until a prime is found.
 
-2. **Handle small numbers**
-   - If `n <= 1`, return `2`
+---
 
-3. **Search for the next prime**
-   - Start from `candidate = n + 1`
+## 3) Algorithm design
+
+### Step-by-step
+
+1. **Validate input type**
+   - If `type(n) is not int`, raise:
+     `nextprime() expect parameter n to be int. Given: <class '...'>.`
+
+2. **Handle small integers**
+   - If `n < 2`, return `2`
+
+3. **Search for next prime**
+   - Start at `candidate = n + 1`
    - While `candidate` is not prime:
      - increment `candidate` by 1
    - Return `candidate`
 
-4. **Prime check**
-   - To test whether a number is prime:
-     - return `False` for numbers less than 2
-     - check divisibility from `2` up to `sqrt(candidate)`
-     - if any divisor divides evenly, it is not prime
-     - otherwise, it is prime
+4. **Prime test**
+   - For a candidate integer:
+     - If `candidate < 2`, not prime
+     - Check divisibility from `2` to `floor(sqrt(candidate))`
+     - If any divisor divides evenly, not prime
+     - Otherwise prime
 
 ---
 
-### 4) Handle Edge Cases
+## 4) Edge cases
 
-#### Covered by tests
-- `n = 0`, `1`, negative numbers → return `2`
-- `n` being prime → return next prime
-- `n` being composite → return next prime
-- non-integer types (`float`, `str`, `None`) → raise type error
-
-#### Additional edge cases
-- Very large integers: algorithm still works, though primality testing is brute-force and may be slower
-- Boolean values in Python:
-  - `bool` is a subclass of `int`
-  - if strict type checking is desired, use `type(n) is int` instead of `isinstance(n, int)`
-  - the tests do not mention booleans, so a strict `int` type check is safest if matching the given error behavior
+- Negative integers: return `2`
+- `0` and `1`: return `2`
+- Prime input: return the next larger prime, not the same prime
+  - e.g. `2 -> 3`, `3 -> 5`, `17 -> 19`
+- Large integers: algorithm still works, though primality checking is brute-force and may be slow for very large values
+- Non-integers: raise the exact type error
 
 ---
 
-## Algorithm in Pseudocode
+## Pseudocode
 
 ```python
 def nextprime(n):
     if type(n) is not int:
         raise TypeError(f"nextprime() expect parameter n to be int. Given: {type(n)}.")
 
-    if n <= 1:
+    if n < 2:
         return 2
 
     candidate = n + 1
@@ -121,7 +107,7 @@ def is_prime(x):
     if x % 2 == 0:
         return False
 
-    limit = int(sqrt(x))
+    limit = int(x ** 0.5)
     for d in range(3, limit + 1, 2):
         if x % d == 0:
             return False
@@ -132,19 +118,13 @@ def is_prime(x):
 
 ## Complexity
 
-- Let `k` be the gap to the next prime.
-- Each primality test is `O(sqrt(m))`, where `m` is the candidate number.
-- Total complexity is approximately:
-  - **O(k * sqrt(m))**
+- Let `k` be the distance from `n+1` to the next prime.
+- Let `m` be the size of the candidate prime tested.
 
-This is sufficient for the test suite and typical use.
+Worst-case time:
+- About `O(k * sqrt(m))`
 
----
+Space:
+- `O(1)`
 
-## Final Behavior Summary
-
-The function computes:
-
-- the **next prime strictly greater than `n`**
-- returns `2` for all integers `n <= 1`
-- raises a `TypeError` for non-integer inputs with the exact message format shown in the tests
+If you want, I can also infer this as a precise implementation in Python matching the exact exception message.

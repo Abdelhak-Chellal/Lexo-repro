@@ -1,138 +1,121 @@
-### 1) Understand the Test Suite
+The function is a **prime-number checker** with strict type handling.
 
-The function appears to be `is_prime(n)`.
+## 1) Understand the Test Suite
 
 From the examples:
 
 - `f(2) = True`
 - `f(3) = True`
+- `f(17) = True`
+- `f(2147483647) = True`
+
+These are all prime numbers.
+
 - `f(4) = False`
 - `f(1) = False`
 - `f(0) = False`
 - `f(-1) = False`
+- `f(-10) = False`
 - `f(25) = False`
-- `f(97) = True`
-- `f(99) = False`
-- `f(True) = False`
-- `f(9223372036854775783) = True`
+
+These are not prime.
 
 Type behavior:
-
-- `f(2.5)` throws: `is_prime() takes (1) int type parameter. Given: <class 'float'>.`
-- `f('3')` throws similar message for `str`
-- `f(None)` throws similar message for `NoneType`
-- `f([3])` throws similar message for `list`
+- `f('2')`, `f(2.0)`, `f(None)` all **throw** an error saying the function expects an `int`.
+- `f(True) = False`
+- `f(False) = False`
 
 So the function:
-- accepts exactly one argument
-- requires the argument to be an `int`
-- rejects non-ints with a `TypeError`-style message
-- returns `False` for integers less than 2
-- returns `True` iff the integer is prime
+- accepts only actual `int` values,
+- rejects non-`int` types by raising a type error,
+- treats booleans as non-prime even though `bool` is a subclass of `int` in Python.
 
 ---
 
-### 2) Analyze the Problem
+## 2) Analyze the Problem
 
-We need an algorithm to determine whether an integer is prime.
+We need to determine whether a value is prime.
 
-A prime number is an integer greater than 1 with no positive divisors other than 1 and itself.
+A prime number is:
+- an integer greater than 1,
+- divisible only by 1 and itself.
 
-Important inference:
-- `True` is treated as invalid/false, not as `1`, even though in Python `bool` is a subclass of `int`. So the implementation should explicitly exclude `bool`.
+The tests imply:
+- negative numbers, 0, and 1 are not prime.
+- very large integers should be handled efficiently.
+- `bool` values are special-cased as invalid for primality in practice, even if they are technically integers in Python.
 
-Complexity:
-- A straightforward primality check by testing divisors up to `sqrt(n)` is appropriate.
-- Time complexity: `O(sqrt(n))`
-- Space complexity: `O(1)`
+Complexity target:
+- A straightforward prime test up to `sqrt(n)` is appropriate.
+- This gives time complexity `O(sqrt(n))`, which is efficient enough for large 32-bit integers like `2147483647`.
 
 ---
 
-### 3) Design the Algorithm
+## 3) Design the Algorithm
 
-#### Step-by-step approach
+### Step-by-step approach
 
 1. **Validate type**
-   - If input is not a plain integer type, raise:
+   - If input is not of type `int`, raise:
      `TypeError("is_prime() takes (1) int type parameter. Given: <class '...'>.")`
-   - Also reject `bool`.
+   - Also explicitly reject `bool`, since `True`/`False` are instances of `int` in Python but should return `False`.
 
-2. **Handle small integers**
-   - If `n < 2`, return `False`
+2. **Handle small values**
+   - If `n <= 1`, return `False`
    - If `n == 2` or `n == 3`, return `True`
 
-3. **Eliminate obvious composites**
+3. **Eliminate even numbers**
    - If `n % 2 == 0`, return `False`
-   - If `n % 3 == 0`, return `False`
 
-4. **Check possible divisors efficiently**
-   - Only test numbers of the form `6k ± 1`
-   - Start at `i = 5`
-   - While `i * i <= n`:
-     - if `n % i == 0`, return `False`
-     - if `n % (i + 2) == 0`, return `False`
-     - increment `i` by `6`
+4. **Check odd divisors only**
+   - Try divisors from `3` to `sqrt(n)` stepping by 2.
+   - If any divisor divides `n`, return `False`.
 
 5. **If no divisor found**
-   - return `True`
+   - Return `True`
 
 ---
 
-### 4) Handle Edge Cases
+## 4) Edge Cases
 
-#### Non-integer types
-Must raise the exact type error behavior shown in tests:
-- float
-- string
-- None
-- list
-
-#### Boolean values
-- `True` should return `False`, not be treated as `1`
-- `False` should also return `False`
-
-#### Small numbers
-- `0`, `1`, and negatives all return `False`
-
-#### Large numbers
-- The `sqrt(n)` method is efficient enough for large integers like `9223372036854775783`
+Important edge cases:
+- `n = 2` → prime
+- `n = 3` → prime
+- `n = 1, 0, negative numbers` → not prime
+- `n = True` / `False` → return `False` (not type error)
+- `n` as `str`, `float`, `None` → raise type error
+- large primes like `2147483647` → should still work efficiently
 
 ---
 
-### Pseudocode
+## Pseudocode
 
 ```python
 def is_prime(n):
     if type(n) is not int:
         raise TypeError(f"is_prime() takes (1) int type parameter. Given: {type(n)}.")
 
-    if n < 2:
-        return False
-    if n == 2 or n == 3:
-        return True
-    if n % 2 == 0 or n % 3 == 0:
+    if isinstance(n, bool):
         return False
 
-    i = 5
+    if n <= 1:
+        return False
+    if n <= 3:
+        return True
+    if n % 2 == 0:
+        return False
+
+    i = 3
     while i * i <= n:
-        if n % i == 0 or n % (i + 2) == 0:
+        if n % i == 0:
             return False
-        i += 6
+        i += 2
 
     return True
 ```
 
 ---
 
-### Summary
+## Final Algorithm Description
 
-The function is a **prime number checker** with:
-- strict integer-only input validation
-- `bool` excluded from valid integers
-- `False` for all integers `< 2`
-- efficient primality testing using trial division up to `sqrt(n)` with `6k ± 1` optimization
-
-If you'd like, I can also provide:
-1. a formal specification,
-2. a Python implementation matching the tests exactly, or
-3. a proof of correctness for the algorithm.
+The function checks whether the input is a valid integer, rejects non-integer types with a `TypeError`, treats booleans as non-prime, and then tests primality by checking divisibility only up to the square root of the number. This correctly handles all provided test cases efficiently.

@@ -1,15 +1,15 @@
-module.exports = function(obj, keys) {
-    const result = {};
-    if (!keys || keys.length === 0) {
-        return result;
+module.exports = function f(d, keys) {
+    let result_dict = {};
+    
+    if (keys === null || keys.length === 0) {
+        return result_dict;
     }
-    if (!Array.isArray(keys)) {
-        keys = [keys];
-    }
-    for (const key in obj) {
-        if (keys.includes(key)) {
-            result[key] = obj[key];
+    
+    keys.forEach(key => {
+        if (d.hasOwnProperty(key)) {
+            result_dict[key] = d[key];
         }
-    }
-    return result;
+    });
+    
+    return result_dict;
 };

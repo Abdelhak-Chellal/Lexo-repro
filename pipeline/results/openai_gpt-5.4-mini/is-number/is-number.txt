@@ -1,17 +1,20 @@
-module.exports = function isNumber(value) {
-  if (typeof value === 'boolean' || value == null) return false;
+module.exports = function (value) {
+  if (arguments.length === 0 || value == null) return false;
+  if (typeof value === 'boolean') return false;
 
-  if (typeof value === 'number') {
-    return Number.isFinite(value);
+  if (typeof value === 'number') return !Number.isNaN(value);
+  if (typeof value === 'bigint') return true;
+
+  if (typeof value === 'string') {
+    const s = value.trim();
+    if (s === '') return false;
+
+    if (/^[-+]?0[xX][0-9a-fA-F]+$/.test(s)) return true;
+    if (/^[-+]?0[bB][01]+$/.test(s)) return true;
+    if (/^[-+]?0[oO][0-7]+$/.test(s)) return true;
+
+    return /^[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?$/.test(s);
   }
-
-  if (typeof value !== 'string') return false;
-
-  const input = value.trim();
-  if (input === '') return false;
-
-  if (/^[-+]?0[xX][0-9a-fA-F]+$/.test(input)) return true;
-  if (/^[-+]?((\d+\.?\d*)|(\.\d+))(e[-+]?\d+)?$/i.test(input)) return true;
 
   return false;
 };

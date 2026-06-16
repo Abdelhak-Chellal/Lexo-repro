@@ -1,90 +1,18 @@
-# Algorithm Design: `prev_prime(n)`
+The test case `f('function', 'inputs')` throws `TypeError: prev_prime() takes 1 positional argument but 2 were given`. This indicates that the function `prev_prime` is designed to accept **exactly one argument**. Passing two arguments results in a type error. This is a standard Python function signature constraint.
 
-## 1. Understanding the Test Suite
+From this, we can deduce that `prev_prime(n)` is a function that takes a single integer `n` as input. However, the current test case only demonstrates an error when too many arguments are provided. It does not reveal what `prev_prime` actually computes when given a single argument.
 
-From the I/O pairs, I can observe:
+But we are tasked with designing an algorithm *that describes the function* based on this test suite. Since the only concrete information is that `prev_prime` takes exactly one argument, the minimal algorithm consistent with this constraint is:
 
-| Input | Output | Pattern |
-|-------|--------|---------|
-| 3 | 2 | largest prime < 3 |
-| 4 | 3 | largest prime < 4 |
-| 5 | 3 | largest prime < 5 |
-| 6 | 5 | largest prime < 6 |
-| 7 | 5 | largest prime < 7 |
-| 10 | 7 | largest prime < 10 |
-| 100 | 97 | largest prime < 100 |
-| 1000000 | 999983 | largest prime < 1000000 |
+**Algorithm Description:**
 
-**The function returns the largest prime number strictly less than `n`.**
+The function `prev_prime(n)` is defined to accept exactly one argument, `n`, which is expected to be a positive integer greater than 1. Given `n`, the function returns the largest prime number that is strictly less than `n`.
 
-## 2. Problem Definition
+To implement this, the algorithm would:
 
-**Problem:** Given an integer `n > 2`, find the largest prime number that is strictly less than `n`.
+1. Validate that exactly one argument is passed; if not, raise a `TypeError`.
+2. Starting from `n - 1`, decrement by 1 each step until a prime number is found.
+3. For each candidate number, check for primality by testing divisibility from 2 up to the square root of the candidate.
+4. Return the first such prime found.
 
-**Constraints:**
-- Input must be an `int` (not float, not string, etc.)
-- Input must be greater than 2
-- Must handle large inputs efficiently (up to at least 1,000,000+)
-
-## 3. Algorithm Design
-
-```
-FUNCTION prev_prime(n):
-    
-    // --- Input Validation ---
-    IF type(n) is not int:
-        RAISE error: "expect parameter n to be int"
-    
-    IF n <= 2:
-        RAISE error: "expect parameter n to be larger than 2"
-    
-    // --- Core Logic ---
-    // Start from n-1 and decrement until we find a prime
-    candidate = n - 1
-    
-    WHILE candidate >= 2:
-        IF is_prime(candidate):
-            RETURN candidate
-        candidate = candidate - 1
-    
-    // This line is theoretically unreachable for n > 2
-    // since 2 is always prime
-
-
-FUNCTION is_prime(num):
-    
-    IF num < 2:
-        RETURN False
-    
-    IF num == 2:
-        RETURN True
-    
-    IF num is even:
-        RETURN False
-    
-    // Check odd divisors up to sqrt(num)
-    FOR i FROM 3 TO sqrt(num) STEP 2:
-        IF num % i == 0:
-            RETURN False
-    
-    RETURN True
-```
-
-## 4. Edge Cases Handled
-
-| Edge Case | Handling |
-|-----------|----------|
-| **Float input** (2.5) | Type check rejects non-int |
-| **String input** ('hello') | Type check rejects non-int |
-| **Boolean** (True) | `True` is subclass of int in Python, but value is 1 ≤ 2, so rejected |
-| **n = 2** | Rejected (must be > 2) |
-| **n = 1, 0, -5** | Rejected (must be > 2) |
-| **Large n** (1,000,000) | Trial division up to √n is efficient enough |
-| **n is prime** (e.g., n=7) | Returns the prime *before* n (5), not n itself |
-| **n is even** (e.g., n=4) | Correctly finds 3 |
-| **Consecutive primes** (n=6) | Correctly finds 5 |
-
-## Complexity
-
-- **Time:** O(√n) per primality check, with at most O(n) candidates in the worst case → **O(n√n)** worst case, but in practice primes are dense enough that very few candidates need checking.
-- **Space:** **O(1)** — no auxiliary data structures needed.
+However, since the given test suite does not include a successful invocation (only an error on incorrect argument count), the core logic of primality checking and traversal remains unspecified. The only definitive algorithmic constraint is the function signature: it must accept exactly one argument.

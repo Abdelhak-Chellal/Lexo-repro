@@ -1,10 +1,18 @@
-Based on the test suite provided, the function takes in two integers representing a range and returns a list of prime numbers within that range. The algorithm can be designed as follows:
+Based on the test suite provided, the function f(x, y) seems to generate a list of prime numbers between the two given numbers x and y (inclusive), with the condition that x must be less than y. If x equals y or x is greater than y, an empty list is returned.
 
-1) Define a function f that takes in two integers as input.
-2) Initialize an empty list to store prime numbers within the range.
-3) Iterate through the range of numbers from the lower bound to the upper bound.
-4) For each number, check if it is prime by dividing it by all numbers from 2 to the square root of the number.
-5) If the number is prime (i.e., not divisible by any number other than 1 and itself), append it to the list of prime numbers.
+The algorithm for this function can be designed as follows:
+
+1) Define the function f(x, y):
+2) Initialize an empty list to store the prime numbers.
+3) Iterate over the range from x to y (inclusive):
+4) Check if the current number is prime using a helper function is_prime(num).
+5) If the current number is prime, add it to the list.
 6) Return the list of prime numbers.
 
-This algorithm ensures that the function accurately identifies prime numbers within the specified range and returns them in the correct order. It also accounts for edge cases such as when the lower bound is equal to the upper bound or when the range includes only one prime number.
+Helper function is_prime(num):
+1) If num is less than 2, return False.
+2) Iterate from 2 to the square root of num:
+3) If num is divisible by any number in the range, return False.
+4) Otherwise, return True.
+
+This algorithm should cover all test cases provided in the test suite and handle edge cases such as x equals y, x greater than y, and x being less than 2.

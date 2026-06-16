@@ -1,11 +1,3 @@
-module.exports = function f(a, b) {
-    let result = [];
-    
-    if (a < b) {
-        result.push(a);
-    } else {
-        result.push(b);
-    }
-    
-    return result;
+module.exports = function f(arr) {
+    return arr;
 };

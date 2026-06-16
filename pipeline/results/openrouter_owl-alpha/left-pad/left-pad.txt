@@ -1,33 +1,38 @@
 ```javascript
 module.exports = function(value, width, padChar) {
-  // Coerce value to string
-  var s;
-  if (value === null || value === undefined) {
-    s = 'null';
-  } else if (typeof value === 'boolean') {
-    s = value.toString().toLowerCase();
-  } else {
-    s = String(value);
-  }
+    let strValue;
+    if (value === null || value === undefined) {
+        strValue = 'null';
+    } else if (typeof value === 'boolean') {
+        strValue = value.toString();
+    } else {
+        strValue = String(value);
+    }
 
-  // Resolve padChar
-  if (padChar === null || padChar === undefined || padChar === '') {
-    padChar = ' ';
-  }
+    let effectivePad;
+    if (padChar === null || padChar === undefined || padChar === '' || padChar === false) {
+        effectivePad = ' ';
+    } else {
+        effectivePad = String(padChar);
+    }
 
-  // Coerce padChar to string
-  padChar = String(padChar);
+    if (width <= strValue.length) {
+        return strValue;
+    }
 
-  // If width is not larger than string length, return as-is
-  if (width <= s.length) {
-    return s;
-  }
+    const paddingNeeded = width - strValue.length;
 
-  // Build padding
-  var paddingNeeded = width - s.length;
-  var fullPad = padChar.repeat(Math.ceil(paddingNeeded / padChar.length));
-  var padding = fullPad.substring(0, paddingNeeded);
+    let padding;
+    if (effectivePad.length === 1) {
+        padding = effectivePad.repeat(paddingNeeded);
+    } else {
+        let repeated = '';
+        while (repeated.length < paddingNeeded) {
+            repeated += effectivePad;
+        }
+        padding = repeated.substring(0, paddingNeeded);
+    }
 
-  return padding + s;
+    return padding + strValue;
 };
 ```

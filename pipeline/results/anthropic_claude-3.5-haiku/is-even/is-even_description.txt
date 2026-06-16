@@ -1,59 +1,43 @@
-Based on the test suite, here's an analysis and algorithm design for the function:
-
-Algorithm: isEven
-
-Problem Definition:
-- Function checks if a given number is even
-- Accepts only integer inputs
-- Returns True for even numbers (including zero and negative even numbers)
-- Returns False for odd numbers
-- Throws error for non-numeric or non-integer inputs
-
-Algorithm Design:
+Based on the test suite, here's an algorithm that describes the function:
 
 ```python
-def isEven(n):
+def is_even(x):
     # Type and input validation
-    if not isinstance(n, (int, str)):
-        raise TypeError("is-odd expects a number")
+    if not isinstance(x, (int, str)):
+        raise ValueError("is-odd expects a number.")
     
-    # Convert string inputs to integers
-    if isinstance(n, str):
-        try:
-            n = int(n)
-        except ValueError:
-            raise TypeError("is-odd expects a number")
+    # Convert to integer if string
+    try:
+        x = int(x)
+    except ValueError:
+        raise ValueError("is-odd expects a number.")
     
-    # Check for floating point numbers
-    if not isinstance(n, int):
-        raise TypeError("is-odd expects an integer")
-    
-    # Even number check
-    return n % 2 == 0
+    # Check if number is even
+    return x % 2 == 0
 ```
 
-Key Algorithm Components:
-1. Input Type Validation
-   - Reject non-numeric types
-   - Allow integer and string inputs
-   - Convert valid string inputs to integers
+Algorithm Analysis:
+1. Input Validation:
+   - Check if input is an integer or string
+   - Reject non-numeric types (None, True, False, dict, list, etc.)
+   - Raise a specific error message
 
-2. Number Type Validation
-   - Reject floating point numbers
-   - Only accept integers
+2. Type Conversion:
+   - If input is a string, attempt to convert to integer
+   - Reject non-numeric strings
 
-3. Even Number Check
-   - Use modulo operator to determine evenness
-   - Return True if number is divisible by 2 with no remainder
-   - Return False otherwise
+3. Even Number Check:
+   - Use modulo operator to determine if number is divisible by 2
+   - Return True for even numbers (0, 2, 4, -2, -4, etc.)
+   - Return False for odd numbers (1, 3, -1, -3, etc.)
+
+Key Observations:
+- Handles positive and negative numbers
+- Includes zero as an even number
+- Supports string number inputs
+- Rejects non-numeric inputs with a specific error
 
 Time Complexity: O(1)
 Space Complexity: O(1)
 
-The algorithm covers all test cases:
-- Even numbers (positive/negative/zero): Return True
-- Odd numbers (positive/negative): Return False
-- String representations of numbers: Convert and validate
-- Invalid inputs: Raise appropriate type errors
-
-This implementation provides a robust, type-safe solution for checking even numbers.
+The algorithm covers all test cases, including edge cases like zero, large numbers, and type conversions.

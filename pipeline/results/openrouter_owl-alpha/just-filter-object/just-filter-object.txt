@@ -1,12 +1,28 @@
 ```javascript
 module.exports = function(obj, predicateStr) {
-  const predicate = new Function('key', 'value', predicateStr.slice(predicateStr.indexOf('return') + 6, -1));
-  const result = {};
-  for (const key of Object.keys(obj)) {
-    if (predicate(key, obj[key])) {
-      result[key] = obj[key];
+  if (typeof obj === 'string') {
+    try {
+      obj = JSON.parse(obj);
+    } catch (e) {
+      throw new Error('Invalid JSON string');
     }
   }
+  
+  if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+    throw new Error('First argument must be an object');
+  }
+  
+  const predicate = new Function('key', 'value', predicateStr.replace(/^function\s*\(\s*key\s*,\s*value\s*\)\s*\{/, '').replace(/\}\s*$/, ''));
+  
+  const result = {};
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      if (predicate(key, obj[key])) {
+        result[key] = obj[key];
+      }
+    }
+  }
+  
   return result;
 };
 ```

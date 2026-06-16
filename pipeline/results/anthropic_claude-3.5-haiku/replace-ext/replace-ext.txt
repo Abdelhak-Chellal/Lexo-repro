@@ -1,24 +1,39 @@
 ```javascript
+const path = require('path');
+
 module.exports = function(filepath, newExtension) {
+    if (filepath === null) {
+        return null;
+    }
+    
     if (typeof filepath !== 'string') {
         return filepath;
     }
     
     filepath = filepath.trim();
     
-    if (filepath === '' || filepath === './') {
-        if (filepath === './') {
-            return './..' + newExtension;
-        }
-        return filepath;
+    if (filepath === '') {
+        return '';
     }
     
-    const lastDotIndex = filepath.lastIndexOf('.');
-    
-    if (lastDotIndex === -1) {
+    if (['.', '..', './', '.\\'].includes(filepath)) {
         return filepath + newExtension;
     }
     
-    return filepath.slice(0, lastDotIndex) + newExtension;
+    const normalizedPath = filepath.replace(/\\/g, '/');
+    const parsedPath = path.parse(normalizedPath);
+    
+    if (!parsedPath.base) {
+        return filepath + newExtension;
+    }
+    
+    const newFilename = parsedPath.name + newExtension;
+    
+    if (parsedPath.dir) {
+        const separator = filepath.includes('\\') ? '\\' : '/';
+        return path.join(parsedPath.dir, newFilename).replace(/\//g, separator);
+    }
+    
+    return newFilename;
 };
 ```

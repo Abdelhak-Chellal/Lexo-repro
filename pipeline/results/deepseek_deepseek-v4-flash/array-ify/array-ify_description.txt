@@ -1,43 +1,67 @@
-Looking at the test cases, I can identify a pattern:
+Based on the test suite analysis, here's the algorithm that describes the function:
 
-## Analysis
+## Algorithm: Wrap Single Value or Return List As-Is
 
-The function appears to:
-1. Take a single argument
-2. Return a list containing that argument, **except** when the input is already a list
+### Problem Definition
+The function takes a single input and either:
+- Wraps it in a list if it's NOT already a list
+- Returns it as-is if it IS a list
 
-**Key observation**: When the input is a list, it returns the list itself (not wrapped in another list).
-
-## Algorithm Design
+### Algorithm Steps
 
 ```
-function f(x):
-    if x is a list:
-        return x
+function f(input):
+    1. Check if input is of type list
+       a. If input IS a list:
+          - Return input unchanged
+       b. If input is NOT a list:
+          - Create a new list containing input as its only element
+          - Return the new list
+```
+
+### Detailed Logic
+
+1. **Type Check**: Determine if the input is a Python list using `isinstance(input, list)` or similar type checking
+
+2. **Conditional Processing**:
+   - **Case 1: Input is a list** → Return the list directly without modification
+   - **Case 2: Input is not a list** → Return `[input]` (input wrapped in a list)
+
+### Key Observations from Test Cases
+
+| Input Type | Input Example | Output | Rule Applied |
+|------------|---------------|--------|--------------|
+| None | None | [None] | Wrap in list |
+| Boolean | True/False | [True]/[False] | Wrap in list |
+| Integer | 0, 1, -1 | [0], [1], [-1] | Wrap in list |
+| Float | 0.5, 1e+308 | [0.5], [1e+308] | Wrap in list |
+| String | 'hello', '' | ['hello'], [''] | Wrap in list |
+| Dictionary | {}, {'key':'val'} | [{}], [{'key':'val'}] | Wrap in list |
+| List | [1,2,3], [] | [1,2,3], [] | Return as-is |
+| Nested List | [[1,2]] | [[1,2]] | Return as-is |
+
+### Edge Cases Handled
+
+- **Empty list** `[]` → Returns `[]` (not `[[]]`)
+- **None value** → Returns `[None]`
+- **Empty string** → Returns `['']`
+- **Empty dictionary** → Returns `[{}]`
+- **List containing None** `[None]` → Returns `[None]` (list behavior)
+- **Mixed type lists** → Returns the list as-is
+
+### Complexity Analysis
+
+- **Time Complexity**: O(1) - constant time operation
+- **Space Complexity**: O(1) for non-list inputs (creates new list), O(n) for list inputs where n is list length (returns reference)
+
+### Pseudocode Implementation
+
+```
+def f(input):
+    if isinstance(input, list):
+        return input
     else:
-        return [x]
+        return [input]
 ```
 
-## Verification with test cases
-
-- `f()` → `[None]` ✓ (no argument defaults to None, wrapped in list)
-- `f(None)` → `[None]` ✓ (None wrapped in list)
-- `f(True)` → `[True]` ✓ (True wrapped in list)
-- `f([])` → `[]` ✓ (empty list returned as-is)
-- `f([1])` → `[1]` ✓ (list returned as-is)
-- `f([1, 2])` → `[1, 2]` ✓ (list returned as-is)
-- `f([[]])` → `[[]]` ✓ (list containing empty list returned as-is)
-- `f([None, None])` → `[None, None]` ✓ (list returned as-is)
-
-## Edge Cases Handled
-
-- **No argument**: Defaults to `None`, wrapped in list → `[None]`
-- **`None`**: Wrapped in list → `[None]`
-- **Empty list**: Returned as-is → `[]`
-- **Nested structures** (`[[]]`, `[{}]`): Returned as-is since they're already lists
-- **All primitive types**: Wrapped in list appropriately
-
-## Complexity
-
-- Time: O(1) - constant time operation
-- Space: O(1) for non-list inputs (creates a single new list), O(1) for list inputs (returns reference)
+This algorithm is essentially a "listify" or "ensure_list" function that guarantees the output is always a list, while preserving existing lists without unnecessary wrapping.

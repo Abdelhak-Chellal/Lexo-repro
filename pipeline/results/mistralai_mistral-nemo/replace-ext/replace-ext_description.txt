@@ -1,0 +1,35 @@
+Based on the provided test suite, here's a description of the function `f` and an algorithm to implement it:
+
+**Function Description:**
+The function `f` takes two arguments: a filename (as a string) and an extension (also as a string). If the filename is empty or does not exist, the function returns the filename as is. If the filename already has an extension, it replaces the existing extension with the provided one. If the provided extension is empty, the function removes any existing extension from the filename. If the provided extension is `None` or `True`, the function appends 'undefined' or 'true' respectively after the filename. If the provided extension is any other non-empty value, it appends the extension after the filename.
+
+**Algorithm:**
+
+1. Check if the first argument `filename` is empty. If it is, return an empty string.
+2. Check if the second argument `extension` is `None` or `True`. If it is, return the filename followed by 'undefined' or 'true' respectively.
+3. Check if the `extension` is empty. If it is, remove any existing extension from the `filename` and return the result.
+4. Check if the `filename` already has an extension. If it does, remove the existing extension and append the new `extension` to the `filename`.
+5. If none of the above conditions are met, append the `extension` to the `filename` and return the result.
+
+Here's a Python implementation of the algorithm:
+
+```python
+import os
+
+def f(filename, extension):
+    if not filename:
+        return ''
+
+    if extension in ['None', 'True']:
+        return f'{filename}{extension}'
+
+    if not extension:
+        _, ext = os.path.splitext(filename)
+        if ext:
+            return filename[:filename.index(ext)]
+
+    if '.' in filename:
+        filename, _ = os.path.splitext(filename)
+
+    return f'{filename}.{extension}'
+```

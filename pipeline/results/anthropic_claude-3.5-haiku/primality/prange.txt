@@ -3,22 +3,11 @@ def prange(n):
         return []
     
     primes = [2]
-    current_number = 3
+    candidate = 3
     
     while len(primes) < n:
-        is_prime = True
-        
-        for prime in primes:
-            if prime * prime > current_number:
-                break
-            
-            if current_number % prime == 0:
-                is_prime = False
-                break
-        
-        if is_prime:
-            primes.append(current_number)
-        
-        current_number += 2
+        if is_prime(candidate):
+            primes.append(candidate)
+        candidate += 2
     
     return primes

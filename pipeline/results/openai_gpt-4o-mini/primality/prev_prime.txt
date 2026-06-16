@@ -1,11 +1,17 @@
 ```python
 def prev_prime(n):
-    if not isinstance(n, int):
-        raise TypeError(f"expect parameter n to be int. Given: {type(n)}.")
     if n <= 2:
-        raise ValueError(f"expect parameter n to be larger than 2. Given: {n}.")
+        raise ValueError(f"prev_prime() expect parameter n to be larger than 2. Given: {n}")
     
-    for candidate in range(n - 1, 1, -1):
-        if is_prime(candidate):
-            return candidate
+    def is_prime(num):
+        if num < 2:
+            return False
+        for i in range(2, int(num**0.5) + 1):
+            if num % i == 0:
+                return False
+        return True
+    
+    for num in range(n - 1, 1, -1):
+        if is_prime(num):
+            return num
 ```

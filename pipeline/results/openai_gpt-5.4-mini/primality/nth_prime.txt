@@ -6,14 +6,14 @@ def nth_prime(n):
     primes = []
     candidate = 2
     while len(primes) <= n:
-        prime = True
+        is_p = True
         for p in primes:
             if p * p > candidate:
                 break
             if candidate % p == 0:
-                prime = False
+                is_p = False
                 break
-        if prime:
+        if is_p:
             primes.append(candidate)
         candidate += 1
     return primes[n]

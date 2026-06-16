@@ -1,0 +1,13 @@
+```javascript
+module.exports = function(arr1, arr2) {
+  if (arr1 === null || arr2 === null) {
+    throw new Error('Inputs cannot be null');
+  }
+
+  if (!Array.isArray(arr1) || !Array.isArray(arr2)) {
+    throw new TypeError('Both inputs must be arrays');
+  }
+
+  return arr1.filter(item => !arr2.includes(item));
+};
+```

@@ -1,13 +1,14 @@
 ```javascript
-module.exports = function(input_string, length, character) {
-    if (input_string === '' || length === 0) {
-        return '';
+module.exports = function f(str, length, char) {
+    if (typeof str !== 'string') {
+        str = String(str);
     }
-    if (length <= input_string.length) {
-        return input_string;
+
+    if (str.length >= length) {
+        return str;
     }
-    const padding = length - input_string.length;
-    const padded_string = (character || ' ').repeat(padding) + input_string;
-    return padded_string;
-};
+
+    const padding = char ? char.repeat(length - str.length) : '';
+    return padding + str;
+}
 ```

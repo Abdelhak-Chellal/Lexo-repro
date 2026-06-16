@@ -1,109 +1,141 @@
 ### 1) Understand the Test Suite
 
-From the examples:
+The function appears to compute the **n-th prime number** with a **0-based index**:
 
-- `f(0) = 2`
+- `f(0) = 2` → 0th prime is 2
 - `f(1) = 3`
 - `f(2) = 5`
+- `f(3) = 7`
+- `f(4) = 11`
 - `f(5) = 13`
 - `f(10) = 31`
-- `f(25) = 101`
+- `f(100) = 547`
 
-These outputs are exactly the **(n+1)-th prime number**:
-- 0 → 2nd? Actually the sequence is 2, 3, 5, 7, 11, 13, ...
-- `f(0)=2` means the function is using **0-based indexing** into primes.
-- So `f(n)` returns the **nth prime starting from 0**.
+So the mapping is:
 
-That matches:
-- `f(0) = 2` (1st prime)
-- `f(1) = 3`
-- `f(2) = 5`
-- `f(5) = 13` (the 6th prime)
-- `f(10) = 31`
-- `f(25) = 101`
+- `f(n) = prime number at index n`, starting from 0.
 
 ### 2) Analyze the Problem
 
-The function appears to be `nth_prime(n)`:
-- Input: one integer `n >= 0`
-- Output: the prime number at index `n` in zero-based prime ordering
+We need an algorithm for a function, likely named `nth_prime`, that:
 
-Type/validation behavior from tests:
-- Negative integers raise:  
-  `nth_prime() int parameter must be positive or zero.`
-- Non-`int` types raise:  
-  `nth_prime() takes (1) int type parameter. Given: <class '...'>.`
-- Important: `True` is accepted and returns `3`
+- Accepts exactly one parameter
+- Requires the parameter to be of type `int`
+- Rejects non-`int` values with a type error
+- Rejects negative integers with a value error
+- Treats `True` as valid input and returns `3`
 
-That means the implementation likely treats `bool` as an acceptable integer-like type, because in Python `bool` is a subclass of `int`.
+That last case is notable: in Python, `bool` is a subclass of `int`, so if the implementation uses `isinstance(x, int)`, `True` would be accepted. The tests indicate that behavior is expected.
 
 ### 3) Design the Algorithm
 
-A straightforward algorithm is:
+#### Goal
+Compute the `(n+1)`-th prime for input `n`, where indexing starts at 0.
 
-1. Validate the input type:
-   - Accept only integer-like values.
-   - In Python terms, `isinstance(n, int)` is enough to accept `True`/`False`.
-   - Reject strings, floats, lists, `None`, etc. with the exact type error message format.
+#### Steps
+1. **Validate type**
+   - If `n` is not an instance of `int`, raise:
+     - `TypeError("nth_prime() takes (1) int type parameter. Given: <class '...'>.")`
+   - Since `bool` is an `int` subclass, `True` and `False` should pass this check.
 
-2. Validate non-negativity:
-   - If `n < 0`, raise the specified value error.
+2. **Validate value**
+   - If `n < 0`, raise:
+     - `ValueError("nth_prime() int parameter must be positive or zero.")`
 
-3. Find the nth prime:
-   - Generate prime numbers in increasing order.
-   - Count primes until reaching index `n`.
-   - Return that prime.
+3. **Handle small cases**
+   - `n = 0` → return `2`
+   - `n = 1` → return `3`
+   - Otherwise compute primes until the n-th one is found.
 
-### Efficient Prime Search
+4. **Prime generation**
+   - Start from `2`
+   - Maintain a list of found primes
+   - For each candidate number:
+     - test divisibility by known primes up to `sqrt(candidate)`
+     - if not divisible, it is prime
+     - add it to the list
+   - Continue until `len(primes) == n + 1`
+   - Return the last prime found
 
-For small values, trial division works well:
+### 4) Handle Edge Cases
 
-- Maintain a list of found primes.
-- Test each candidate number starting from 2.
-- A candidate is prime if it is not divisible by any previously found prime up to `sqrt(candidate)`.
+#### Type edge cases
+- `1.5`, `'2'`, `None`, `[2]` → must raise `TypeError`
+- `True` → accepted, because it behaves like `1`, so result is `3`
 
-Pseudo-logic:
+#### Value edge cases
+- Negative integers such as `-1`, `-5` → raise `ValueError`
 
-```text
-function nth_prime(n):
-    if type is not int-like:
-        raise TypeError
+#### Performance
+- For `n = 100`, result is `547`, which is easy for a simple prime-search approach.
+- A trial-division algorithm is sufficient for this scale.
+
+---
+
+## Pseudocode
+
+```python
+def nth_prime(n):
+    if not isinstance(n, int):
+        raise TypeError(f"nth_prime() takes (1) int type parameter. Given: {type(n)}.")
+    
     if n < 0:
-        raise ValueError
-
-    primes = []
-    candidate = 2
-
-    while len(primes) <= n:
-        is_prime = true
+        raise ValueError("nth_prime() int parameter must be positive or zero.")
+    
+    count = 0
+    candidate = 1
+    
+    while True:
+        candidate += 1
+        is_prime = True
+        
         for p in primes:
             if p * p > candidate:
                 break
             if candidate % p == 0:
-                is_prime = false
+                is_prime = False
+                break
+        
+        if is_prime:
+            primes.append(candidate)
+            if count == n:
+                return candidate
+            count += 1
+```
+
+A cleaner version with proper initialization:
+
+```python
+def nth_prime(n):
+    if not isinstance(n, int):
+        raise TypeError(f"nth_prime() takes (1) int type parameter. Given: {type(n)}.")
+    if n < 0:
+        raise ValueError("nth_prime() int parameter must be positive or zero.")
+    
+    primes = []
+    candidate = 2
+    
+    while len(primes) <= n:
+        is_prime = True
+        for p in primes:
+            if p * p > candidate:
+                break
+            if candidate % p == 0:
+                is_prime = False
                 break
         if is_prime:
             primes.append(candidate)
         candidate += 1
-
+    
     return primes[n]
 ```
 
-### 4) Handle Edge Cases
+---
 
-- `n = 0` → return `2`
-- `n = 1` → return `3`
-- `True` should be treated as valid input and returns `3` because `True == 1`
-- Negative values → raise the required error
-- Non-integers → raise the required type error
+## Final Algorithm Description
 
-### Final Described Function
+The function validates that the input is an integer-like value accepted by Python’s `int` type check (including `True`). It rejects negative integers. Then it enumerates natural numbers starting at 2, tests each candidate for primality using division by previously found primes up to its square root, and returns the prime at position `n` in 0-based indexing.
 
-This function computes the **nth prime number using zero-based indexing**, with input validation:
-- accepts integers (including `True`)
-- rejects non-integers
-- rejects negative integers
-
-If you'd like, I can also provide:
-1. a concrete Python implementation, or  
-2. a more optimized algorithm using a prime upper bound + sieve.
+If you want, I can also provide:
+- a more efficient algorithm using the Sieve of Eratosthenes, or
+- an exact Python implementation matching the error messages from the tests.

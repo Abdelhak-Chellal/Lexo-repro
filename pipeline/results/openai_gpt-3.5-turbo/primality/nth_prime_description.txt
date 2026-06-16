@@ -1,13 +1,19 @@
 Algorithm:
 
-1) Define a function f(n) that takes an integer n as input.
-2) If n is less than 2, return 2 as the output.
-3) Otherwise, initialize two variables a and b to 2 and 3 respectively.
-4) Iterate from i = 2 to n.
-5) Calculate the next term in the sequence using the formula: next = a + b + 1.
-6) Update a to b and b to next for each iteration.
-7) Once the iteration is complete, return the value of b as the output.
+1) Define a function f(x) that takes an integer x as input.
 
-Edge Cases:
-- Handle cases where n is negative by returning an error message or returning a default value.
-- Handle cases where n is a large number to ensure the algorithm doesn't run into performance issues.
+2) Initialize a variable result to store the result of the function.
+
+3) If x is less than or equal to 2, set result to 2 and return.
+
+4) Otherwise, set result to 3 as the initial value for prime numbers.
+
+5) Iterate from 5 to x (inclusive) by 2 (to consider only odd numbers) and check if the current number is prime.
+
+6) If the number is prime, increment the result by 2.
+
+7) After iterating through all numbers up to x, return the final result as the output of the function.
+
+8) Implement the above steps in the function and test it against the provided test cases to ensure correctness.
+
+9) Handle edge cases such as negative numbers or very large inputs to ensure the function behaves correctly in all scenarios.

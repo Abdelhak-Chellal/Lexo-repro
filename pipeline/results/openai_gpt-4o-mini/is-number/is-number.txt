@@ -1,33 +1,22 @@
 ```javascript
 module.exports = function(value) {
-    // Check for None (null in JavaScript)
     if (value === null) {
         return false;
     }
-    
-    // Check for boolean values
     if (typeof value === 'boolean') {
         return false;
     }
-    
-    // Check if the value is a numeric type (number)
-    if (typeof value === 'number') {
-        return true;
+    if (Array.isArray(value) || typeof value === 'object') {
+        return false;
     }
-    
-    // Check for string type
     if (typeof value === 'string') {
-        let strippedValue = value.trim();
-        // Check for empty after stripping
+        const strippedValue = value.trim();
         if (strippedValue === '') {
             return false;
         }
-        
-        // Attempt to convert the stripped string to a float
+        // Attempt to convert to float
         return !isNaN(parseFloat(strippedValue)) && isFinite(strippedValue);
     }
-    
-    // If none of the above, return false for other types
-    return false;
+    return typeof value === 'number';
 };
 ```

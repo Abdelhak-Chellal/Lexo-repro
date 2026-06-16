@@ -1,0 +1,23 @@
+```python
+def prev_prime(n):
+    if n <= 2:
+        raise ValueError("Expect parameter n to be larger than 2")
+
+    primes = []
+    num = n - 1
+
+    while not is_prime(num) or num > n:
+        num -= 1
+
+    while num >= 2:
+        if is_prime(num):
+            primes.append(num)
+            num -= 1
+        else:
+            num -= 1
+
+    if not primes:
+        return n
+    else:
+        return primes[-1]
+```

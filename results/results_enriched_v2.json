@@ -1,0 +1,886 @@
+[
+  {
+    "package": "is-number",
+    "model": "openai/gpt-5.4-mini",
+    "io_passed": 30,
+    "io_total": 30,
+    "io_pct": 100.0,
+    "dev_passed": 108,
+    "dev_total": 111,
+    "dev_pct": 97.3,
+    "status": "ok"
+  },
+  {
+    "package": "arr-diff",
+    "model": "openai/gpt-5.4-mini",
+    "io_passed": 25,
+    "io_total": 25,
+    "io_pct": 100.0,
+    "dev_passed": 8,
+    "dev_total": 8,
+    "dev_pct": 100.0,
+    "status": "ok"
+  },
+  {
+    "package": "is-odd",
+    "model": "openai/gpt-5.4-mini",
+    "io_passed": 24,
+    "io_total": 24,
+    "io_pct": 100.0,
+    "dev_passed": 3,
+    "dev_total": 3,
+    "dev_pct": 100.0,
+    "status": "ok"
+  },
+  {
+    "package": "is-even",
+    "model": "openai/gpt-5.4-mini",
+    "io_passed": 30,
+    "io_total": 30,
+    "io_pct": 100.0,
+    "dev_passed": 2,
+    "dev_total": 4,
+    "dev_pct": 50.0,
+    "status": "ok"
+  },
+  {
+    "package": "is-object",
+    "model": "openai/gpt-5.4-mini",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "left-pad",
+    "model": "openai/gpt-5.4-mini",
+    "io_passed": 26,
+    "io_total": 30,
+    "io_pct": 86.7,
+    "dev_passed": 35,
+    "dev_total": 35,
+    "dev_pct": 100.0,
+    "status": "ok"
+  },
+  {
+    "package": "concat-map",
+    "model": "openai/gpt-5.4-mini",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "replace-ext",
+    "model": "openai/gpt-5.4-mini",
+    "io_passed": 24,
+    "io_total": 25,
+    "io_pct": 96.0,
+    "dev_passed": 7,
+    "dev_total": 8,
+    "dev_pct": 87.5,
+    "status": "ok"
+  },
+  {
+    "package": "array-ify",
+    "model": "openai/gpt-5.4-mini",
+    "io_passed": 20,
+    "io_total": 20,
+    "io_pct": 100.0,
+    "dev_passed": 6,
+    "dev_total": 6,
+    "dev_pct": 100.0,
+    "status": "ok"
+  },
+  {
+    "package": "just-pick",
+    "model": "openai/gpt-5.4-mini",
+    "io_passed": 20,
+    "io_total": 21,
+    "io_pct": 95.2,
+    "dev_passed": 6,
+    "dev_total": 6,
+    "dev_pct": 100.0,
+    "status": "ok"
+  },
+  {
+    "package": "just-filter-object",
+    "model": "openai/gpt-5.4-mini",
+    "io_passed": 3,
+    "io_total": 25,
+    "io_pct": 12.0,
+    "dev_passed": 3,
+    "dev_total": 3,
+    "dev_pct": 100.0,
+    "status": "ok"
+  },
+  {
+    "package": "has-proto",
+    "model": "openai/gpt-5.4-mini",
+    "io_passed": 1,
+    "io_total": 1,
+    "io_pct": 100.0,
+    "dev_passed": 11,
+    "dev_total": 11,
+    "dev_pct": 100.0,
+    "status": "ok"
+  },
+  {
+    "package": "primality",
+    "model": "openai/gpt-5.4-mini",
+    "io_passed": 37,
+    "io_total": 93,
+    "io_pct": 39.8,
+    "dev_passed": 9,
+    "dev_total": 9,
+    "dev_pct": 100.0,
+    "status": "ok"
+  },
+  {
+    "package": "is-number",
+    "model": "openai/gpt-4o-mini",
+    "io_passed": 32,
+    "io_total": 32,
+    "io_pct": 100.0,
+    "dev_passed": 98,
+    "dev_total": 111,
+    "dev_pct": 88.3,
+    "status": "ok"
+  },
+  {
+    "package": "arr-diff",
+    "model": "openai/gpt-4o-mini",
+    "io_passed": 31,
+    "io_total": 31,
+    "io_pct": 100.0,
+    "dev_passed": 6,
+    "dev_total": 8,
+    "dev_pct": 75.0,
+    "status": "ok"
+  },
+  {
+    "package": "is-odd",
+    "model": "openai/gpt-4o-mini",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "is-even",
+    "model": "openai/gpt-4o-mini",
+    "io_passed": 32,
+    "io_total": 32,
+    "io_pct": 100.0,
+    "dev_passed": 1,
+    "dev_total": 4,
+    "dev_pct": 25.0,
+    "status": "ok"
+  },
+  {
+    "package": "is-object",
+    "model": "openai/gpt-4o-mini",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "left-pad",
+    "model": "openai/gpt-4o-mini",
+    "io_passed": 31,
+    "io_total": 32,
+    "io_pct": 96.9,
+    "dev_passed": 7,
+    "dev_total": 7,
+    "dev_pct": 100.0,
+    "status": "ok"
+  },
+  {
+    "package": "concat-map",
+    "model": "openai/gpt-4o-mini",
+    "io_passed": 2,
+    "io_total": 34,
+    "io_pct": 5.9,
+    "dev_passed": 5,
+    "dev_total": 5,
+    "dev_pct": 100.0,
+    "status": "ok"
+  },
+  {
+    "package": "replace-ext",
+    "model": "openai/gpt-4o-mini",
+    "io_passed": 22,
+    "io_total": 29,
+    "io_pct": 75.9,
+    "dev_passed": 7,
+    "dev_total": 8,
+    "dev_pct": 87.5,
+    "status": "ok"
+  },
+  {
+    "package": "array-ify",
+    "model": "openai/gpt-4o-mini",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "just-pick",
+    "model": "openai/gpt-4o-mini",
+    "io_passed": 27,
+    "io_total": 28,
+    "io_pct": 96.4,
+    "dev_passed": 5,
+    "dev_total": 6,
+    "dev_pct": 83.3,
+    "status": "ok"
+  },
+  {
+    "package": "just-filter-object",
+    "model": "openai/gpt-4o-mini",
+    "io_passed": 3,
+    "io_total": 30,
+    "io_pct": 10.0,
+    "dev_passed": 0,
+    "dev_total": 3,
+    "dev_pct": 0.0,
+    "status": "ok"
+  },
+  {
+    "package": "has-proto",
+    "model": "openai/gpt-4o-mini",
+    "io_passed": 29,
+    "io_total": 29,
+    "io_pct": 100.0,
+    "dev_passed": 11,
+    "dev_total": 11,
+    "dev_pct": 100.0,
+    "status": "ok"
+  },
+  {
+    "package": "primality",
+    "model": "openai/gpt-4o-mini",
+    "io_passed": 66,
+    "io_total": 185,
+    "io_pct": 35.7,
+    "dev_passed": 6,
+    "dev_total": 9,
+    "dev_pct": 66.7,
+    "status": "ok"
+  },
+  {
+    "package": "is-number",
+    "model": "openai/gpt-3.5-turbo",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "arr-diff",
+    "model": "openai/gpt-3.5-turbo",
+    "io_passed": 27,
+    "io_total": 27,
+    "io_pct": 100.0,
+    "dev_passed": 6,
+    "dev_total": 8,
+    "dev_pct": 75.0,
+    "status": "ok"
+  },
+  {
+    "package": "is-odd",
+    "model": "openai/gpt-3.5-turbo",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "is-even",
+    "model": "openai/gpt-3.5-turbo",
+    "io_passed": 5,
+    "io_total": 5,
+    "io_pct": 100.0,
+    "dev_passed": 0,
+    "dev_total": 4,
+    "dev_pct": 0.0,
+    "status": "ok"
+  },
+  {
+    "package": "is-object",
+    "model": "openai/gpt-3.5-turbo",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "left-pad",
+    "model": "openai/gpt-3.5-turbo",
+    "io_passed": 4,
+    "io_total": 5,
+    "io_pct": 80.0,
+    "dev_passed": 6,
+    "dev_total": 9,
+    "dev_pct": 66.7,
+    "status": "ok"
+  },
+  {
+    "package": "concat-map",
+    "model": "openai/gpt-3.5-turbo",
+    "io_passed": 0,
+    "io_total": 6,
+    "io_pct": 0.0,
+    "dev_passed": 0,
+    "dev_total": 5,
+    "dev_pct": 0.0,
+    "status": "ok"
+  },
+  {
+    "package": "replace-ext",
+    "model": "openai/gpt-3.5-turbo",
+    "io_passed": 5,
+    "io_total": 7,
+    "io_pct": 71.4,
+    "dev_passed": 2,
+    "dev_total": 8,
+    "dev_pct": 25.0,
+    "status": "ok"
+  },
+  {
+    "package": "array-ify",
+    "model": "openai/gpt-3.5-turbo",
+    "io_passed": 5,
+    "io_total": 5,
+    "io_pct": 100.0,
+    "dev_passed": 3,
+    "dev_total": 6,
+    "dev_pct": 50.0,
+    "status": "ok"
+  },
+  {
+    "package": "just-pick",
+    "model": "openai/gpt-3.5-turbo",
+    "io_passed": 25,
+    "io_total": 30,
+    "io_pct": 83.3,
+    "dev_passed": 2,
+    "dev_total": 2,
+    "dev_pct": 100.0,
+    "status": "ok"
+  },
+  {
+    "package": "just-filter-object",
+    "model": "openai/gpt-3.5-turbo",
+    "io_passed": 0,
+    "io_total": 5,
+    "io_pct": 0.0,
+    "dev_passed": 0,
+    "dev_total": 3,
+    "dev_pct": 0.0,
+    "status": "ok"
+  },
+  {
+    "package": "has-proto",
+    "model": "openai/gpt-3.5-turbo",
+    "io_passed": 30,
+    "io_total": 30,
+    "io_pct": 100.0,
+    "dev_passed": 11,
+    "dev_total": 11,
+    "dev_pct": 100.0,
+    "status": "ok"
+  },
+  {
+    "package": "primality",
+    "model": "openai/gpt-3.5-turbo",
+    "io_passed": 30,
+    "io_total": 117,
+    "io_pct": 25.6,
+    "dev_passed": 5,
+    "dev_total": 9,
+    "dev_pct": 55.6,
+    "status": "ok"
+  },
+  {
+    "package": "is-number",
+    "model": "mistralai/mistral-nemo",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "arr-diff",
+    "model": "mistralai/mistral-nemo",
+    "io_passed": 2,
+    "io_total": 2,
+    "io_pct": 100.0,
+    "dev_passed": 0,
+    "dev_total": 8,
+    "dev_pct": 0.0,
+    "status": "ok"
+  },
+  {
+    "package": "is-odd",
+    "model": "mistralai/mistral-nemo",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "is-even",
+    "model": "mistralai/mistral-nemo",
+    "io_passed": 21,
+    "io_total": 21,
+    "io_pct": 100.0,
+    "dev_passed": 1,
+    "dev_total": 4,
+    "dev_pct": 25.0,
+    "status": "ok"
+  },
+  {
+    "package": "is-object",
+    "model": "mistralai/mistral-nemo",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "left-pad",
+    "model": "mistralai/mistral-nemo",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "concat-map",
+    "model": "mistralai/mistral-nemo",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "replace-ext",
+    "model": "mistralai/mistral-nemo",
+    "io_passed": 2,
+    "io_total": 29,
+    "io_pct": 6.9,
+    "dev_passed": 1,
+    "dev_total": 8,
+    "dev_pct": 12.5,
+    "status": "ok"
+  },
+  {
+    "package": "array-ify",
+    "model": "mistralai/mistral-nemo",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "just-pick",
+    "model": "mistralai/mistral-nemo",
+    "io_passed": 11,
+    "io_total": 14,
+    "io_pct": 78.6,
+    "dev_passed": 1,
+    "dev_total": 3,
+    "dev_pct": 33.3,
+    "status": "ok"
+  },
+  {
+    "package": "just-filter-object",
+    "model": "mistralai/mistral-nemo",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "has-proto",
+    "model": "mistralai/mistral-nemo",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "primality",
+    "model": "mistralai/mistral-nemo",
+    "io_passed": 37,
+    "io_total": 196,
+    "io_pct": 18.9,
+    "dev_passed": 4,
+    "dev_total": 9,
+    "dev_pct": 44.4,
+    "status": "ok"
+  },
+  {
+    "package": "is-number",
+    "model": "anthropic/claude-3.5-haiku",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "arr-diff",
+    "model": "anthropic/claude-3.5-haiku",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "is-odd",
+    "model": "anthropic/claude-3.5-haiku",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "is-even",
+    "model": "anthropic/claude-3.5-haiku",
+    "io_passed": 20,
+    "io_total": 21,
+    "io_pct": 95.2,
+    "dev_passed": 3,
+    "dev_total": 4,
+    "dev_pct": 75.0,
+    "status": "ok"
+  },
+  {
+    "package": "is-object",
+    "model": "anthropic/claude-3.5-haiku",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "left-pad",
+    "model": "anthropic/claude-3.5-haiku",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "concat-map",
+    "model": "anthropic/claude-3.5-haiku",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "replace-ext",
+    "model": "anthropic/claude-3.5-haiku",
+    "io_passed": 21,
+    "io_total": 29,
+    "io_pct": 72.4,
+    "dev_passed": 7,
+    "dev_total": 8,
+    "dev_pct": 87.5,
+    "status": "ok"
+  },
+  {
+    "package": "array-ify",
+    "model": "anthropic/claude-3.5-haiku",
+    "io_passed": 1,
+    "io_total": 1,
+    "io_pct": 100.0,
+    "dev_passed": 3,
+    "dev_total": 6,
+    "dev_pct": 50.0,
+    "status": "ok"
+  },
+  {
+    "package": "just-pick",
+    "model": "anthropic/claude-3.5-haiku",
+    "io_passed": 20,
+    "io_total": 21,
+    "io_pct": 95.2,
+    "dev_passed": 5,
+    "dev_total": 6,
+    "dev_pct": 83.3,
+    "status": "ok"
+  },
+  {
+    "package": "just-filter-object",
+    "model": "anthropic/claude-3.5-haiku",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "has-proto",
+    "model": "anthropic/claude-3.5-haiku",
+    "io_passed": 5,
+    "io_total": 5,
+    "io_pct": 100.0,
+    "dev_passed": 11,
+    "dev_total": 11,
+    "dev_pct": 100.0,
+    "status": "ok"
+  },
+  {
+    "package": "primality",
+    "model": "anthropic/claude-3.5-haiku",
+    "status": "error",
+    "error": "Python error: Traceback (most recent call last):\n  File \"/tmp/lexo_verify_runner.py\", line 7, in <module>\n    spec.loader.exec_module(mod)\n  File \"<frozen importlib._bootstrap_external>\", line 991, in exec_module\n  File \"<frozen importlib._bootstrap_external>\", line 1129, in get_code\n  File \"<frozen importlib._bootstrap_external>\", line 1059, in source_to_code\n  File \"<frozen importlib._bootstrap>\", line 488, in _call_with_frames_removed\n  File \"/app/tests/primality/primality/primality_lexo_tmp.py\", line 50\n    return 2return\n           ^\nSyntaxError: invalid decimal literal\n",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "is-number",
+    "model": "openrouter/owl-alpha",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "arr-diff",
+    "model": "openrouter/owl-alpha",
+    "io_passed": 2,
+    "io_total": 2,
+    "io_pct": 100.0,
+    "dev_passed": 1,
+    "dev_total": 8,
+    "dev_pct": 12.5,
+    "status": "ok"
+  },
+  {
+    "package": "is-odd",
+    "model": "openrouter/owl-alpha",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "is-even",
+    "model": "openrouter/owl-alpha",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "is-object",
+    "model": "openrouter/owl-alpha",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "left-pad",
+    "model": "openrouter/owl-alpha",
+    "io_passed": 29,
+    "io_total": 30,
+    "io_pct": 96.7,
+    "dev_passed": 35,
+    "dev_total": 35,
+    "dev_pct": 100.0,
+    "status": "ok"
+  },
+  {
+    "package": "concat-map",
+    "model": "openrouter/owl-alpha",
+    "status": "error",
+    "error": "Could not find valid JSON array in response",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "replace-ext",
+    "model": "openrouter/owl-alpha",
+    "io_passed": 25,
+    "io_total": 25,
+    "io_pct": 100.0,
+    "dev_passed": 8,
+    "dev_total": 8,
+    "dev_pct": 100.0,
+    "status": "ok"
+  },
+  {
+    "package": "array-ify",
+    "model": "openrouter/owl-alpha",
+    "io_passed": 32,
+    "io_total": 32,
+    "io_pct": 100.0,
+    "dev_passed": 6,
+    "dev_total": 6,
+    "dev_pct": 100.0,
+    "status": "ok"
+  },
+  {
+    "package": "just-pick",
+    "model": "openrouter/owl-alpha",
+    "status": "error",
+    "error": "Node error: [eval]:11\n        results.push({ input: args.map(a => typeof a === 'function' ? a.toString() : a), output: null, error: e.message });\n                                   ^\n\nTypeError: args.map is not a function\n    at [eval]:11:36\n    at runScriptInThisContext (node:internal/vm:209:10)\n    at node:internal/process/execution:118:14\n    at [eval]-wrapper:6:24\n    at runScript (node:internal/process/execution:101:62)\n    at evalScript (node:internal/process/execution:133:3)\n    at node:internal/main/eval_string:51:3\n\nNode.js v20.20.2\n",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "just-filter-object",
+    "model": "openrouter/owl-alpha",
+    "io_passed": 29,
+    "io_total": 30,
+    "io_pct": 96.7,
+    "dev_passed": 0,
+    "dev_total": 0,
+    "dev_pct": 0,
+    "status": "ok"
+  },
+  {
+    "package": "has-proto",
+    "model": "openrouter/owl-alpha",
+    "io_passed": 1,
+    "io_total": 1,
+    "io_pct": 100.0,
+    "dev_passed": 11,
+    "dev_total": 11,
+    "dev_pct": 100.0,
+    "status": "ok"
+  },
+  {
+    "package": "primality",
+    "model": "openrouter/owl-alpha",
+    "io_passed": 38,
+    "io_total": 86,
+    "io_pct": 44.2,
+    "dev_passed": 5,
+    "dev_total": 9,
+    "dev_pct": 55.6,
+    "status": "ok"
+  },
+  {
+    "package": "is-number",
+    "model": "deepseek/deepseek-v4-flash",
+    "io_passed": 30,
+    "io_total": 30,
+    "io_pct": 100.0,
+    "dev_passed": 111,
+    "dev_total": 111,
+    "dev_pct": 100.0,
+    "status": "ok"
+  },
+  {
+    "package": "arr-diff",
+    "model": "deepseek/deepseek-v4-flash",
+    "io_passed": 2,
+    "io_total": 2,
+    "io_pct": 100.0,
+    "dev_passed": 3,
+    "dev_total": 8,
+    "dev_pct": 37.5,
+    "status": "ok"
+  },
+  {
+    "package": "is-odd",
+    "model": "deepseek/deepseek-v4-flash",
+    "status": "error",
+    "error": "'NoneType' object has no attribute 'strip'",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "is-even",
+    "model": "deepseek/deepseek-v4-flash",
+    "status": "error",
+    "error": "'NoneType' object has no attribute 'strip'",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "is-object",
+    "model": "deepseek/deepseek-v4-flash",
+    "status": "error",
+    "error": "'NoneType' object has no attribute 'strip'",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "left-pad",
+    "model": "deepseek/deepseek-v4-flash",
+    "status": "error",
+    "error": "'NoneType' object has no attribute 'strip'",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "concat-map",
+    "model": "deepseek/deepseek-v4-flash",
+    "status": "error",
+    "error": "'NoneType' object has no attribute 'strip'",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "replace-ext",
+    "model": "deepseek/deepseek-v4-flash",
+    "status": "error",
+    "error": "'NoneType' object has no attribute 'strip'",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "array-ify",
+    "model": "deepseek/deepseek-v4-flash",
+    "io_passed": 30,
+    "io_total": 30,
+    "io_pct": 100.0,
+    "dev_passed": 6,
+    "dev_total": 6,
+    "dev_pct": 100.0,
+    "status": "ok"
+  },
+  {
+    "package": "just-pick",
+    "model": "deepseek/deepseek-v4-flash",
+    "status": "error",
+    "error": "'NoneType' object has no attribute 'strip'",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "just-filter-object",
+    "model": "deepseek/deepseek-v4-flash",
+    "status": "error",
+    "error": "'NoneType' object has no attribute 'strip'",
+    "io_pct": 0,
+    "dev_pct": 0
+  },
+  {
+    "package": "has-proto",
+    "model": "deepseek/deepseek-v4-flash",
+    "io_passed": 30,
+    "io_total": 30,
+    "io_pct": 100.0,
+    "dev_passed": 11,
+    "dev_total": 11,
+    "dev_pct": 100.0,
+    "status": "ok"
+  },
+  {
+    "package": "primality",
+    "model": "deepseek/deepseek-v4-flash",
+    "status": "error",
+    "error": "Python error: Traceback (most recent call last):\n  File \"/tmp/lexo_verify_runner.py\", line 8, in <module>\n    fn = mod.is_prime\n         ^^^^^^^^^^^^\nAttributeError: module 'tmp_mod' has no attribute 'is_prime'\n",
+    "io_pct": 0,
+    "dev_pct": 0
+  }
+]

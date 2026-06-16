@@ -1,4 +1,3 @@
-
 import os
 import json
 import time
@@ -21,13 +20,13 @@ MODELS = [
 ]
 
 MODEL_LABELS = {
-    "openai/gpt-5.4-mini":                  "GPT-5.4 mini",
-    "openai/gpt-4o-mini":                   "GPT-4o mini",
-    "openai/gpt-3.5-turbo":                 "GPT-3.5 Turbo",
-    "mistralai/mistral-7b-instruct-v0.1":   "Mistral 7B",
-    "anthropic/claude-3.5-haiku":           "Claude 3.5 Haiku",
-    "openrouter/owl-alpha":                 "Owl Alpha",
-    "deepseek/deepseek-v4-flash":           "DeepSeek v4 Flash",
+    "openai/gpt-5.4-mini":                 "GPT-5.4 mini",
+    "openai/gpt-4o-mini":                "GPT-4o mini",
+    "openai/gpt-3.5-turbo":              "GPT-3.5 Turbo",
+    "mistralai/mistral-7b-instruct-v0.1":"Mistral 7B",
+    "anthropic/claude-3.5-haiku":        "Claude 3.5 Haiku",
+    "openrouter/owl-alpha":              "Owl Alpha",
+    "deepseek/deepseek-v4-flash":        "DeepSeek v4 Flash",
 }
 
 PACKAGES = [
@@ -48,9 +47,6 @@ PACKAGES = [
 
 TESTS_DIR = "/app/tests"
 RESULTS_DIR = "/app/results"
-RESULTS_FILE = "results_enriched.json"       # <-- separate from original
-FIGURE_PREFIX = "figure3_enriched"           # <-- separate figures
-
 
 def run_lexo(package_name, model):
     print(f"\n[{package_name}] model={model}")
@@ -95,9 +91,7 @@ def run_lexo(package_name, model):
             "dev_pct": 0,
         }
 
-
 def plot_results(all_results):
-    # Combined figure (all models)
     fig, axes = plt.subplots(len(MODELS), 1, figsize=(14, 5 * len(MODELS)))
     if len(MODELS) == 1:
         axes = [axes]
@@ -105,44 +99,50 @@ def plot_results(all_results):
     for ax, model in zip(axes, MODELS):
         model_results = [r for r in all_results if r["model"] == model]
         model_results.sort(key=lambda x: x["dev_pct"], reverse=True)
+
         packages = [r["package"] for r in model_results]
         dev_pcts = [r["dev_pct"] for r in model_results]
-        io_pcts  = [r["io_pct"]  for r in model_results]
+        io_pcts = [r["io_pct"] for r in model_results]
+
         x = np.arange(len(packages))
-        ax.bar(x, dev_pcts, color=[plt.cm.RdYlGn(io / 100) for io in io_pcts],
-               edgecolor='black', linewidth=0.5)
+        ax.bar(x, dev_pcts, color=[
+            plt.cm.RdYlGn(io / 100) for io in io_pcts
+        ], edgecolor='black', linewidth=0.5)
+
         ax.set_xticks(x)
         ax.set_xticklabels(packages, rotation=45, ha='right', fontsize=9)
         ax.set_ylim(0, 110)
         ax.set_ylabel("Tests (%)")
-        ax.set_title(f"Correctness results for LEXO+static analysis using {MODEL_LABELS[model]}")
+        ax.set_title(f"Correctness results for LEXO using {MODEL_LABELS[model]}")
         ax.axhline(y=100, color='gray', linestyle='--', linewidth=0.5)
+
         sm = plt.cm.ScalarMappable(cmap='RdYlGn', norm=plt.Normalize(0, 100))
         sm.set_array([])
         cbar = plt.colorbar(sm, ax=ax)
         cbar.set_label("I/Os (%)", fontsize=8)
 
     plt.tight_layout()
-    out_path = os.path.join(RESULTS_DIR, f"{FIGURE_PREFIX}.png")
+    out_path = os.path.join(RESULTS_DIR, "figure3.png")
     plt.savefig(out_path, dpi=150)
     print(f"\nFigure saved to {out_path}")
 
-    # Individual figures per model
+    # also save individual figures per model
     for model in MODELS:
         fig_single, ax_single = plt.subplots(1, 1, figsize=(14, 5))
         model_results = [r for r in all_results if r["model"] == model]
         model_results.sort(key=lambda x: x["dev_pct"], reverse=True)
         packages = [r["package"] for r in model_results]
         dev_pcts = [r["dev_pct"] for r in model_results]
-        io_pcts  = [r["io_pct"]  for r in model_results]
+        io_pcts = [r["io_pct"] for r in model_results]
         x = np.arange(len(packages))
-        ax_single.bar(x, dev_pcts, color=[plt.cm.RdYlGn(io / 100) for io in io_pcts],
-                      edgecolor='black', linewidth=0.5)
+        ax_single.bar(x, dev_pcts, color=[
+            plt.cm.RdYlGn(io / 100) for io in io_pcts
+        ], edgecolor='black', linewidth=0.5)
         ax_single.set_xticks(x)
         ax_single.set_xticklabels(packages, rotation=45, ha='right', fontsize=9)
         ax_single.set_ylim(0, 110)
         ax_single.set_ylabel("Tests (%)")
-        ax_single.set_title(f"Correctness results for LEXO+static analysis using {MODEL_LABELS[model]}")
+        ax_single.set_title(f"Correctness results for LEXO using {MODEL_LABELS[model]}")
         ax_single.axhline(y=100, color='gray', linestyle='--', linewidth=0.5)
         sm = plt.cm.ScalarMappable(cmap='RdYlGn', norm=plt.Normalize(0, 100))
         sm.set_array([])
@@ -150,16 +150,16 @@ def plot_results(all_results):
         cbar.set_label("I/Os (%)", fontsize=8)
         plt.tight_layout()
         model_name = MODEL_LABELS[model].replace(" ", "_").replace(".", "")
-        single_path = os.path.join(RESULTS_DIR, f"{FIGURE_PREFIX}_{model_name}.png")
+        single_path = os.path.join(RESULTS_DIR, f"figure3_{model_name}.png")
         fig_single.savefig(single_path, dpi=150)
         plt.close(fig_single)
         print(f"Individual figure saved to {single_path}")
 
-
 def main():
     os.makedirs(RESULTS_DIR, exist_ok=True)
 
-    results_path = os.path.join(RESULTS_DIR, RESULTS_FILE)
+    # resume from existing results if available
+    results_path = os.path.join(RESULTS_DIR, "results.json")
     if os.path.exists(results_path):
         with open(results_path) as f:
             all_results = json.load(f)
@@ -199,7 +199,6 @@ def main():
         print(f"{MODEL_LABELS[model]}: {len(perfect)}/{len(PACKAGES)} packages at 100% dev tests")
 
     plot_results(all_results)
-
 
 if __name__ == "__main__":
     main()

@@ -1,46 +1,19 @@
 module.exports = function isOdd(value) {
   const MAX_SAFE_INTEGER = 9007199254740991;
 
-  function throwNumber() {
+  const number = Number(value);
+
+  if (Number.isNaN(number) || !Number.isFinite(number)) {
     throw new TypeError('expected a number');
   }
 
-  function throwInteger() {
+  if (!Number.isInteger(number)) {
     throw new TypeError('expected an integer');
   }
 
-  function throwSafe() {
-    throw new TypeError('value exceeds maximum safe integer');
+  if (Math.abs(number) > MAX_SAFE_INTEGER) {
+    throw new RangeError('value exceeds maximum safe integer');
   }
 
-  function toNumber(input) {
-    if (input === null || input === false || input === '') return 0;
-    if (input === true) return 1;
-
-    if (Array.isArray(input)) {
-      if (input.length === 0) return 0;
-      if (input.length === 1) return toNumber(input[0]);
-      throwNumber();
-    }
-
-    const type = typeof input;
-
-    if (type === 'number') return input;
-    if (type === 'string') {
-      if (input.trim() === '') return 0;
-      const num = Number(input);
-      if (Number.isNaN(num)) throwNumber();
-      return num;
-    }
-
-    throwNumber();
-  }
-
-  const num = toNumber(value);
-
-  if (!Number.isFinite(num)) throwNumber();
-  if (!Number.isInteger(num)) throwInteger();
-  if (Math.abs(num) > MAX_SAFE_INTEGER) throwSafe();
-
-  return Math.abs(num % 2) === 1;
+  return Math.abs(number) % 2 === 1;
 };

@@ -1,34 +1,5 @@
 ```javascript
-function f(primaryArray, ...exclusionArgs) {
-  if (!primaryArray || primaryArray.length === 0) {
-    return [];
-  }
-
-  const exclusionSet = new Set();
-  let hasValidExclusion = false;
-
-  for (const arg of exclusionArgs) {
-    if (Array.isArray(arg)) {
-      hasValidExclusion = true;
-      for (const val of arg) {
-        exclusionSet.add(val);
-      }
-    }
-  }
-
-  if (!hasValidExclusion) {
-    return [...primaryArray];
-  }
-
-  const result = [];
-  for (const element of primaryArray) {
-    if (!exclusionSet.has(element)) {
-      result.push(element);
-    }
-  }
-
-  return result;
-}
-
-module.exports = f;
+module.exports = function(one, two, three) {
+  one.slice(0);
+};
 ```

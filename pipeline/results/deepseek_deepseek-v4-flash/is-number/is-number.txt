@@ -1,15 +1,49 @@
 ```javascript
-module.exports = function(...args) {
-  if (args.length !== 1) return false;
-  const val = args[0];
-  if (typeof val === 'boolean') return false;
-  if (typeof val === 'number') return Number.isFinite(val) && !Number.isNaN(val);
-  if (typeof val === 'string') {
-    const trimmed = val.trim();
-    if (trimmed.length === 0) return false;
-    const num = Number(trimmed);
-    return Number.isFinite(num) && !Number.isNaN(num);
-  }
-  return false;
+module.exports = function f(value) {
+    // Handle undefined (no argument) and null
+    if (value === undefined || value === null) {
+        return false;
+    }
+
+    // Handle booleans explicitly (they are numbers in JS but should return false)
+    if (typeof value === 'boolean') {
+        return false;
+    }
+
+    // Handle strings
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        // Empty string after trimming
+        if (trimmed === '') {
+            return false;
+        }
+        // Internal spaces indicate invalid number
+        if (trimmed.includes(' ')) {
+            return false;
+        }
+        const num = Number(trimmed);
+        // Check for NaN or non-finite (Infinity, -Infinity)
+        if (Number.isNaN(num) || !Number.isFinite(num)) {
+            return false;
+        }
+        return true;
+    }
+
+    // Handle numeric types (number, bigint)
+    if (typeof value === 'number') {
+        // NaN, Infinity, -Infinity are numbers but should return false
+        if (Number.isNaN(value) || !Number.isFinite(value)) {
+            return false;
+        }
+        return true;
+    }
+
+    // Handle bigint (finite by definition)
+    if (typeof value === 'bigint') {
+        return true;
+    }
+
+    // All other types (object, array, function, symbol, etc.) return false
+    return false;
 };
 ```

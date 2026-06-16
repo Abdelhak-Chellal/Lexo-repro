@@ -1,113 +1,119 @@
-### 1) Understand the test suite
+### 1) Understand the Test Suite
 
 The function appears to be:
 
-- **Input:** one value `n`
-- **Output:** the **largest prime number strictly less than `n`**
-- **Name hinted by errors:** `prev_prime()`
+- `prev_prime(n)`
 
-Examples:
-- `f(3) = 2` → previous prime before 3 is 2
+It returns the **largest prime number strictly less than `n`**.
+
+From the examples:
+
+- `f(3) = 2` → largest prime below 3 is 2
 - `f(4) = 3`
 - `f(5) = 3`
 - `f(10) = 7`
-- `f(11) = 7`
 - `f(100) = 97`
-- `f(101) = 97`
 
-Validation behavior:
-- If `n` is not an integer type, raise:
-  - `prev_prime() expect parameter n to be int. Given: <type>.`
-- If `n` is an integer but `n <= 2`, raise:
-  - `prev_prime() expect parameter n to be larger than 2. Given: <value>.`
+So the function is **not** returning `n` itself even if `n` is prime; it returns the previous prime.
 
-Important nuance:
-- `True` is treated as invalid in this suite, even though in Python `bool` is a subclass of `int`. So the algorithm should explicitly reject booleans as non-integers.
+### Input validation behavior
 
----
+The tests show two kinds of errors:
 
-### 2) Analyze the problem
+1. **Type error** if `n` is not an `int`
+   - `'3'`, `3.0`, `None`, `[3]`, `[4, 5]`
+   - Error message:
+     - `prev_prime() expect parameter n to be int. Given: <type>.`
 
-We need to compute the **previous prime** for a given integer `n > 2`.
-
-A prime is a number greater than 1 with no positive divisors other than 1 and itself.
-
-Constraints inferred:
-- Must validate type first.
-- Must validate range second.
-- Must handle edge cases with specific exception messages.
-
-Time complexity goal:
-- A straightforward primality test is sufficient for the observed scale.
-- For each candidate, test divisibility up to `sqrt(candidate)`.
+2. **Value error** if `n <= 2`
+   - `2`, `1`, `0`, `-7`
+   - Also `True` is treated as invalid here, even though in Python `bool` is a subclass of `int`. The test suite expects it to fail as “larger than 2”.
+   - Error message:
+     - `prev_prime() expect parameter n to be larger than 2. Given: X.`
 
 ---
 
-### 3) Design the algorithm
+### 2) Analyze the Problem
+
+We need an algorithm that:
+
+- Validates that `n` is an actual integer type, not a string/float/list/etc.
+- Rejects booleans explicitly.
+- Requires `n > 2`.
+- Finds the greatest prime smaller than `n`.
+
+This is essentially:
+- Decrement from `n - 1` down to `2`
+- Return the first prime encountered
+
+Since the test values are modest, a simple primality test is enough. Complexity:
+
+- Outer search: up to `O(n)` in worst case
+- Each primality check: `O(sqrt(n))`
+- Overall worst case: `O(n sqrt(n))`
+
+This is acceptable for typical unit-test-sized inputs.
+
+---
+
+### 3) Design the Algorithm
 
 #### Step-by-step approach
 
-1. **Validate type**
-   - Reject values that are not of type `int`.
-   - Also reject `bool` explicitly.
-   - Raise:
-     `prev_prime() expect parameter n to be int. Given: <type>.`
+1. **Type check**
+   - If `n` is not of type `int`, raise:
+     - `TypeError("prev_prime() expect parameter n to be int. Given: <type>.")`
+   - Also explicitly reject `bool` if needed, because `isinstance(True, int)` is `True` in Python.
 
-2. **Validate value**
+2. **Range check**
    - If `n <= 2`, raise:
-     `prev_prime() expect parameter n to be larger than 2. Given: <n>.`
+     - `ValueError("prev_prime() expect parameter n to be larger than 2. Given: n.")`
 
 3. **Search downward**
-   - Start from `candidate = n - 1`
-   - Decrease `candidate` until a prime is found
+   - Set `candidate = n - 1`
+   - While `candidate >= 2`:
+     - If `candidate` is prime, return it
+     - Otherwise decrement `candidate`
 
 4. **Primality test**
-   - A number `x` is prime if:
-     - `x >= 2`
-     - no integer divisor from `2` to `floor(sqrt(x))` divides `x`
-   - Since we search downward from `n-1`, the first prime found is the answer.
+   - For a number `x`:
+     - Return `False` if `x < 2`
+     - Return `True` if `x == 2`
+     - Return `False` if `x` is even
+     - Check odd divisors from `3` to `sqrt(x)`:
+       - If any divide `x`, return `False`
+     - Otherwise return `True`
 
 ---
 
-### 4) Handle edge cases
+### 4) Handle Edge Cases
 
-- `n = 3` → returns `2`
-- `n = 2`, `0`, `-1` → range error
-- `n = 2.5`, `'3'`, `None`, `[3]` → type error
-- `n = True` → should be treated as invalid type despite being an `int` subclass in Python
-- Large numbers: algorithm still works, though not optimized for very large inputs
+#### Important edge cases
+- `n = 3` → return `2`
+- `n = 4` → return `3`
+- `n = 5` → return `3`
+- `n = 6` → return `5`
+- `n = 8` → return `7`
+- `n = 100` → return `97`
+
+#### Invalid inputs
+- `n = True`
+  - Must raise the “larger than 2” error, not type error, based on the test suite.
+  - So the implementation should treat `bool` as invalid for the numeric requirement.
+- Non-integer types should raise the type error exactly as specified.
 
 ---
 
-## Algorithm in pseudocode
+## Algorithm Summary
 
-```python
-def prev_prime(n):
-    # Type validation
-    if type(n) is not int:
-        raise TypeError(f"prev_prime() expect parameter n to be int. Given: {type(n)}.")
-    
-    # Range validation
+```text
+prev_prime(n):
+    if n is not a real int or n is bool:
+        raise TypeError("prev_prime() expect parameter n to be int. Given: <type>.")
+
     if n <= 2:
-        raise ValueError(f"prev_prime() expect parameter n to be larger than 2. Given: {n}.")
-    
-    # Helper to test primality
-    def is_prime(x):
-        if x < 2:
-            return False
-        if x == 2:
-            return True
-        if x % 2 == 0:
-            return False
-        
-        i = 3
-        while i * i <= x:
-            if x % i == 0:
-                return False
-            i += 2
-        return True
-    
-    # Search backwards
+        raise ValueError("prev_prime() expect parameter n to be larger than 2. Given: n.")
+
     candidate = n - 1
     while candidate >= 2:
         if is_prime(candidate):
@@ -115,20 +121,25 @@ def prev_prime(n):
         candidate -= 1
 ```
 
+Where:
+
+```text
+is_prime(x):
+    if x < 2: return False
+    if x == 2: return True
+    if x % 2 == 0: return False
+    for d from 3 to floor(sqrt(x)) step 2:
+        if x % d == 0:
+            return False
+    return True
+```
+
 ---
 
-## Complexity
+## Final Interpretation
 
-Let `n` be the input.
+The function is a **previous prime finder**:
 
-- **Primality check:** `O(sqrt(k))` for each candidate `k`
-- **Worst-case search:** potentially checks many numbers below `n`
-- Overall worst-case: roughly `O(n * sqrt(n))` in the naive form
+> Given an integer `n > 2`, return the largest prime number less than `n`; otherwise raise the appropriate error.
 
-For the given tests, this is more than sufficient.
-
----
-
-## Final description of the function
-
-The function validates that `n` is a true integer greater than 2, then returns the largest prime strictly smaller than `n`. If the input is not an integer, or if `n <= 2`, it raises the corresponding formatted error.
+If you want, I can also provide a reference implementation in Python matching the exact error messages from the tests.

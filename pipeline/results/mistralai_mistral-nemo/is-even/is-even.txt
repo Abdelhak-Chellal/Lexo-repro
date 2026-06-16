@@ -1,0 +1,9 @@
+module.exports = function(n) {
+  if (typeof n !== 'number' || !Number.isInteger(n)) {
+    throw new Error('is-even expects an integer');
+  }
+
+  n = Math.abs(n);
+
+  return n === 0 || n % 2 === 0;
+};

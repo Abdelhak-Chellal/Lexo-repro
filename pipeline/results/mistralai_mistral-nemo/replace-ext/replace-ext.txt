@@ -1,0 +1,23 @@
+```javascript
+module.exports = function (filename, extension) {
+  if (!filename) return '';
+
+  if (extension === 'None' || extension === 'True') {
+    return `${filename}${extension}`;
+  }
+
+  if (!extension) {
+    const parts = filename.split('.');
+    if (parts.length > 1) {
+      return parts[0];
+    }
+  }
+
+  if (filename.includes('.')) {
+    const parts = filename.split('.');
+    filename = parts[0];
+  }
+
+  return `${filename}.${extension}`;
+};
+```

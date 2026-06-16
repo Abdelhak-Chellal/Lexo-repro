@@ -1,0 +1,17 @@
+```javascript
+module.exports = function(x) {
+  if (x === null || x === undefined) {
+    return false;
+  } else if (typeof x === 'boolean') {
+    return false;
+  } else if (typeof x === 'string') {
+    const num = Number(x);
+    return Number.isInteger(num) && num >= 0;
+  } else if (Array.isArray(x) || typeof x === 'object') {
+    return false;
+  } else {
+    const num = Number(x);
+    return Number.isInteger(num) && num >= 0;
+  }
+}
+```

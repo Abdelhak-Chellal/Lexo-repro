@@ -1,11 +1,15 @@
-def between(lower, upper):
-    def is_prime(n):
-        if n < 2:
+def between(x, y):
+    def is_prime(num):
+        if num < 2:
             return False
-        for i in range(2, int(n ** 0.5) + 1):
-            if n % i == 0:
+        for i in range(2, int(num ** 0.5) + 1):
+            if num % i == 0:
                 return False
         return True
 
-    primes = [num for num in range(max(lower, 2), upper + 1) if is_prime(num)]
-    return primes
+    prime_numbers = []
+    for num in range(x, y + 1):
+        if is_prime(num):
+            prime_numbers.append(num)
+    
+    return prime_numbers

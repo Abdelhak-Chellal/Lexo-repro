@@ -1,5 +1,5 @@
 module.exports = function (obj, predicate) {
-  if (obj === null || obj === undefined) {
+  if (obj == null) {
     throw new TypeError('Cannot convert undefined or null to object');
   }
 
@@ -7,12 +7,16 @@ module.exports = function (obj, predicate) {
     throw new TypeError('predicate is not a function');
   }
 
-  const result = {};
-  for (const key of Object.keys(Object(obj))) {
-    const value = obj[key];
+  var result = {};
+  var keys = Object.keys(obj);
+
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    var value = obj[key];
     if (predicate(key, value)) {
       result[key] = value;
     }
   }
+
   return result;
 };

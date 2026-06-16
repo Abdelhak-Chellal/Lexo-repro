@@ -1,7 +1,7 @@
 def next_prime(n):
     if type(n) is not int:
         raise TypeError(f"nextprime() expect parameter n to be int. Given: {type(n)}.")
-    if n <= 1:
+    if n < 2:
         return 2
     candidate = n + 1
     while not is_prime(candidate):

@@ -1,0 +1,5 @@
+```javascript
+module.exports = function(one, two, three) {
+  return one.slice(two, three);
+};
+```

@@ -1,32 +1,25 @@
-module.exports = function (value, length, padding) {
-  var str;
-  if (value === null) {
-    str = 'null';
-  } else if (value === undefined) {
-    str = 'undefined';
-  } else if (value === false) {
-    str = 'false';
-  } else {
-    str = String(value);
+module.exports = function leftPad(value, length, pad) {
+  function stringify(val) {
+    if (val === null) return 'null';
+    if (val === undefined) return 'undefined';
+    if (Array.isArray(val)) return val.toString();
+    if (typeof val === 'object') return '[object Object]';
+    return String(val);
   }
 
-  if (typeof length !== 'number' || !isFinite(length) || length < 0 || Math.floor(length) !== length) {
-    return str;
-  }
+  var str = stringify(value);
+  var targetLength = length | 0;
 
-  if (str.length >= length) {
-    return str;
-  }
+  if (targetLength <= str.length) return str;
 
-  var pad = padding === undefined ? ' ' : String(padding);
-  if (pad.length === 0) {
-    return str;
-  }
+  var padString = (pad === undefined || pad === null || pad === false || pad === '') ? ' ' : stringify(pad);
+  if (padString.length === 0) return str;
 
-  var needed = length - str.length;
+  var needed = targetLength - str.length;
   var repeated = '';
+
   while (repeated.length < needed) {
-    repeated += pad;
+    repeated += padString;
   }
 
   return repeated.slice(0, needed) + str;

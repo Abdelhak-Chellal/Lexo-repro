@@ -1,0 +1,16 @@
+Exception: 'int' object is not iterable
+
+Raw model response:
+def prange(n):
+    primes = []
+    num = 2
+    while len(primes) < n:
+        is_prime = True
+        for i in range(2, int(math.sqrt(num)) + 1):
+            if num % i == 0:
+                is_prime = False
+                break
+        if is_prime:
+            primes.append(num)
+        num += 1
+    return primes

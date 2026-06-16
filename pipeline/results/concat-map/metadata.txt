@@ -1,0 +1,20 @@
+## Function Metadata (from static analysis)
+
+### `exports(xs, fn)`
+- **params**:
+  - `xs`
+  - `fn`
+- **body**:
+  ```js
+var res = [];
+	for (var i = 0; i < xs.length; i++) {
+		var x = fn(xs[i], i);
+		if (isArray(x)) {
+			res.push.apply(res, x);
+		} else {
+			res.push(x);
+		}
+	}
+	return res;
+};
+  ```

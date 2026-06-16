@@ -1,5 +1,12 @@
 ```javascript
-module.exports = function f(list, func) {
-    return list.map((x, i) => eval(`(${func})`)(x, i));
-};
+module.exports = function f(arr, funcStr) {
+    const func = new Function('x', `return ${funcStr}`);
+    const result_list = [];
+
+    for (let elem of arr) {
+        result_list.push(func(elem));
+    }
+
+    return result_list;
+}
 ```

@@ -1,35 +1,27 @@
 ```javascript
-module.exports = function f(path, newExtension) {
-    if (path === null) {
-        return null;
-    }
-    if (typeof path === 'number') {
-        return path;
-    }
-    if (path === '') {
-        return '';
+module.exports = function(input_path, new_extension) {
+    if (input_path === null) return null;
+    if (typeof input_path !== 'string') return input_path;
+
+    if (input_path === '') {
+        return new_extension === '' ? '' : '.' + new_extension;
     }
 
-    if (newExtension === null) {
-        newExtension = 'null';
-    } else if (newExtension === '') {
-        newExtension = '';
-    }
-
-    const lastSlashIndex = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
-    const directory = lastSlashIndex >= 0 ? path.slice(0, lastSlashIndex + 1) : '';
-    const filename = lastSlashIndex >= 0 ? path.slice(lastSlashIndex + 1) : path;
-
-    const currentExtensionIndex = filename.lastIndexOf('.');
-    const currentExtension = currentExtensionIndex >= 0 ? filename.slice(currentExtensionIndex) : '';
-
-    if (newExtension) {
-        if (currentExtension) {
-            filename = filename.slice(0, currentExtensionIndex);
+    if (new_extension === '') {
+        const lastDotIndex = input_path.lastIndexOf('.');
+        return lastDotIndex === -1 ? input_path : input_path.substring(0, lastDotIndex);
+    } else {
+        if (!new_extension.startsWith('.')) {
+            new_extension = '.' + new_extension;
         }
-        filename += newExtension.startsWith('.') ? newExtension : '.' + newExtension;
     }
 
-    return directory + filename;
+    const lastDotIndex = input_path.lastIndexOf('.');
+    if (lastDotIndex === -1) {
+        return input_path + new_extension;
+    }
+
+    const basePath = input_path.substring(0, lastDotIndex);
+    return basePath + new_extension;
 };
 ```

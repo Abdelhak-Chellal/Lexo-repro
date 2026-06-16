@@ -1,7 +1,0 @@
-module.exports = function(x) {
-    if (x === null || x === undefined) return false;
-    if (typeof x === 'boolean') return x % 2 !== 0;
-    if (typeof x !== 'number') throw new Error('expected a number');
-    if (!Number.isInteger(x)) throw new Error('expected an integer');
-    return x % 2 !== 0;
-};

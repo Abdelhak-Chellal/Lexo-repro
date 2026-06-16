@@ -13,20 +13,20 @@ MODELS = [
     "openai/gpt-5.4-mini",
     "openai/gpt-4o-mini",
     "openai/gpt-3.5-turbo",
-    "mistralai/mistral-7b-instruct-v0.1",
+    "mistralai/mistral-nemo",
     "anthropic/claude-3.5-haiku",
     "openrouter/owl-alpha",
     "deepseek/deepseek-v4-flash",
 ]
 
 MODEL_LABELS = {
-    "openai/gpt-5.4-mini":                  "GPT-5.4 mini",
-    "openai/gpt-4o-mini":                   "GPT-4o mini",
-    "openai/gpt-3.5-turbo":                 "GPT-3.5 Turbo",
-    "mistralai/mistral-7b-instruct-v0.1":   "Mistral 7B",
-    "anthropic/claude-3.5-haiku":           "Claude 3.5 Haiku",
-    "openrouter/owl-alpha":                 "Owl Alpha",
-    "deepseek/deepseek-v4-flash":           "DeepSeek v4 Flash",
+    "openai/gpt-5.4-mini":        "GPT-5.4 mini",
+    "openai/gpt-4o-mini":         "GPT-4o mini",
+    "openai/gpt-3.5-turbo":       "GPT-3.5 Turbo",
+    "mistralai/mistral-nemo":     "Mistral Nemo",
+    "anthropic/claude-3.5-haiku": "Claude 3.5 Haiku",
+    "openrouter/owl-alpha":       "Owl Alpha",
+    "deepseek/deepseek-v4-flash": "DeepSeek v4 Flash",
 }
 
 PACKAGES = [
@@ -47,8 +47,8 @@ PACKAGES = [
 
 TESTS_DIR = "/app/tests"
 RESULTS_DIR = "/app/results"
-RESULTS_FILE = "results_enriched.json"       # <-- separate from original
-FIGURE_PREFIX = "figure3_enriched"           # <-- separate figures
+RESULTS_FILE = "results_enriched.json"
+FIGURE_PREFIX = "figure3_enriched"
 
 
 def run_lexo(package_name, model):
@@ -114,7 +114,7 @@ def plot_results(all_results):
         ax.set_xticklabels(packages, rotation=45, ha='right', fontsize=9)
         ax.set_ylim(0, 110)
         ax.set_ylabel("Tests (%)")
-        ax.set_title(f"Correctness results for LEXO+static analysis using {MODEL_LABELS[model]}")
+        ax.set_title(f"Correctness results for LEXO+static analysis (v1) using {MODEL_LABELS[model]}")
         ax.axhline(y=100, color='gray', linestyle='--', linewidth=0.5)
         sm = plt.cm.ScalarMappable(cmap='RdYlGn', norm=plt.Normalize(0, 100))
         sm.set_array([])
@@ -141,7 +141,7 @@ def plot_results(all_results):
         ax_single.set_xticklabels(packages, rotation=45, ha='right', fontsize=9)
         ax_single.set_ylim(0, 110)
         ax_single.set_ylabel("Tests (%)")
-        ax_single.set_title(f"Correctness results for LEXO+static analysis using {MODEL_LABELS[model]}")
+        ax_single.set_title(f"Correctness results for LEXO+static analysis (v1) using {MODEL_LABELS[model]}")
         ax_single.axhline(y=100, color='gray', linestyle='--', linewidth=0.5)
         sm = plt.cm.ScalarMappable(cmap='RdYlGn', norm=plt.Normalize(0, 100))
         sm.set_array([])

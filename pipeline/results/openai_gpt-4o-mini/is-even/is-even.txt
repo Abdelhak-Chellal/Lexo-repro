@@ -1,13 +1,8 @@
 ```javascript
-module.exports = function f(x) {
-    if (x === null || typeof x === 'boolean' || typeof x === 'string' || typeof x === 'number' && !Number.isInteger(x)) {
-        throw new TypeError("is-odd expects a number.");
-    }
-
+module.exports = function(x) {
     if (typeof x !== 'number' || !Number.isInteger(x)) {
-        throw new TypeError("is-odd expects a number.");
+        throw new TypeError("is-odd expects a number");
     }
-
     return x % 2 === 0;
 };
 ```

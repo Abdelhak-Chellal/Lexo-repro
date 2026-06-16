@@ -1,11 +1,14 @@
 ```javascript
-module.exports = function arrDiff(arr1, arr2) {
-  let result = [];
-  arr1.forEach(element => {
-    if (!arr2.includes(element)) {
-      result.push(element);
+module.exports = function f(list1, list2) {
+    const set2 = new Set(list2);
+    const output = [];
+    
+    for (const element of list1) {
+        if (!set2.has(element)) {
+            output.push(element);
+        }
     }
-  });
-  return result;
-}
+    
+    return output;
+};
 ```

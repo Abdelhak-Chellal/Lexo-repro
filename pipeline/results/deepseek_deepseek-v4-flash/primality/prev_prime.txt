@@ -1,8 +1,0 @@
-```python
-def prev_prime(n):
-    i = n - 1
-    while i >= 2:
-        if is_prime(i):
-            return i
-        i -= 1
-```

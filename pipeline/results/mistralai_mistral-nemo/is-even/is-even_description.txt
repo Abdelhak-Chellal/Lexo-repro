@@ -1,0 +1,41 @@
+Based on the provided test suite, here's an algorithm that describes the function `f`:
+
+**Algorithm: Even Check**
+
+1. Input: `n`
+   - Ensure `n` is an integer. If not, throw an exception "is-odd expects an integer".
+   - If `n` is negative, convert it to positive by using `abs(n)`.
+
+2. Check if `n` is equal to 0.
+   - If yes, return `True`.
+
+3. Check if `n` is even.
+   - If `n` modulo 2 is equal to 0, return `True`.
+   - Otherwise, return `False`.
+
+4. Handle edge cases:
+   - If `n` is greater than 0 and less than or equal to 1, return `False`.
+   - If `n` is a string, convert it to an integer and go back to step 1.
+
+**Pseudocode:**
+
+```
+function f(n):
+    if type(n) != int:
+        throw "is-odd expects an integer"
+
+    n = abs(n)
+
+    if n == 0:
+        return True
+
+    if n % 2 == 0:
+        return True
+    else:
+        return False
+```
+
+**Complexity Analysis:**
+
+- Time complexity: O(1) as the function performs a constant number of operations.
+- Space complexity: O(1) as no additional space is used regardless of the input size.

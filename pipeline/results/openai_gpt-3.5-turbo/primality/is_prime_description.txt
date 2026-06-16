@@ -1,13 +1,10 @@
 Algorithm:
 
-1) Define a function is_prime(num) that takes an integer as input and returns True if the number is prime, and False otherwise.
+1) Define the function f(x) that takes an integer x as input.
+2) Check if x is less than or equal to 1, return False.
+3) Check if x is equal to 2 or 3, return True.
+4) Check if x is divisible by 2 or 3, return False.
+5) For all other cases, iterate from i=5 to sqrt(x)+1 (inclusive) and check if x is divisible by i or i+2. If x is divisible by any of these, return False.
+6) If no conditions are met, return True.
 
-2) Within the main function f(num), check if the input number is less than or equal to 1. If so, return False.
-
-3) Use the is_prime function to check if the input number is prime. If it is prime, return True; otherwise, return False.
-
-4) Handle edge cases:
-   - If the input is 54321 or greater, return False directly.
-   - If the input is not a single integer, raise an error message indicating that the function is_prime() takes only one positional argument.
-
-5) Test the function with the provided input-output pairs to ensure correctness and handle any unexpected behavior.
+This algorithm follows the test suite provided, returning True for prime numbers (2, 3, 17, 2147483647) and False for non-prime numbers (0, 100, -1, 2147483648, 2147483649, 4294967296, 4294967295, 4294967294, 999999999999, 999999999998, 999999999997).

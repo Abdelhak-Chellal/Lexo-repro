@@ -1,0 +1,13 @@
+```javascript
+module.exports = function(input) {
+  if (Array.isArray(input)) {
+    if (Array.isArray(input[0]) && input[0].length === 1) {
+      return [input[0][0]];
+    } else {
+      return [input[0]];
+    }
+  } else {
+    return [input];
+  }
+};
+```

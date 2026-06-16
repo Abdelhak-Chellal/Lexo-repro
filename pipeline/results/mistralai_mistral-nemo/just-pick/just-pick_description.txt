@@ -1,0 +1,34 @@
+Based on the provided test suite, here's an algorithm description for the function `f`:
+
+**Algorithm Name:** Check Presence in Object
+
+**Input:**
+- A string `json_str` representing a JSON object.
+- A variable number of arguments `keys` (can be a single string, a list of strings, or a mix of both).
+
+**Output:**
+- If `keys` is empty, return an empty object `{}`.
+- If any `key` is not present in the JSON object, throw an exception with the message "Cannot use 'in' operator to search for 'key' in {json_str}".
+
+**Algorithm:**
+
+1. Parse the input `json_str` into a JavaScript object `obj` using `JSON.parse(json_str)`.
+
+2. If `keys` is not an array, convert it to an array.
+
+3. If `keys` is empty, return an empty object `{}`.
+
+4. Iterate through each `key` in `keys`:
+   - If `key` is `null` or `undefined`, throw an exception with the message "Cannot read properties of null (reading 'length')".
+   - If `key` is not a string, throw a type error with the message "Argument must be a string".
+   - If the `key` is not present in the `obj`, throw an exception with the message "Cannot use 'in' operator to search for 'key' in {json_str}".
+
+5. If all keys are present in the object, return the original JSON object `obj`.
+
+**Edge Cases:**
+- If `json_str` is an empty string, `obj` will be `{}` and any key check will throw an exception.
+- If `json_str` is not a valid JSON string, `JSON.parse(json_str)` will throw an exception.
+- If `keys` is a single string, it will be converted to an array `[keys]` before processing.
+- If `keys` contains `null` or `undefined` values, an exception will be thrown at step 4.
+- If `keys` contains non-string values, a type error will be thrown at step 4.
+- If `keys` is an empty array, an empty object `{}` will be returned.

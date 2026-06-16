@@ -1,35 +1,29 @@
 ```javascript
-module.exports = function(filename, new_ext) {
-    if (filename === null) return null;
-    if (typeof filename !== 'string') return filename;
-    if (filename === '') return '';
-
-    // Split into directory and basename
-    let lastSep = Math.max(filename.lastIndexOf('/'), filename.lastIndexOf('\\'));
-    let dirPart = '';
-    let basename = filename;
-    if (lastSep !== -1) {
-        dirPart = filename.substring(0, lastSep + 1);
-        basename = filename.substring(lastSep + 1);
-    }
-
-    // Strip trailing dots
-    let stripped = basename.replace(/\.+$/, '');
-
-    // Find last dot in stripped basename
-    let lastDot = stripped.lastIndexOf('.');
-
-    let namePart;
-    if (lastDot > 0) {
-        namePart = stripped.substring(0, lastDot);
-    } else {
-        namePart = stripped;
-    }
-
-    if (new_ext === '') {
-        return dirPart + namePart;
-    } else {
-        return dirPart + namePart + new_ext;
-    }
+module.exports = function(path, newExt) {
+  if (path === null || path === undefined) {
+    return path;
+  }
+  if (typeof path !== 'string') {
+    return path;
+  }
+  if (path === '') {
+    return '';
+  }
+  
+  var ext = arguments.length > 1 ? newExt : 'undefined';
+  
+  var lastSlash = path.lastIndexOf('/');
+  var filename = lastSlash >= 0 ? path.substring(lastSlash + 1) : path;
+  
+  var lastDot = path.lastIndexOf('.');
+  
+  var base;
+  if (lastDot === -1 || filename.charAt(0) === '.') {
+    base = path;
+  } else {
+    base = path.substring(0, lastDot);
+  }
+  
+  return base + ext;
 };
 ```

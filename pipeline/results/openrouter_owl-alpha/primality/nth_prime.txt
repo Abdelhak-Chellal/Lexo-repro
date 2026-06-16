@@ -1,49 +1,26 @@
 ```python
 def nth_prime(n):
-    if n is None or (not isinstance(n, int) or isinstance(n, bool)) or isinstance(n, bool):
-        pass
-    if n is None or not isinstance(n, int) or isinstance(n, bool):
-        pass
-    
-    if n is None or (not isinstance(n, int) and not isinstance(n, bool)):
+    if type(n) is not int:
         raise TypeError(f"nth_prime() takes (1) int type parameter. Given: {type(n)}.")
-    
-    if isinstance(n, bool):
-        n = int(n)
-    
-    if not isinstance(n, int):
-        raise TypeError(f"nth_prime() takes (1) int type parameter. Given: {type(n)}.")
-    
     if n < 0:
         raise ValueError("nth_prime() int parameter must be positive or zero.")
-    
-    if n == 0:
-        return 2
-    
-    import math
-    
-    def sieve_of_eratosthenes(limit):
-        if limit < 2:
-            return []
-        sieve = [True] * (limit + 1)
-        sieve[0] = sieve[1] = False
-        for i in range(2, int(math.isqrt(limit)) + 1):
-            if sieve[i]:
-                for j in range(i * i, limit + 1, i):
-                    sieve[j] = False
-        return [i for i, is_prime in enumerate(sieve) if is_prime]
     
     if n < 6:
         upper_bound = 15
     else:
-        ln_n = math.log(n)
-        ln_ln_n = math.log(ln_n)
-        upper_bound = int(n * (ln_n + ln_ln_n)) + 10
+        import math
+        upper_bound = int(n * (math.log(n) + math.log(math.log(n)))) + 10
     
-    primes = sieve_of_eratosthenes(upper_bound)
-    while len(primes) <= n:
-        upper_bound = int(upper_bound * 1.5) + 10
-        primes = sieve_of_eratosthenes(upper_bound)
-    
-    return primes[n]
+    while True:
+        is_prime = [True] * (upper_bound + 1)
+        is_prime[0] = False
+        is_prime[1] = False
+        for i in range(2, int(upper_bound**0.5) + 1):
+            if is_prime[i]:
+                for j in range(i*i, upper_bound + 1, i):
+                    is_prime[j] = False
+        primes = [i for i in range(upper_bound + 1) if is_prime[i]]
+        if len(primes) > n:
+            return primes[n]
+        upper_bound *= 2
 ```

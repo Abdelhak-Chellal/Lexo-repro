@@ -1,21 +1,10 @@
 ```javascript
-module.exports = function(listA, listB) {
-    if (listA === null) {
-        return [];
-    }
-    if (listB === null) {
-        return listA;
+module.exports = function(list1, list2) {
+    if (list2 === null) {
+        list2 = [];
     }
     
-    const result = [];
-    const lookupSet = new Set(listB);
-    
-    for (const item of listA) {
-        if (!lookupSet.has(item)) {
-            result.push(item);
-        }
-    }
-
-    return result;
+    const setList2 = new Set(list2);
+    return list1.filter(item => !setList2.has(item));
 };
 ```
